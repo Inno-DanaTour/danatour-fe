@@ -18,7 +18,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Da Nang Explore", href: "/explore" },
   { label: "Find Tour", href: "/tours" },
   { label: "About", href: "/about" },
-  { label: "Login", href: "/login" },
 ];
 
 const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
@@ -137,9 +136,22 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
                 </a>
               ))}
             </div>
+            {/* Desktop Action Buttons */}
+            <div className="hidden md:flex items-center gap-4">
+              <button
+                onClick={() => navigate("/login")}
+                className="px-4 py-2 text-sm font-bold text-white hover:text-accent transition-colors cursor-pointer"
+              >
+                Log in
+              </button>
 
-            {/* Book Now CTA */}
-            <div className="hidden md:block">
+              <button
+                onClick={() => navigate("/register")}
+                className="px-4 py-2 text-sm font-bold text-white hover:text-accent transition-colors cursor-pointer"
+              >
+                Sign up
+              </button>
+
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -219,7 +231,10 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
-                  onClick={() => alert("Login feature coming soon!")}
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    navigate("/login");
+                  }}
                   className="px-4 py-3 text-lg font-medium text-gray-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors text-left cursor-pointer"
                 >
                   Login
