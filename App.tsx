@@ -115,16 +115,25 @@ const AnimatedRoutes = () => {
   );
 };
 
+const Layout: React.FC = () => {
+  const location = useLocation();
+  const isLoginPage = location.pathname === "/login";
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <main className="flex-grow">
+        <AnimatedRoutes />
+      </main>
+      {!isLoginPage && <Footer />}
+    </div>
+  );
+};
+
 const App: React.FC = () => {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <div className="flex flex-col min-h-screen">
-        <main className="flex-grow">
-          <AnimatedRoutes />
-        </main>
-        <Footer />
-      </div>
+      <Layout />
     </BrowserRouter>
   );
 };

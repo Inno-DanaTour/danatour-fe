@@ -18,6 +18,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Da Nang Explore", href: "/explore" },
   { label: "Find Tour", href: "/tours" },
   { label: "About", href: "/about" },
+  { label: "Login", href: "/login" },
 ];
 
 const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
@@ -135,12 +136,6 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
                   {item.label}
                 </a>
               ))}
-              <button
-                className="ml-2 px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors rounded-lg hover:bg-white/10 cursor-pointer"
-                onClick={() => alert("Login feature coming soon!")}
-              >
-                Login
-              </button>
             </div>
 
             {/* Book Now CTA */}
