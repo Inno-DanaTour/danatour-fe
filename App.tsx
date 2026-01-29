@@ -15,6 +15,7 @@ import TourDetail from "./pages/TourDetail";
 import Checkout from "./pages/Checkout";
 import Confirmation from "./pages/Confirmation";
 import About from "./pages/About";
+import Login from "./pages/Login";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -92,6 +93,14 @@ const AnimatedRoutes = () => {
       element: (
         <PageWrapper>
           <About />
+        </PageWrapper>
+      ),
+    },
+    {
+      path: "/login",
+      element: (
+        <PageWrapper>
+          <Login />
         </PageWrapper>
       ),
     },
