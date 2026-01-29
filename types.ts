@@ -19,6 +19,37 @@ export interface LocationData {
   }[];
 }
 
+export interface ItineraryItem {
+  day: number;
+  title: string;
+  description: string;
+}
+
+export interface Review {
+  id: string;
+  user: string;
+  avatar: string;
+  rating: number;
+  comment: string;
+  date: string;
+}
+
+export interface Tour {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  gallery: string[];
+  price: number;
+  duration: string;
+  rating: number;
+  reviewCount: number;
+  zone: ZoneType;
+  highlights: string[];
+  itinerary: ItineraryItem[];
+  reviews: Review[];
+}
+
 export interface AppState {
   currentZone: ZoneType;
   progress: number;

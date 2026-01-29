@@ -145,13 +145,13 @@ const BookTourModal: React.FC<BookTourModalProps> = ({
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-lg bg-gradient-to-br from-[#1a1f35] to-[#0f172a] rounded-3xl border border-white/10 shadow-2xl overflow-hidden"
+            className="relative w-full max-w-lg bg-gradient-to-br from-[#020617] to-primary/20 rounded-3xl border border-white/10 shadow-2xl overflow-hidden"
           >
             {/* Header */}
             <div className="relative px-6 pt-6 pb-4 border-b border-white/10">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#FFC857] to-[#FFD980] flex items-center justify-center">
-                  <MapPin className="w-6 h-6 text-black" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-sea flex items-center justify-center">
+                  <MapPin className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-white">
@@ -190,7 +190,7 @@ const BookTourModal: React.FC<BookTourModalProps> = ({
                   </p>
                   <button
                     onClick={handleClose}
-                    className="px-8 py-3 bg-gradient-to-r from-[#FFC857] to-[#FFD980] text-black font-semibold rounded-xl cursor-pointer"
+                    className="px-8 py-3 bg-gradient-to-r from-primary to-sea text-white font-semibold rounded-xl cursor-pointer"
                   >
                     Close
                   </button>
@@ -200,7 +200,7 @@ const BookTourModal: React.FC<BookTourModalProps> = ({
                   {/* Tour Selection */}
                   <div>
                     <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                      <MapPin className="w-4 h-4 text-[#FFC857]" />
+                      <MapPin className="w-4 h-4 text-accent" />
                       Select Tour
                     </label>
                     <select
@@ -208,7 +208,7 @@ const BookTourModal: React.FC<BookTourModalProps> = ({
                       onChange={(e) =>
                         handleInputChange("tourId", e.target.value)
                       }
-                      className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#FFC857]/50 transition-all cursor-pointer ${
+                      className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all cursor-pointer ${
                         errors.tourId
                           ? "border-red-500"
                           : "border-white/10 hover:border-white/20"
@@ -237,7 +237,7 @@ const BookTourModal: React.FC<BookTourModalProps> = ({
                   {/* Date */}
                   <div>
                     <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                      <Calendar className="w-4 h-4 text-[#FFC857]" />
+                      <Calendar className="w-4 h-4 text-accent" />
                       Travel Date
                     </label>
                     <input
@@ -247,7 +247,7 @@ const BookTourModal: React.FC<BookTourModalProps> = ({
                       onChange={(e) =>
                         handleInputChange("date", e.target.value)
                       }
-                      className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#FFC857]/50 transition-all cursor-pointer ${
+                      className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all cursor-pointer ${
                         errors.date
                           ? "border-red-500"
                           : "border-white/10 hover:border-white/20"
@@ -262,7 +262,7 @@ const BookTourModal: React.FC<BookTourModalProps> = ({
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                        <Users className="w-4 h-4 text-[#FFC857]" />
+                        <Users className="w-4 h-4 text-accent" />
                         Adults
                       </label>
                       <select
@@ -281,7 +281,7 @@ const BookTourModal: React.FC<BookTourModalProps> = ({
                     </div>
                     <div>
                       <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                        <Users className="w-4 h-4 text-[#FFC857]" />
+                        <Users className="w-4 h-4 text-accent" />
                         Children
                       </label>
                       <select
@@ -312,7 +312,7 @@ const BookTourModal: React.FC<BookTourModalProps> = ({
                     <div className="space-y-4">
                       <div>
                         <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                          <User className="w-4 h-4 text-[#FFC857]" />
+                          <User className="w-4 h-4 text-accent" />
                           Full Name
                         </label>
                         <input
@@ -337,7 +337,7 @@ const BookTourModal: React.FC<BookTourModalProps> = ({
 
                       <div>
                         <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                          <Mail className="w-4 h-4 text-[#FFC857]" />
+                          <Mail className="w-4 h-4 text-accent" />
                           Email
                         </label>
                         <input
@@ -362,7 +362,7 @@ const BookTourModal: React.FC<BookTourModalProps> = ({
 
                       <div>
                         <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                          <Phone className="w-4 h-4 text-[#FFC857]" />
+                          <Phone className="w-4 h-4 text-accent" />
                           Phone
                         </label>
                         <input
@@ -393,7 +393,7 @@ const BookTourModal: React.FC<BookTourModalProps> = ({
                     disabled={isSubmitting}
                     whileHover={{ scale: isSubmitting ? 1 : 1.01 }}
                     whileTap={{ scale: isSubmitting ? 1 : 0.99 }}
-                    className="w-full py-4 bg-gradient-to-r from-[#FFC857] to-[#FFD980] text-black font-bold rounded-xl shadow-lg shadow-[#FFC857]/20 hover:shadow-[#FFC857]/40 transition-all disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-gradient-to-r from-primary to-sea text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
                   >
                     {isSubmitting ? (
                       <>

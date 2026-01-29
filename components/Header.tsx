@@ -111,11 +111,11 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
               onClick={(e) => handleNavClick(e, "/")}
               className="flex items-center gap-2 cursor-pointer group"
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FFC857] to-[#FFD980] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                <MapPin className="w-5 h-5 text-black" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-sea flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                <MapPin className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-white tracking-tight font-display">
-                Dana<span className="text-[#FFC857]">Tour</span>
+                Dana<span className="text-accent">Tour</span>
               </span>
             </a>
 
@@ -128,7 +128,7 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
                   onClick={(e) => handleNavClick(e, item.href)}
                   className={`relative px-4 py-2 text-sm font-medium transition-colors rounded-lg hover:bg-white/10 cursor-pointer ${
                     isActive(item.href)
-                      ? "text-[#FFC857]"
+                      ? "text-accent"
                       : "text-gray-300 hover:text-white"
                   }`}
                 >
@@ -149,7 +149,7 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={onBookClick}
-                className="px-6 py-2.5 bg-gradient-to-r from-[#FFC857] to-[#FFD980] text-black font-semibold rounded-xl shadow-lg shadow-[#FFC857]/20 hover:shadow-[#FFC857]/40 transition-all cursor-pointer"
+                className="px-6 py-2.5 bg-gradient-to-r from-primary to-sea text-white font-semibold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all cursor-pointer"
               >
                 Book Now
               </motion.button>
@@ -213,7 +213,7 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
                     transition={{ delay: index * 0.1 }}
                     className={`px-4 py-3 text-lg font-medium hover:bg-white/10 rounded-xl transition-colors cursor-pointer text-left ${
                       isActive(item.href)
-                        ? "text-[#FFC857]"
+                        ? "text-accent"
                         : "text-gray-300 hover:text-white"
                     }`}
                   >
@@ -239,7 +239,7 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
                   setIsMenuOpen(false);
                   onBookClick();
                 }}
-                className="mt-8 w-full py-4 bg-gradient-to-r from-[#FFC857] to-[#FFD980] text-black font-bold rounded-xl shadow-lg cursor-pointer"
+                className="mt-8 w-full py-4 bg-gradient-to-r from-primary to-sea text-white font-bold rounded-xl shadow-lg cursor-pointer"
               >
                 Book Now
               </motion.button>

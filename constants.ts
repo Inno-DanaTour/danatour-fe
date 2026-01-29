@@ -1,4 +1,4 @@
-import { LocationData, ZoneType } from "./types";
+import { LocationData, ZoneType, Tour, ItineraryItem } from "./types";
 
 export const LOCATIONS: LocationData[] = [
   {
@@ -151,6 +151,99 @@ export const LOCATIONS: LocationData[] = [
       { label: "Icon", value: "Golden Bridge" },
     ],
   },
+];
+
+export const TOURS: Tour[] = [
+  {
+    id: "1",
+    name: "Da Nang Coastal Adventure",
+    description: "Explore the most beautiful beaches and coastal landmarks of Da Nang, from My Khe to Son Tra Peninsula.",
+    image: "https://images.unsplash.com/photo-1583417319070-4a69db38a482?q=80&w=800&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1583417319070-4a69db38a482?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1626776984260-156324a0d923?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1599708153386-629864227f2f?q=80&w=800&auto=format&fit=crop"
+    ],
+    price: 1200000,
+    duration: "1 Day",
+    rating: 4.8,
+    reviewCount: 124,
+    zone: ZoneType.SEA,
+    highlights: ["My Khe Beach", "Son Tra Peninsula", "Linh Ung Pagoda"],
+    itinerary: [
+      { day: 1, title: "Beach Morning", description: "Start your day with a refresh swim at My Khe Beach." },
+      { day: 1, title: "Peninsula Tour", description: "Visit the Green Lung of Da Nang and Lady Buddha." }
+    ],
+    reviews: [
+      { id: "r1", user: "John Doe", avatar: "https://i.pravatar.cc/150?u=r1", rating: 5, comment: "Amazing experience! Highly recommend.", date: "2024-03-20" }
+    ]
+  },
+  {
+    id: "2",
+    name: "Marble Mountains & Hoi An Evening",
+    description: "Discover the spiritual beauty of Marble Mountains and the nostalgic charm of Hoi An Ancient Town at night.",
+    image: "https://images.unsplash.com/photo-1559828477-d64e43e2a537?q=80&w=800&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1559828477-d64e43e2a537?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1644315266453-62b10a905260?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1598555850935-d232537233f2?q=80&w=800&auto=format&fit=crop"
+    ],
+    price: 1500000,
+    duration: "10 Hours",
+    rating: 4.9,
+    reviewCount: 350,
+    zone: ZoneType.MOUNTAIN,
+    highlights: ["Marble Mountains", "Non Nuoc Stone Village", "Hoi An Ancient Town"],
+    itinerary: [
+      { day: 1, title: "Stone Carving", description: "Visit the 300-year-old Non Nuoc village." },
+      { day: 1, title: "Mountain Climb", description: "Explore the caves and pagodas of Marble Mountains." },
+      { day: 1, title: "Lantern Town", description: "Walking tour in Hoi An and dinner by the river." }
+    ],
+    reviews: [
+      { id: "r2", user: "Jane Smith", avatar: "https://i.pravatar.cc/150?u=r2", rating: 5, comment: "Hoi An is magical!", date: "2024-03-15" }
+    ]
+  },
+  {
+    id: "3",
+    name: "Ba Na Hills Cloud Tour",
+    description: "Visit the French Village in the clouds and walk on the world-famous Golden Bridge.",
+    image: "https://images.unsplash.com/photo-1575880998344-996417531742?q=80&w=800&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1575880998344-996417531742?q=80&w=800&auto=format&fit=crop"
+    ],
+    price: 1800000,
+    duration: "1 Day",
+    rating: 4.7,
+    reviewCount: 520,
+    zone: ZoneType.MOUNTAIN,
+    highlights: ["Golden Bridge", "French Village", "Cable Car"],
+    itinerary: [
+      { day: 1, title: "Cable Car Ride", description: "Take one of the longest cable cars in the world." },
+      { day: 1, title: "Golden Bridge", description: "Photography session at the iconic bridge." }
+    ],
+    reviews: []
+  },
+  {
+    id: "4",
+    name: "Da Nang City Night Life",
+    description: "Experience the vibrant energy of Da Nang at night, including the Dragon Bridge show and night markets.",
+    image: "https://images.unsplash.com/photo-1616386861226-f4d25725d2b6?q=80&w=800&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1616386861226-f4d25725d2b6?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?q=80&w=800&auto=format&fit=crop"
+    ],
+    price: 800000,
+    duration: "5 Hours",
+    rating: 4.6,
+    reviewCount: 88,
+    zone: ZoneType.CITY,
+    highlights: ["Dragon Bridge Show", "Son Tra Night Market", "River Cruise"],
+    itinerary: [
+      { day: 1, title: "Night Market", description: "Enjoy local street food at Son Tra Night Market." },
+      { day: 1, title: "Dragon Bridge", description: "Watch the fire and water show at 9:00 PM." }
+    ],
+    reviews: []
+  }
 ];
 
 export const COLORS = {

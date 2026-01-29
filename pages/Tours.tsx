@@ -1,90 +1,188 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Search, MapPin, Clock, Star, ArrowRight } from "lucide-react";
+import { LayoutGrid, List } from "lucide-react";
 import Header from "../components/Header";
+import TourCard from "../components/TourCard";
+import TourFilter from "../components/TourFilter";
+import SearchBar from "../components/SearchBar";
+import { TOURS } from "../constants";
+import { ZoneType } from "../types";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Tours: React.FC = () => {
   const navigate = useNavigate();
+  const [viewType, setViewType] = useState<"grid" | "list">("grid");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedZone, setSelectedZone] = useState<ZoneType | "ALL">("ALL");
+  const [priceRange, setPriceRange] = useState(3000000);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const filteredTours = TOURS.filter((tour) => {
+    const matchesSearch =
+      tour.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tour.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesZone = selectedZone === "ALL" || tour.zone === selectedZone;
+    const matchesPrice = tour.price <= priceRange;
+    return matchesSearch && matchesZone && matchesPrice;
+  });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white">
-      <Header onBookClick={() => navigate("/explore#find-tour")} />
+    <div className="min-h-screen bg-background text-gray-900">
+      <Header onBookClick={() => navigate("/tours")} />
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6">
-        <div className="max-w-7xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <span className="text-[#FFC857] text-sm font-bold uppercase tracking-[0.3em] mb-4 block">
-              Discover Da Nang
-            </span>
-            <h1 className="text-5xl md:text-7xl font-black mb-6 font-display">
-              Find Your Perfect <span className="text-[#FFC857]">Tour</span>
-            </h1>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto mb-12">
-              Explore our curated collection of tours from pristine beaches to
-              ancient mountains
-            </p>
-          </motion.div>
+      <main className="relative pt-28 pb-20 px-4 md:px-6">
+        {/* Decorative Background Elements */}
+        <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-primary/5 rounded-full blur-[60px] md:blur-[100px] pointer-events-none" />
+        <div className="absolute top-1/4 left-0 -translate-x-1/2 w-[200px] md:w-[400px] h-[200px] md:h-[400px] bg-cta/5 rounded-full blur-[50px] md:blur-[80px] pointer-events-none" />
 
-          {/* Search Bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="max-w-3xl mx-auto"
-          >
-            <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-2 flex items-center gap-2 border border-white/10">
-              <div className="flex-1 flex items-center gap-3 px-4">
-                <Search className="w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search tours, destinations..."
-                  className="w-full bg-transparent border-none outline-none text-white placeholder-gray-400 py-3"
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="flex flex-col md:flex-row justify-between items-center md:items-end gap-10 mb-12 md:mb-16">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex-1 w-full text-center md:text-left"
+            >
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] md:text-xs font-black uppercase tracking-widest mb-4">
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                Live Your Adventure
+              </div>
+              <h1 className="text-4xl md:text-7xl font-black mb-6 leading-[1.1]">
+                Find Your Perfect <br className="hidden md:block" />
+                <span className="text-primary">Vietnamese</span> Journey
+              </h1>
+              <p className="text-gray-500 text-base md:text-lg max-w-xl mb-8">
+                From the misty mountains of Sa Pa to the golden sands of Da
+                Nang, discover the tour that speaks to your soul.
+              </p>
+              <div className="max-w-2xl px-2 md:px-0">
+                <SearchBar
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
                 />
               </div>
-              <button className="px-8 py-3 bg-gradient-to-r from-[#FFC857] to-[#FFD980] text-black font-bold rounded-xl hover:shadow-lg hover:shadow-[#FFC857]/30 transition-all cursor-pointer">
-                Search
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+            </motion.div>
 
-      {/* Coming Soon Content */}
-      <section className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center py-20 bg-white/5 rounded-3xl border border-white/10">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
+              transition={{ delay: 0.2 }}
+              className="hidden md:flex gap-1 bg-white/80 backdrop-blur-md p-1.5 rounded-2xl shadow-xl shadow-primary/5 border border-white relative"
             >
-              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-[#FFC857] to-[#FFD980] flex items-center justify-center">
-                <MapPin className="w-10 h-10 text-black" />
-              </div>
-              <h2 className="text-3xl font-bold mb-4 font-display">
-                Tour Catalog Coming Soon
-              </h2>
-              <p className="text-gray-400 max-w-md mx-auto mb-8">
-                We're crafting an amazing collection of tours for you. Check
-                back soon or explore our personalized itinerary feature!
-              </p>
               <button
-                onClick={() => navigate("/explore")}
-                className="inline-flex items-center gap-3 px-8 py-4 bg-white/10 border border-white/20 rounded-full text-white font-semibold hover:bg-white/20 transition-all cursor-pointer"
+                onClick={() => setViewType("grid")}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all relative z-10 font-bold text-sm cursor-pointer ${
+                  viewType === "grid"
+                    ? "text-white"
+                    : "text-gray-400 hover:text-primary"
+                }`}
               >
-                Explore Da Nang
-                <ArrowRight className="w-5 h-5" />
+                <LayoutGrid size={18} />
+                <span>Grid</span>
+                {viewType === "grid" && (
+                  <motion.div
+                    layoutId="activeToggle"
+                    className="absolute inset-0 bg-primary rounded-xl -z-10 shadow-lg shadow-primary/30"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+              </button>
+
+              <button
+                onClick={() => setViewType("list")}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all relative z-10 font-bold text-sm cursor-pointer ${
+                  viewType === "list"
+                    ? "text-white"
+                    : "text-gray-400 hover:text-primary"
+                }`}
+              >
+                <List size={18} />
+                <span>List</span>
+                {viewType === "list" && (
+                  <motion.div
+                    layoutId="activeToggle"
+                    className="absolute inset-0 bg-primary rounded-xl -z-10 shadow-lg shadow-primary/30"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
               </button>
             </motion.div>
           </div>
         </div>
-      </section>
+
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8">
+          {/* Mobile Filter Toggle */}
+          <div className="md:hidden flex justify-between items-center mb-4 px-2">
+            <button
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className="btn-secondary py-3 px-6 w-full flex justify-center gap-2"
+            >
+              {isFilterOpen ? "Close Filters" : "Filters & Sort"}
+            </button>
+          </div>
+
+          {/* Sidebar Filter */}
+          <aside
+            className={`w-full md:w-1/4 ${isFilterOpen ? "block" : "hidden md:block"}`}
+          >
+            <TourFilter
+              selectedZone={selectedZone}
+              setSelectedZone={setSelectedZone}
+              priceRange={priceRange}
+              setPriceRange={setPriceRange}
+            />
+          </aside>
+
+          {/* Tour Listing */}
+          <div className="w-full md:w-3/4">
+            <div className="flex justify-between items-center mb-6 px-2 md:px-0">
+              <p className="text-gray-600 font-medium text-sm md:text-base">
+                Showing{" "}
+                <span className="text-primary font-bold">
+                  {filteredTours.length}
+                </span>{" "}
+                tours
+              </p>
+              <select className="bg-transparent border-none text-xs md:text-sm font-bold text-gray-700 cursor-pointer focus:ring-0">
+                <option>Sort by: Recommended</option>
+                <option>Price: Low to High</option>
+                <option>Price: High to Low</option>
+                <option>Most Popular</option>
+              </select>
+            </div>
+
+            <AnimatePresence mode="popLayout">
+              {filteredTours.length > 0 ? (
+                <motion.div
+                  key={viewType}
+                  layout
+                  className={
+                    viewType === "grid"
+                      ? "grid grid-cols-1 lg:grid-cols-2 gap-6"
+                      : "space-y-6"
+                  }
+                >
+                  {filteredTours.map((tour) => (
+                    <TourCard key={tour.id} tour={tour} viewType={viewType} />
+                  ))}
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="bg-white rounded-3xl p-12 md:p-20 text-center border-2 border-dashed border-gray-100"
+                >
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-400 mb-2">
+                    No tours found
+                  </h3>
+                  <p className="text-gray-500 text-sm md:text-base">
+                    Try adjusting your filters or search query
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };

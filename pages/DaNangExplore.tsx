@@ -97,8 +97,8 @@ const DaNangExplore: React.FC = () => {
           transition={{ duration: 1 }}
           className="max-w-4xl"
         >
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 font-display">
-            Da Nang <span className="text-[#FFC857]">Explore</span>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 font-display text-white">
+            Da Nang <span className="text-accent">Explore</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Scroll through the journey and collect stamps at each checkpoint
@@ -199,7 +199,7 @@ const DaNangExplore: React.FC = () => {
         id="find-tour"
         className="relative z-20 py-20 bg-black/80 text-center"
       >
-        <h2 className="text-4xl font-bold mb-6 font-display text-[#FFC857]">
+        <h2 className="text-4xl font-bold mb-6 font-display text-accent">
           Journey Complete
         </h2>
         <p className="text-gray-400 mb-8">
@@ -208,7 +208,7 @@ const DaNangExplore: React.FC = () => {
         </p>
         <button
           onClick={() => handleBookTour()}
-          className="px-8 py-3 bg-gradient-to-r from-[#FFC857] to-[#FFD980] text-black font-bold rounded-full hover:shadow-lg hover:shadow-[#FFC857]/30 transition-all cursor-pointer"
+          className="px-8 py-3 bg-gradient-to-r from-primary to-sea text-white font-bold rounded-full hover:shadow-lg hover:shadow-primary/30 transition-all cursor-pointer"
         >
           Book This Itinerary
         </button>
