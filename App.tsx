@@ -15,6 +15,7 @@ import TourDetail from "./pages/TourDetail";
 import Checkout from "./pages/Checkout";
 import Confirmation from "./pages/Confirmation";
 import About from "./pages/About";
+import Login from "./pages/Login";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -95,6 +96,14 @@ const AnimatedRoutes = () => {
         </PageWrapper>
       ),
     },
+    {
+      path: "/login",
+      element: (
+        <PageWrapper>
+          <Login />
+        </PageWrapper>
+      ),
+    },
   ];
 
   const element = useRoutes(routes);
@@ -106,16 +115,25 @@ const AnimatedRoutes = () => {
   );
 };
 
+const Layout: React.FC = () => {
+  const location = useLocation();
+  const isLoginPage = location.pathname === "/login";
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <main className="flex-grow">
+        <AnimatedRoutes />
+      </main>
+      {!isLoginPage && <Footer />}
+    </div>
+  );
+};
+
 const App: React.FC = () => {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <div className="flex flex-col min-h-screen">
-        <main className="flex-grow">
-          <AnimatedRoutes />
-        </main>
-        <Footer />
-      </div>
+      <Layout />
     </BrowserRouter>
   );
 };

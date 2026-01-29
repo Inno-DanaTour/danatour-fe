@@ -18,6 +18,11 @@ import {
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Hero from "../components/Hero";
+import Features from "../components/Features";
+import Testimonials from "../components/Testimonials";
+import Articles from "../components/Articles";
+import FAQ from "../components/FAQ";
+import Footer from "../components/Footer";
 
 const TOUR_EXAMPLES = [
   {
@@ -336,6 +341,9 @@ const Home: React.FC = () => {
 
         {/* Signature Tours Section */}
         <div className="bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white rounded-t-[80px] md:rounded-t-[120px] relative z-20 mt-[-80px] shadow-[0_-40px_80px_rgba(0,0,0,0.3)]">
+          {/* Features Section */}
+          <Features />
+
           <section className="py-40">
             <div className="max-w-7xl mx-auto px-6 mb-24 flex flex-col md:flex-row justify-between items-end gap-10">
               <div>
@@ -421,6 +429,15 @@ const Home: React.FC = () => {
               </motion.div>
             </div>
           </section>
+
+          {/* Testimonials Section */}
+          <Testimonials />
+
+          {/* Articles/Journal Section */}
+          <Articles />
+
+          {/* FAQ Section */}
+          <FAQ />
 
           {/* Footer CTA */}
           <section className="py-32 text-center relative overflow-hidden">
