@@ -91,79 +91,82 @@ const travelAnimationData = {
 };
 
 interface Feature {
-  icon: React.ReactNode;
   title: string;
   description: string;
-  gradient: string;
+  image: string;
   delay: number;
+  gradient: string;
 }
 
 const FEATURES: Feature[] = [
   {
-    icon: <Sparkles size={28} />,
-    title: "AI-Powered Personalization",
+    title: "Expert Local Guides",
     description:
-      "Our intelligent system learns your preferences and crafts unique itineraries tailored just for you.",
-    gradient: "from-violet-500 to-purple-500",
-    delay: 0,
-  },
-  {
-    icon: <MapPin size={28} />,
-    title: "Local Expert Guides",
-    description:
-      "Connect with passionate locals who know every hidden gem and secret spot in Da Nang.",
-    gradient: "from-sky-500 to-cyan-500",
+      "Our guides are born and raised in Da Nang, offering insights you won't find in any guidebook.",
+    image:
+      "https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=800",
     delay: 0.1,
+    gradient: "from-sky-400 to-emerald-400",
   },
   {
-    icon: <Users size={28} />,
-    title: "Curated Experiences",
+    title: "Premium Comfort",
     description:
-      "From sunrise mountain hikes to midnight street food tours, we design unforgettable moments.",
-    gradient: "from-emerald-500 to-teal-500",
+      "Travel in style with our fleet of modern, air-conditioned luxury vehicles equipped with amenities.",
+    image:
+      "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=800",
     delay: 0.2,
+    gradient: "from-purple-400 to-pink-400",
   },
   {
-    icon: <Headphones size={28} />,
-    title: "24/7 Travel Support",
+    title: "Unique Experiences",
     description:
-      "Our dedicated team is always available to assist you throughout your journey in Vietnam.",
-    gradient: "from-amber-500 to-orange-500",
+      "From secret caves to midnight street food, we curate tours that go beyond the ordinary.",
+    image:
+      "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=800",
     delay: 0.3,
+    gradient: "from-amber-400 to-orange-400",
   },
 ];
 
 const FeatureCard: React.FC<{ feature: Feature }> = ({ feature }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      whileInView={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6, delay: feature.delay }}
       whileHover={{ y: -8, transition: { duration: 0.3 } }}
-      className="relative group p-8 rounded-[32px] bg-white/[0.02] backdrop-blur-sm border border-white/5 hover:border-white/20 transition-all cursor-pointer overflow-hidden"
+      className="relative group p-8 rounded-[32px] bg-white/[0.02] backdrop-blur-sm border border-white/5 hover:border-white/20 transition-all cursor-pointer overflow-hidden flex flex-col h-full"
     >
-      {/* Gradient Glow on Hover */}
-      <div
-        className={`absolute -inset-1 bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500`}
-      />
-
-      {/* Icon */}
-      <div
-        className={`relative w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center text-white mb-6 shadow-lg`}
-      >
-        {feature.icon}
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src={feature.image}
+          alt={feature.title}
+          className="w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-opacity duration-700"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/80 to-[#020617]" />
       </div>
 
+      {/* Gradient Glow on Hover */}
+      <div
+        className={`absolute -inset-1 bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500 z-0`}
+      />
+
       {/* Content */}
-      <h3 className="relative text-2xl font-display font-bold text-white mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-sky-400 group-hover:to-emerald-400 transition-all">
-        {feature.title}
-      </h3>
-      <p className="relative text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
-        {feature.description}
-      </p>
+      <div className="relative z-10 mt-auto">
+        <div
+          className={`w-12 h-[2px] mb-6 bg-gradient-to-r ${feature.gradient} rounded-full`}
+        />
+        <h3 className="text-2xl font-display font-bold text-white mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-sky-400 group-hover:to-emerald-400 transition-all">
+          {feature.title}
+        </h3>
+        <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
+          {feature.description}
+        </p>
+      </div>
 
       {/* Corner Accent */}
-      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-white/5 to-transparent rounded-bl-[60px] opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-white/5 to-transparent rounded-bl-[60px] opacity-0 group-hover:opacity-100 transition-opacity z-10" />
     </motion.div>
   );
 };
@@ -218,7 +221,7 @@ const Features: React.FC = () => {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-3 md:grid-cols-3 gap-6">
           {FEATURES.map((feature, index) => (
             <FeatureCard key={index} feature={feature} />
           ))}
