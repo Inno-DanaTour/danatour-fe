@@ -69,7 +69,7 @@ const AIProcessingOverlay: React.FC<AIProcessingOverlayProps> = ({
           transition={{ duration: 2, repeat: Infinity }}
           className="text-2xl md:text-3xl font-bold text-white mb-4 font-display"
         >
-          ✨ Creating Your Journey
+          Creating Your Journey
         </motion.h2>
 
         <p className="text-gray-300 text-lg mb-6">
