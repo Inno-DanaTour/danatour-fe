@@ -9,14 +9,16 @@ import {
   Apple,
   MapPin,
   ArrowLeft,
+  User,
 } from "lucide-react";
 
-const Login = () => {
+const Signup = () => {
   const navigate = useNavigate();
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [focusField, setFocusField] = useState(null);
 
   // --- ANIMATION VARIANTS ---
   const containerVariants = {
@@ -38,7 +40,6 @@ const Login = () => {
   return (
     <div className="relative w-full h-screen overflow-hidden font-['Montserrat'] bg-[#004E89]">
       {/* 1. CINEMATIC VIDEO BACKGROUND */}
-      {/* Ocean Video Background */}
       <video
         autoPlay
         loop
@@ -46,9 +47,7 @@ const Login = () => {
         playsInline
         className="absolute inset-0 w-full h-full object-cover z-0"
       >
-        {/* Multiple sources for browser compatibility */}
         <source src="/Cangdanang.mp4" type="video/mp4" />
-        {/* Fallback image if video doesn't load */}
         Your browser does not support the video tag.
       </video>
 
@@ -75,7 +74,7 @@ const Login = () => {
       <main className="relative z-10 w-full h-full flex items-center justify-center p-4">
         {/* --- THE GLASS CARD --- */}
         <motion.div
-          className="w-full max-w-[480px] p-8 md:p-12 rounded-[2.5rem] bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)]"
+          className="w-full max-w-[340px] p-6 rounded-[2.5rem] bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)]"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -96,27 +95,38 @@ const Login = () => {
           {/* --- HEADINGS --- */}
           <motion.div variants={itemVariants} className="text-center mb-6">
             <h1 className="text-2xl md:text-3xl font-bold text-white mb-1 tracking-tight drop-shadow-lg">
-              Welcome Back
+              Begin Journey
             </h1>
             <p className="text-white/60 text-xs font-medium tracking-wide uppercase">
-              Your Journey Continues Here
+              Join the adventure today
             </p>
           </motion.div>
 
           {/* --- FORM --- */}
           <div className="space-y-4">
-            {/* EMAIL INPUT - Simple Facebook Style */}
+            {/* FULL NAME INPUT */}
+            <motion.div variants={itemVariants}>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Full Name"
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-white/40 focus:outline-none focus:bg-white/15 focus:border-[#FFC857] transition-all duration-200 text-sm"
+              />
+            </motion.div>
+
+            {/* EMAIL INPUT */}
             <motion.div variants={itemVariants}>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email address or phone number"
+                placeholder="Email address"
                 className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-white/40 focus:outline-none focus:bg-white/15 focus:border-[#FFC857] transition-all duration-200 text-sm"
               />
             </motion.div>
 
-            {/* PASSWORD INPUT - Simple Facebook Style */}
+            {/* PASSWORD INPUT */}
             <motion.div variants={itemVariants} className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -137,20 +147,14 @@ const Login = () => {
             {/* ACTIONS */}
             <motion.div
               variants={itemVariants}
-              className="flex items-center justify-between text-xs text-white/60"
+              className="flex items-center justify-center text-xs text-white/60"
             >
-              <label className="flex items-center cursor-pointer hover:text-white transition-colors">
-                <input
-                  type="checkbox"
-                  className="mr-2 rounded border-white/20 bg-white/5 checked:bg-[#FFC857] text-[#004E89]"
-                />
-                Remember
-              </label>
+              <span className="mr-1">Already have an account?</span>
               <button
-                onClick={() => navigate("/signup")}
-                className="hover:text-[#FFC857] transition-colors font-medium decoration-slice"
+                onClick={() => navigate("/login")}
+                className="text-[#FFC857] hover:text-white transition-colors font-bold"
               >
-                Create Account
+                Login
               </button>
             </motion.div>
 
@@ -164,7 +168,7 @@ const Login = () => {
                 whileTap={{ scale: 0.98 }}
                 className="w-full py-3 rounded-2xl font-bold uppercase tracking-wider text-[#002B49] bg-gradient-to-r from-[#FFC857] to-[#FCA311] shadow-[0_0_15px_rgba(255,200,87,0.2)] relative overflow-hidden text-sm"
               >
-                <span className="relative z-10">Initialize Session</span>
+                <span className="relative z-10">Create Account</span>
                 {/* Shine Effect */}
                 <div className="absolute inset-0 bg-white/20 translate-x-[-100%] animate-[shine_3s_infinite]" />
               </motion.button>
@@ -177,7 +181,7 @@ const Login = () => {
             >
               <div className="flex-grow border-t border-white/10"></div>
               <span className="flex-shrink-0 mx-4 text-white/30 text-[10px] uppercase tracking-widest">
-                Or connect via
+                Or join with
               </span>
               <div className="flex-grow border-t border-white/10"></div>
             </motion.div>
@@ -195,35 +199,6 @@ const Login = () => {
               >
                 <Chrome className="mr-3 text-[#DB4437]" size={18} />
                 Continue with Google
-              </motion.button>
-
-              {/* Facebook Button */}
-              <motion.button
-                variants={itemVariants}
-                whileHover={{
-                  y: -2,
-                  backgroundColor: "rgba(24, 119, 242, 0.2)",
-                }}
-                className="w-full py-2.5 rounded-2xl border border-white/10 bg-[#1877F2]/10 backdrop-blur-md flex items-center justify-center text-white/90 font-medium transition-all group text-sm"
-              >
-                <Facebook
-                  className="mr-3 group-hover:text-white transition-colors"
-                  size={18}
-                />
-                Continue with Facebook
-              </motion.button>
-
-              {/* Apple Button */}
-              <motion.button
-                variants={itemVariants}
-                whileHover={{
-                  y: -2,
-                  backgroundColor: "rgba(255, 255, 255, 0.15)",
-                }}
-                className="w-full py-2.5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md flex items-center justify-center text-white/90 font-medium transition-all group text-sm"
-              >
-                <Apple className="mr-3" size={18} />
-                Continue with Apple
               </motion.button>
             </div>
           </div>
@@ -250,4 +225,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;

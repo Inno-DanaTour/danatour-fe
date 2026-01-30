@@ -146,7 +146,7 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
               </button>
 
               <button
-                onClick={() => navigate("/register")}
+                onClick={() => navigate("/signup")}
                 className="px-4 py-2 text-sm font-bold text-white hover:text-accent transition-colors cursor-pointer"
               >
                 Sign up

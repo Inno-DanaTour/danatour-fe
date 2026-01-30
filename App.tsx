@@ -16,6 +16,7 @@ import Checkout from "./pages/Checkout";
 import Confirmation from "./pages/Confirmation";
 import About from "./pages/About";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -104,6 +105,14 @@ const AnimatedRoutes = () => {
         </PageWrapper>
       ),
     },
+    {
+      path: "/signup",
+      element: (
+        <PageWrapper>
+          <Signup />
+        </PageWrapper>
+      ),
+    },
   ];
 
   const element = useRoutes(routes);
@@ -117,14 +126,14 @@ const AnimatedRoutes = () => {
 
 const Layout: React.FC = () => {
   const location = useLocation();
-  const isLoginPage = location.pathname === "/login";
+  const isAuthPage = ["/login", "/signup"].includes(location.pathname);
 
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-grow">
         <AnimatedRoutes />
       </main>
-      {!isLoginPage && <Footer />}
+      {!isAuthPage && <Footer />}
     </div>
   );
 };
