@@ -187,7 +187,7 @@ const DaNangExplore: React.FC = () => {
   // Show AI Input Form
   if (flowState === "form") {
     return (
-      <div className="relative w-full min-h-screen text-white overflow-hidden">
+      <div className="relative w-full min-h-screen text-white overflow-hidden pt-16">
         <Header onBookClick={() => handleBookTour()} />
         <Background currentZone={ZoneType.SEA} />
         <AIInputForm
@@ -201,7 +201,7 @@ const DaNangExplore: React.FC = () => {
   // Show Processing
   if (flowState === "processing") {
     return (
-      <div className="relative w-full min-h-screen text-white overflow-hidden">
+      <div className="relative w-full min-h-screen text-white overflow-hidden pt-16">
         <Header onBookClick={() => handleBookTour()} />
         <Background currentZone={ZoneType.SEA} />
         <AIProcessingOverlay isVisible={true} />
@@ -212,7 +212,7 @@ const DaNangExplore: React.FC = () => {
   // Show Route Editor (add/remove checkpoints)
   if (flowState === "editing") {
     return (
-      <div className="relative w-full min-h-screen text-white overflow-hidden">
+      <div className="relative w-full min-h-screen text-white overflow-hidden pt-16">
         <Header onBookClick={() => handleBookTour()} />
         <Background currentZone={ZoneType.SEA} />
         <RouteEditor

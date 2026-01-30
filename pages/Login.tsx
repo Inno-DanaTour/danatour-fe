@@ -83,28 +83,28 @@ const Login = () => {
           {/* --- BRAND ANCHOR (TOP LOGO) --- */}
           <motion.div
             variants={itemVariants}
-            className="w-full flex flex-col items-center mb-6"
+            className="w-full flex flex-col items-center mb-4"
           >
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#FFC857] to-[#FFD980] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform mb-3">
-              <MapPin className="w-8 h-8 text-black" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FFC857] to-[#FFD980] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform mb-2">
+              <MapPin className="w-6 h-6 text-black" />
             </div>
-            <span className="text-2xl font-bold text-white tracking-tight font-display">
+            <span className="text-xl font-bold text-white tracking-tight font-display">
               Dana<span className="text-[#FFC857]">Tour</span>
             </span>
           </motion.div>
 
           {/* --- HEADINGS --- */}
-          <motion.div variants={itemVariants} className="text-center mb-10">
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 tracking-tight drop-shadow-lg">
+          <motion.div variants={itemVariants} className="text-center mb-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-1 tracking-tight drop-shadow-lg">
               Welcome Back
             </h1>
-            <p className="text-white/60 text-sm font-medium tracking-wide uppercase">
+            <p className="text-white/60 text-xs font-medium tracking-wide uppercase">
               Your Journey Continues Here
             </p>
           </motion.div>
 
           {/* --- FORM --- */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* EMAIL INPUT - Simple Facebook Style */}
             <motion.div variants={itemVariants}>
               <input
@@ -112,7 +112,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email address or phone number"
-                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3.5 text-white placeholder-white/40 focus:outline-none focus:bg-white/15 focus:border-[#FFC857] transition-all duration-200"
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-white/40 focus:outline-none focus:bg-white/15 focus:border-[#FFC857] transition-all duration-200 text-sm"
               />
             </motion.div>
 
@@ -123,14 +123,14 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
-                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3.5 pr-12 text-white placeholder-white/40 focus:outline-none focus:bg-white/15 focus:border-[#FFC857] transition-all duration-200"
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 pr-10 text-white placeholder-white/40 focus:outline-none focus:bg-white/15 focus:border-[#FFC857] transition-all duration-200 text-sm"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </motion.div>
 
@@ -162,7 +162,7 @@ const Login = () => {
                   boxShadow: "0 0 30px rgba(255, 200, 87, 0.4)",
                 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full py-4 rounded-2xl font-bold uppercase tracking-wider text-[#002B49] bg-gradient-to-r from-[#FFC857] to-[#FCA311] shadow-[0_0_15px_rgba(255,200,87,0.2)] relative overflow-hidden"
+                className="w-full py-3 rounded-2xl font-bold uppercase tracking-wider text-[#002B49] bg-gradient-to-r from-[#FFC857] to-[#FCA311] shadow-[0_0_15px_rgba(255,200,87,0.2)] relative overflow-hidden text-sm"
               >
                 <span className="relative z-10">Initialize Session</span>
                 {/* Shine Effect */}
@@ -173,7 +173,7 @@ const Login = () => {
             {/* DIVIDER */}
             <motion.div
               variants={itemVariants}
-              className="relative flex py-2 items-center"
+              className="relative flex py-1 items-center"
             >
               <div className="flex-grow border-t border-white/10"></div>
               <span className="flex-shrink-0 mx-4 text-white/30 text-[10px] uppercase tracking-widest">
@@ -183,7 +183,7 @@ const Login = () => {
             </motion.div>
 
             {/* SOCIAL BUTTONS */}
-            <div className="space-y-3">
+            <div className="space-y-2">
               {/* Google Button */}
               <motion.button
                 variants={itemVariants}
@@ -191,9 +191,9 @@ const Login = () => {
                   y: -2,
                   backgroundColor: "rgba(255, 255, 255, 0.1)",
                 }}
-                className="w-full py-3 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md flex items-center justify-center text-white/90 font-medium transition-all group"
+                className="w-full py-2.5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md flex items-center justify-center text-white/90 font-medium transition-all group text-sm"
               >
-                <Chrome className="mr-3 text-[#DB4437]" size={20} />
+                <Chrome className="mr-3 text-[#DB4437]" size={18} />
                 Continue with Google
               </motion.button>
 
@@ -204,11 +204,11 @@ const Login = () => {
                   y: -2,
                   backgroundColor: "rgba(24, 119, 242, 0.2)",
                 }}
-                className="w-full py-3 rounded-2xl border border-white/10 bg-[#1877F2]/10 backdrop-blur-md flex items-center justify-center text-white/90 font-medium transition-all group"
+                className="w-full py-2.5 rounded-2xl border border-white/10 bg-[#1877F2]/10 backdrop-blur-md flex items-center justify-center text-white/90 font-medium transition-all group text-sm"
               >
                 <Facebook
                   className="mr-3 group-hover:text-white transition-colors"
-                  size={20}
+                  size={18}
                 />
                 Continue with Facebook
               </motion.button>
@@ -220,9 +220,9 @@ const Login = () => {
                   y: -2,
                   backgroundColor: "rgba(255, 255, 255, 0.15)",
                 }}
-                className="w-full py-3 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md flex items-center justify-center text-white/90 font-medium transition-all group"
+                className="w-full py-2.5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md flex items-center justify-center text-white/90 font-medium transition-all group text-sm"
               >
-                <Apple className="mr-3" size={20} />
+                <Apple className="mr-3" size={18} />
                 Continue with Apple
               </motion.button>
             </div>

@@ -14,7 +14,7 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
         <img
           src="https://i.ibb.co/fTrQBb2/vivu-vietnam-5x-Fmn-s4dmg-unsplash.jpg"
           alt="Da Nang Aerial"
-          className="w-full h-full object-cover opacity-60"
+          className="w-full h-full object-cover opacity-90"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-[#004E89] mix-blend-multiply" />
       </div>
