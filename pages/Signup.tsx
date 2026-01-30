@@ -38,7 +38,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden font-['Montserrat'] bg-[#004E89]">
+    <div className="relative w-full h-screen overflow-hidden bg-[#004E89]">
       {/* 1. CINEMATIC VIDEO BACKGROUND */}
       <video
         autoPlay

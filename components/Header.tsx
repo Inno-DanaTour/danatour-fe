@@ -109,11 +109,13 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
             <a
               href="/"
               onClick={(e) => handleNavClick(e, "/")}
-              className="flex items-center gap-2 cursor-pointer group"
+              className="flex items-center gap-0 cursor-pointer group"
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-sea flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                <MapPin className="w-5 h-5 text-white" />
-              </div>
+              <img
+                src="/logo.png"
+                alt="DanaTour"
+                className="w-20 h-20 object-contain drop-shadow-lg group-hover:scale-105 transition-transform"
+              />
               <span className="text-xl font-bold text-white tracking-tight font-display">
                 Dana<span className="text-accent">Tour</span>
               </span>

@@ -309,7 +309,7 @@ const DaNangExplore: React.FC = () => {
       <div
         id="detail"
         ref={containerRef}
-        className="relative z-10 w-full"
+        className="relative z-10 w-full mb-96"
         style={{ height: scrollHeight }}
       >
         {/* The SVG Path */}

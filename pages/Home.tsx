@@ -23,50 +23,12 @@ import Testimonials from "../components/Testimonials";
 import Articles from "../components/Articles";
 import FAQ from "../components/FAQ";
 import Footer from "../components/Footer";
-
-const TOUR_EXAMPLES = [
-  {
-    title: "The Spiritual Dawn",
-    location: "Linh Ung & Son Tra",
-    price: "$89",
-    image:
-      "https://images.unsplash.com/photo-1599708153386-629864227f2f?q=80&w=800",
-    tags: ["Photography", "Spiritual"],
-  },
-  {
-    title: "Midnight Dragon Pulse",
-    location: "City Center & Bridges",
-    price: "$120",
-    image:
-      "https://images.unsplash.com/photo-1616386861226-f4d25725d2b6?q=80&w=800",
-    tags: ["Nightlife", "Cuisine"],
-  },
-  {
-    title: "Marble Peak Ascension",
-    location: "Marble Mountains",
-    price: "$75",
-    image:
-      "https://images.unsplash.com/photo-1644315266453-62b10a905260?q=80&w=800",
-    tags: ["History", "Hiking"],
-  },
-  {
-    title: "Golden Sands Journey",
-    location: "My Khe Beach",
-    price: "$65",
-    image:
-      "https://images.unsplash.com/photo-1583417319070-4a69db38a482?q=80&w=800",
-    tags: ["Beach", "Relaxation"],
-  },
-];
+import SignatureJourneys from "../components/SignatureJourneys";
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
-  const carouselWrapperRef = useRef<HTMLDivElement>(null);
+  // Removed unused state/refs: carouselWrapperRef, constraints, x, springX
   const introRef = useRef<HTMLDivElement>(null);
-  const [constraints, setConstraints] = useState({ left: 0, right: 0 });
-
-  const x = useMotionValue(0);
-  const springX = useSpring(x, { stiffness: 300, damping: 30 });
 
   const { scrollYProgress } = useScroll({
     target: introRef,
@@ -79,34 +41,12 @@ const Home: React.FC = () => {
   const pathLength = useSpring(scrollYProgress, { stiffness: 30, damping: 15 });
 
   useEffect(() => {
-    const updateConstraints = () => {
-      if (carouselWrapperRef.current) {
-        const fullWidth = carouselWrapperRef.current.scrollWidth;
-        const visibleWidth = carouselWrapperRef.current.offsetWidth;
-        setConstraints({
-          left: Math.min(0, -(fullWidth - visibleWidth)),
-          right: 0,
-        });
-      }
-    };
-    window.addEventListener("resize", updateConstraints);
-    const timer = setTimeout(updateConstraints, 500);
-    return () => {
-      window.removeEventListener("resize", updateConstraints);
-      clearTimeout(timer);
-    };
+    // Keep any relevant side effects here if needed, but carousel logic moved to component
+    return () => {};
   }, []);
 
-  const handleManualScroll = (direction: "next" | "prev") => {
-    const step = 400;
-    const currentX = x.get();
-    let newX = direction === "next" ? currentX - step : currentX + step;
-    newX = Math.max(constraints.left, Math.min(0, newX));
-    x.set(newX);
-  };
-
   const handleBookClick = () => {
-    navigate("/explore#find-tour");
+    navigate("/tours");
   };
 
   const handleStartExploring = () => {
@@ -132,7 +72,7 @@ const Home: React.FC = () => {
       {/* Landing Page Content Below Hero */}
       <div
         id="landing-content"
-        className="bg-gradient-to-b from-[#004E89] via-white to-white text-slate-900"
+        className="bg-gradient-to-b from-[#004E89] via-sky-200 to-white text-slate-900"
       >
         {/* Editorial Intro Section */}
         <section
@@ -171,7 +111,7 @@ const Home: React.FC = () => {
           </div>
 
           {/* Typography Marquee Background */}
-          <div className="absolute top-1/2 -translate-y-1/2 left-0 w-full pointer-events-none z-0 overflow-hidden opacity-[0.03]">
+          <div className="absolute top-1/2 -translate-y-1/2 left-0 w-full pointer-events-none z-0 overflow-hidden opacity-[0.1]">
             <div className="flex flex-col gap-4">
               <motion.span
                 style={{ x: marqueeX1 }}
@@ -196,7 +136,7 @@ const Home: React.FC = () => {
               <div className="absolute -top-10 -left-10 lg:-left-20 w-[140%] pointer-events-none z-50">
                 <div className="-rotate-1 transform origin-left">
                   <motion.div style={{ x: marqueeX1 }} className="flex gap-4">
-                    <h2 className="text-[2.5vw] md:text-[2vw] font-display font-black leading-none uppercase whitespace-nowrap tracking-tighter text-sky-900 bg-white/70 backdrop-blur-sm py-1 px-4 rounded-lg">
+                    <h2 className="text-[2.5vw] md:text-[2vw] font-display font-black leading-none uppercase whitespace-nowrap tracking-tighter text-sky-900 bg-white/90 backdrop-blur-sm py-1 px-4 rounded-lg">
                       DA NANG DISCOVERY — DA NANG DISCOVERY — DA NANG DISCOVERY
                       — DA NANG DISCOVERY — DA NANG DISCOVERY
                     </h2>
@@ -205,7 +145,7 @@ const Home: React.FC = () => {
                     style={{ x: marqueeX2 }}
                     className="flex gap-4 mt-1"
                   >
-                    <h2 className="text-[2.5vw] md:text-[2vw] font-display font-black leading-none uppercase whitespace-nowrap tracking-tighter text-emerald-700 bg-white/50 backdrop-blur-sm py-1 px-4 rounded-lg">
+                    <h2 className="text-[2.5vw] md:text-[2vw] font-display font-black leading-none uppercase whitespace-nowrap tracking-tighter text-emerald-700 bg-white/80 backdrop-blur-sm py-1 px-4 rounded-lg">
                       WITH DANATOUR — WITH DANATOUR — WITH DANATOUR — WITH
                       DANATOUR — WITH DANATOUR — WITH DANATOUR
                     </h2>
@@ -221,7 +161,7 @@ const Home: React.FC = () => {
               >
                 <div className="rounded-[40px] md:rounded-[80px] overflow-hidden shadow-[0_50px_100px_-20px_rgba(14,165,233,0.3)] relative z-10 border-[12px] border-white ring-1 ring-sky-100">
                   <img
-                    src="https://images.unsplash.com/photo-1559592442-7e182c8c6f31?q=80&w=1200"
+                    src="https://i.ibb.co/hJqsmS3g/anhdannag.avif"
                     className="w-full aspect-[4/5] object-cover hover:scale-105 transition-transform duration-[4s] ease-out"
                     alt="Da Nang Discovery"
                   />
@@ -262,20 +202,20 @@ const Home: React.FC = () => {
                 className="lg:pl-10"
               >
                 <div className="flex items-center gap-4 mb-8">
-                  <div className="h-[2px] w-12 bg-gradient-to-r from-sky-500 to-emerald-500 rounded-full" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.5em] bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent">
+                  <div className="h-[2px] w-12 bg-white/90 rounded-full" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/90">
                     BEYOND TOURISM
                   </span>
                 </div>
 
-                <h2 className="text-5xl md:text-7xl font-display font-black leading-[0.9] mb-10 tracking-tighter uppercase">
+                <h2 className="text-5xl md:text-7xl font-display font-black leading-[0.9] mb-10 tracking-tighter uppercase text-white">
                   A new lens on the <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 via-cyan-500 to-emerald-500">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-cyan-200 to-emerald-200">
                     Central Coast.
                   </span>
                 </h2>
 
-                <p className="text-base text-slate-500 leading-relaxed font-medium mb-12 max-w-lg">
+                <p className="text-base text-white leading-relaxed font-medium mb-12 max-w-lg">
                   We are a collective of storytellers and explorers with a deep
                   love for Central Vietnam. Our journey began on the peaks of
                   Son Tra, where we realized the world needed to see Da Nang
@@ -285,27 +225,27 @@ const Home: React.FC = () => {
 
                 {/* Feature Icons */}
                 <div className="flex gap-6 mb-12 flex-wrap">
-                  <div className="flex items-center gap-3 bg-sky-50 px-4 py-3 rounded-2xl">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-sky-500 flex items-center justify-center text-white shadow-lg">
+                  <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 shadow-lg px-4 py-3 rounded-2xl hover:-translate-y-1 transition-transform">
+                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-sky-600 shadow-sm">
                       <Waves size={20} />
                     </div>
-                    <span className="text-xs font-bold text-sky-700 uppercase tracking-wider">
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">
                       Ocean
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 bg-emerald-50 px-4 py-3 rounded-2xl">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center text-white shadow-lg">
+                  <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 shadow-lg px-4 py-3 rounded-2xl hover:-translate-y-1 transition-transform">
+                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-emerald-600 shadow-sm">
                       <Sun size={20} />
                     </div>
-                    <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">
                       Nature
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 bg-cyan-50 px-4 py-3 rounded-2xl">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-cyan-500 flex items-center justify-center text-white shadow-lg">
+                  <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 shadow-lg px-4 py-3 rounded-2xl hover:-translate-y-1 transition-transform">
+                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-cyan-600 shadow-sm">
                       <Compass size={20} />
                     </div>
-                    <span className="text-xs font-bold text-cyan-700 uppercase tracking-wider">
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">
                       Explore
                     </span>
                   </div>
@@ -326,10 +266,10 @@ const Home: React.FC = () => {
                   </button>
 
                   <div className="hidden lg:block">
-                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">
-                      Est. 2024
+                    <p className="text-[10px] font-black uppercase text-white/50 tracking-widest mb-1">
+                      Est. 2026
                     </p>
-                    <p className="text-[10px] font-black uppercase text-slate-700 tracking-widest">
+                    <p className="text-[10px] font-black uppercase text-white tracking-widest">
                       DA NANG, VN
                     </p>
                   </div>
@@ -339,96 +279,13 @@ const Home: React.FC = () => {
           </div>
         </section>
 
-        {/* Signature Tours Section */}
-        <div className="bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white rounded-t-[80px] md:rounded-t-[120px] relative z-20 mt-[-80px] shadow-[0_-40px_80px_rgba(0,0,0,0.3)]">
+        {/* Signature Tours Section - Transparent to show main gradient */}
+        <div className="bg-transparent text-slate-900 rounded-t-[80px] md:rounded-t-[120px] relative z-20 mt-[-80px]">
           {/* Features Section */}
           <Features />
 
-          <section className="py-40">
-            <div className="max-w-7xl mx-auto px-6 mb-24 flex flex-col md:flex-row justify-between items-end gap-10">
-              <div>
-                <span className="bg-gradient-to-r from-sky-400 to-emerald-400 bg-clip-text text-transparent font-display font-bold uppercase tracking-[0.5em] text-[10px] mb-4 block">
-                  SIGNATURE JOURNEYS
-                </span>
-                <h2 className="text-6xl md:text-8xl font-display font-black tracking-tighter uppercase leading-none">
-                  Curated <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400/30 to-emerald-400/30 italic">
-                    Paths.
-                  </span>
-                </h2>
-              </div>
-              <div className="flex gap-4">
-                <button
-                  onClick={() => handleManualScroll("prev")}
-                  className="w-16 h-16 rounded-full border border-white/10 flex items-center justify-center hover:bg-gradient-to-r hover:from-sky-500 hover:to-emerald-500 hover:border-transparent transition-all active:scale-90 shadow-xl cursor-pointer"
-                >
-                  <ChevronLeft size={24} />
-                </button>
-                <button
-                  onClick={() => handleManualScroll("next")}
-                  className="w-16 h-16 rounded-full border border-white/10 flex items-center justify-center hover:bg-gradient-to-r hover:from-sky-500 hover:to-emerald-500 hover:border-transparent transition-all active:scale-90 shadow-xl cursor-pointer"
-                >
-                  <ChevronRight size={24} />
-                </button>
-              </div>
-            </div>
-
-            <div
-              className="relative px-6 md:px-[calc((100vw-1280px)/2+24px)] overflow-hidden"
-              ref={carouselWrapperRef}
-            >
-              <motion.div
-                drag="x"
-                dragConstraints={constraints}
-                style={{ x: springX }}
-                className="flex gap-10 w-max cursor-grab active:cursor-grabbing"
-              >
-                {TOUR_EXAMPLES.map((tour, i) => (
-                  <div
-                    key={i}
-                    className="flex-shrink-0 w-[320px] md:w-[450px] bg-white/[0.03] border border-white/10 rounded-[60px] p-8 transition-all hover:border-sky-400/30 hover:bg-white/[0.05] group flex flex-col h-[650px]"
-                  >
-                    <div className="relative aspect-[4/5] rounded-[44px] overflow-hidden mb-8 shadow-2xl">
-                      <img
-                        src={tour.image}
-                        draggable="false"
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        alt={tour.title}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <div className="flex-grow">
-                      <div className="flex gap-2 mb-4">
-                        {tour.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-[8px] font-black uppercase tracking-widest px-3 py-1.5 bg-gradient-to-r from-sky-500/20 to-emerald-500/20 rounded-lg text-sky-300"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                      <p className="text-[10px] bg-gradient-to-r from-sky-400 to-emerald-400 bg-clip-text text-transparent uppercase font-black tracking-widest mb-2 flex items-center gap-2">
-                        <MapPin size={12} className="text-emerald-400" />
-                        {tour.location}
-                      </p>
-                      <h4 className="text-4xl font-display font-bold mb-4 tracking-tight leading-none group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-sky-400 group-hover:to-emerald-400 transition-all">
-                        {tour.title}
-                      </h4>
-                    </div>
-                    <div className="mt-auto pt-8 border-t border-white/10 flex items-center justify-between">
-                      <div className="text-3xl font-display font-black bg-gradient-to-r from-sky-400 to-emerald-400 bg-clip-text text-transparent">
-                        {tour.price}
-                      </div>
-                      <button className="w-16 h-16 rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 text-white flex items-center justify-center hover:from-sky-400 hover:to-emerald-400 transition-all shadow-xl group-hover:translate-x-1 cursor-pointer">
-                        <ArrowRight size={22} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-          </section>
+          {/* Signature Journeys Section */}
+          <SignatureJourneys />
 
           {/* Testimonials Section */}
           <Testimonials />

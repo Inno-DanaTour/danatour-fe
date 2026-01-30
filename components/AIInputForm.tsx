@@ -84,7 +84,7 @@ const ZONE_OPTIONS: {
     icon: <Waves size={28} />,
     color: "#4FD1C5",
     image:
-      "https://images.unsplash.com/photo-1583417319070-4a69db38a482?q=80&w=400&auto=format&fit=crop",
+      "https://plus.unsplash.com/premium_photo-1661963966774-7d5b6ec90d70?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8T2NlYW4lMjBhbmQlMjBiZWFjaHxlbnwwfHwwfHx8MA%3D%3D",
   },
   {
     value: ZoneType.CITY,
@@ -92,7 +92,7 @@ const ZONE_OPTIONS: {
     icon: <Building2 size={28} />,
     color: "#D946EF",
     image:
-      "https://images.unsplash.com/photo-1616386861226-f4d25725d2b6?q=80&w=400&auto=format&fit=crop",
+      "https://plus.unsplash.com/premium_photo-1681530700755-e8079add58ef?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8VXJiYW4lMjBDaXR5fGVufDB8fDB8fHww",
   },
   {
     value: ZoneType.MOUNTAIN,
@@ -100,7 +100,7 @@ const ZONE_OPTIONS: {
     icon: <Mountain size={28} />,
     color: "#FFC857",
     image:
-      "https://images.unsplash.com/photo-1575880998344-996417531742?q=80&w=400&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1616006079139-ddf8eb8a8323?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fE1vdW50YWluJTIwbmF0dXJlfGVufDB8fDB8fHww",
   },
 ];
 

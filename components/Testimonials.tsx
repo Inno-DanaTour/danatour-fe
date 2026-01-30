@@ -68,11 +68,11 @@ const TestimonialCard: React.FC<{
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="flex-shrink-0 w-[350px] md:w-[420px] p-8 rounded-[32px] bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-sky-400/30 transition-all group cursor-pointer"
+      className="flex-shrink-0 w-[350px] md:w-[420px] p-8 rounded-[32px] bg-white border border-sky-100 hover:border-sky-300 transition-all group cursor-pointer shadow-lg"
     >
       {/* Quote Icon */}
       <div className="mb-6">
-        <Quote className="w-10 h-10 text-sky-400/30" />
+        <Quote className="w-10 h-10 text-sky-200" />
       </div>
 
       {/* Rating */}
@@ -83,7 +83,7 @@ const TestimonialCard: React.FC<{
       </div>
 
       {/* Content */}
-      <p className="text-gray-300 leading-relaxed mb-8 text-lg group-hover:text-white transition-colors">
+      <p className="text-slate-700 font-medium leading-relaxed mb-8 text-lg group-hover:text-slate-900 transition-colors">
         "{testimonial.content}"
       </p>
 
@@ -95,8 +95,8 @@ const TestimonialCard: React.FC<{
           className="w-14 h-14 rounded-full object-cover ring-2 ring-sky-400/20"
         />
         <div>
-          <h4 className="font-bold text-white">{testimonial.name}</h4>
-          <p className="text-sm text-gray-400">
+          <h4 className="font-bold text-slate-950">{testimonial.name}</h4>
+          <p className="text-sm text-slate-600 font-medium">
             {testimonial.role} • {testimonial.location}
           </p>
         </div>
@@ -124,18 +124,37 @@ const Testimonials: React.FC = () => {
     }
   };
 
-  return (
-    <section className="bg-[#020617] py-24 md:py-32 relative overflow-hidden">
-      {/* Background Glows */}
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-sky-500/5 rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[150px] pointer-events-none" />
+  React.useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
-      {/* Animated Stars Background */}
+    const handleWheel = (evt: WheelEvent) => {
+      if (container.contains(evt.target as Node)) {
+        evt.preventDefault();
+        container.scrollLeft += evt.deltaY;
+        setScrollPosition(container.scrollLeft);
+      }
+    };
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      container.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
+
+  return (
+    <section className="bg-transparent py-24 md:py-32 relative overflow-hidden">
+      {/* Background Glows */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-sky-200/20 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-200/20 rounded-full blur-[150px] pointer-events-none" />
+
+      {/* Animated Stars Background - Changed to subtle dots for light theme */}
       <div className="absolute inset-0 pointer-events-none">
         {[...Array(20)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 bg-white/20 rounded-full"
+            className="absolute w-1 h-1 bg-sky-400/20 rounded-full"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -171,7 +190,7 @@ const Testimonials: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-5xl md:text-7xl font-display font-black text-white tracking-tighter leading-none"
+              className="text-5xl md:text-7xl font-display font-black text-slate-950 tracking-tighter leading-none"
             >
               Stories from <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-cyan-400 to-emerald-400 italic">
@@ -184,15 +203,15 @@ const Testimonials: React.FC = () => {
           <div className="flex gap-3">
             <button
               onClick={() => scroll("left")}
-              className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 hover:border-sky-400/30 transition-all cursor-pointer"
+              className="w-14 h-14 rounded-full border border-slate-200 flex items-center justify-center hover:bg-white hover:border-sky-300 transition-all cursor-pointer shadow-sm"
             >
-              <ChevronLeft size={22} className="text-white" />
+              <ChevronLeft size={22} className="text-slate-400" />
             </button>
             <button
               onClick={() => scroll("right")}
-              className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 hover:border-sky-400/30 transition-all cursor-pointer"
+              className="w-14 h-14 rounded-full border border-slate-200 flex items-center justify-center hover:bg-white hover:border-sky-300 transition-all cursor-pointer shadow-sm"
             >
-              <ChevronRight size={22} className="text-white" />
+              <ChevronRight size={22} className="text-slate-400" />
             </button>
           </div>
         </div>

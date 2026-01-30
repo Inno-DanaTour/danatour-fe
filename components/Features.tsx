@@ -104,7 +104,7 @@ const FEATURES: Feature[] = [
     description:
       "Our guides are born and raised in Da Nang, offering insights you won't find in any guidebook.",
     image:
-      "https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=800",
+      "https://images.unsplash.com/photo-1595860293946-d3e5e6c3fe37?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGhvaSUyMGFuJTIwdmlldG5hbXxlbnwwfHwwfHx8MA%3D%3D",
     delay: 0.1,
     gradient: "from-sky-400 to-emerald-400",
   },
@@ -113,7 +113,7 @@ const FEATURES: Feature[] = [
     description:
       "Travel in style with our fleet of modern, air-conditioned luxury vehicles equipped with amenities.",
     image:
-      "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=800",
+      "https://images.unsplash.com/photo-1505018620898-92616e1849cc?q=80&w=1176&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     delay: 0.2,
     gradient: "from-purple-400 to-pink-400",
   },
@@ -122,7 +122,7 @@ const FEATURES: Feature[] = [
     description:
       "From secret caves to midnight street food, we curate tours that go beyond the ordinary.",
     image:
-      "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=800",
+      "https://images.unsplash.com/photo-1574736048210-5cd4c2689079?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     delay: 0.3,
     gradient: "from-amber-400 to-orange-400",
   },
@@ -131,51 +131,59 @@ const FEATURES: Feature[] = [
 const FeatureCard: React.FC<{ feature: Feature }> = ({ feature }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      whileInView={{ opacity: 1, scale: 1 }}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: feature.delay }}
-      whileHover={{ y: -8, transition: { duration: 0.3 } }}
-      className="relative group p-8 rounded-[32px] bg-white/[0.02] backdrop-blur-sm border border-white/5 hover:border-white/20 transition-all cursor-pointer overflow-hidden flex flex-col h-full"
+      whileHover={{ y: -10 }}
+      className="relative group h-[450px] rounded-[32px] overflow-hidden cursor-pointer shadow-2xl"
     >
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src={feature.image}
-          alt={feature.title}
-          className="w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-opacity duration-700"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/80 to-[#020617]" />
-      </div>
+      {/* Background Image */}
+      <img
+        src={feature.image}
+        alt={feature.title}
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+      />
 
-      {/* Gradient Glow on Hover */}
+      {/* Dark Overlay for Text Readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500" />
+
+      {/* Colored Glow Effect on Hover */}
       <div
-        className={`absolute -inset-1 bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500 z-0`}
+        className={`absolute inset-0 bg-gradient-to-t ${feature.gradient} opacity-0 group-hover:opacity-30 mix-blend-overlay transition-opacity duration-500`}
       />
 
       {/* Content */}
-      <div className="relative z-10 mt-auto">
+      <div className="absolute inset-0 p-8 flex flex-col justify-end">
+        {/* Decorative Line */}
         <div
-          className={`w-12 h-[2px] mb-6 bg-gradient-to-r ${feature.gradient} rounded-full`}
+          className={`w-12 h-1 mb-6 bg-gradient-to-r ${feature.gradient} rounded-full origin-left transition-all duration-500 group-hover:w-24`}
         />
-        <h3 className="text-2xl font-display font-bold text-white mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-sky-400 group-hover:to-emerald-400 transition-all">
+
+        <h3 className="text-3xl font-display font-bold text-white mb-4 leading-tight group-hover:translate-x-2 transition-transform duration-300">
           {feature.title}
         </h3>
-        <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
+
+        <p className="text-gray-300 font-medium leading-relaxed group-hover:text-white transition-colors duration-300 line-clamp-3">
           {feature.description}
         </p>
-      </div>
 
-      {/* Corner Accent */}
-      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-white/5 to-transparent rounded-bl-[60px] opacity-0 group-hover:opacity-100 transition-opacity z-10" />
+        {/* Explore Button (Appears on Hover) */}
+        <div className="mt-6 flex items-center gap-2 text-white/0 group-hover:text-white transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100">
+          <span className="text-xs font-bold uppercase tracking-widest">
+            Discover
+          </span>
+          <div className="w-6 h-[1px] bg-white/50" />
+        </div>
+      </div>
     </motion.div>
   );
 };
 
 const Features: React.FC = () => {
   return (
-    <section className="bg-[#020617] py-24 md:py-32 relative overflow-hidden">
+    <section className="bg-transparent py-24 md:py-32 relative overflow-hidden">
       {/* Background Elements */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-sky-500/5 to-emerald-500/5 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-sky-200/20 to-emerald-200/20 rounded-full blur-[150px] pointer-events-none" />
 
       {/* Lottie Animation Background */}
       <div className="absolute top-20 right-20 w-64 h-64 opacity-20 pointer-events-none">
@@ -201,7 +209,7 @@ const Features: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-5xl md:text-7xl font-display font-black text-white tracking-tighter leading-none mb-6"
+            className="text-5xl md:text-7xl font-display font-black text-slate-950 tracking-tighter leading-none mb-6 "
           >
             Travel{" "}
             <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">
@@ -213,7 +221,7 @@ const Features: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-gray-400 text-lg max-w-2xl mx-auto"
+            className="text-slate-700 font-medium text-lg max-w-2xl mx-auto text-black"
           >
             Experience Da Nang like never before with our innovative approach to
             travel planning and local expertise.
@@ -226,23 +234,6 @@ const Features: React.FC = () => {
             <FeatureCard key={index} feature={feature} />
           ))}
         </div>
-
-        {/* Bottom CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mt-16 text-center"
-        >
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 text-white font-bold uppercase tracking-wider text-sm shadow-[0_20px_50px_-12px_rgba(14,165,233,0.4)] hover:shadow-[0_25px_60px_-12px_rgba(14,165,233,0.5)] transition-all cursor-pointer"
-          >
-            <Sparkles size={18} />
-            Start Your Journey
-          </motion.button>
-        </motion.div>
       </div>
     </section>
   );

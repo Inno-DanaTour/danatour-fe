@@ -40,7 +40,7 @@ const FAQItem: React.FC<FAQItemProps> = ({
   onToggle,
 }) => {
   return (
-    <div className="py-6 border-b border-white/5 last:border-0 cursor-pointer">
+    <div className="py-6 border-b border-slate-200 last:border-0 cursor-pointer">
       <button
         onClick={onToggle}
         className="w-full flex justify-between items-center text-left group transition-colors cursor-pointer"
@@ -48,8 +48,8 @@ const FAQItem: React.FC<FAQItemProps> = ({
         <span
           className={`text-xl font-medium tracking-tight transition-colors ${
             isOpen
-              ? "text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400"
-              : "text-white/90 group-hover:text-white"
+              ? "text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-emerald-600 font-bold"
+              : "text-slate-800 font-bold group-hover:text-slate-950"
           }`}
         >
           {question}
@@ -58,7 +58,7 @@ const FAQItem: React.FC<FAQItemProps> = ({
           className={`p-2 rounded-full transition-all duration-300 ${
             isOpen
               ? "rotate-180 bg-gradient-to-r from-sky-500/20 to-emerald-500/20 text-sky-400"
-              : "text-white/40 group-hover:text-white"
+              : "text-slate-400 group-hover:text-slate-900"
           }`}
         >
           {isOpen ? <Minus size={20} /> : <Plus size={20} />}
@@ -74,7 +74,7 @@ const FAQItem: React.FC<FAQItemProps> = ({
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <p className="text-gray-400 mt-4 leading-relaxed text-lg max-w-2xl">
+            <p className="text-slate-700 font-medium mt-4 leading-relaxed text-lg max-w-2xl">
               {answer}
             </p>
           </motion.div>
@@ -117,10 +117,10 @@ const FAQ: React.FC = () => {
   ];
 
   return (
-    <section className="bg-[#020617] py-24 md:py-32 relative overflow-hidden">
+    <section className="bg-transparent py-24 md:py-32 relative overflow-hidden">
       {/* Background glow */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-sky-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-sky-200/40 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-80 h-80 bg-emerald-200/40 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
@@ -131,13 +131,13 @@ const FAQ: React.FC = () => {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <h2 className="text-5xl md:text-6xl font-display font-black text-white leading-tight mb-8">
+              <h2 className="text-5xl md:text-6xl font-display font-black text-slate-950 leading-tight mb-8">
                 Frequently asked <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-emerald-500">
                   questions
                 </span>
               </h2>
-              <p className="text-gray-400 text-xl leading-relaxed mb-10 max-w-md">
+              <p className="text-slate-600 font-medium text-xl leading-relaxed mb-10 max-w-md">
                 Get in touch with our team or explore our frequently-asked
                 questions below.
               </p>

@@ -23,7 +23,7 @@ const Confirmation: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20 overflow-hidden">
-      <Header onBookClick={() => {}} />
+      <Header onBookClick={() => navigate("/tours")} />
 
       <main className="pt-28 md:pt-36 px-4 md:px-6 max-w-3xl mx-auto text-center relative">
         {/* Decorative Blobs */}
