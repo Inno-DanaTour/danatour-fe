@@ -40,7 +40,7 @@ A dual-font system that balances modern readability with character.
 
 Motion is not just decoration; it is communication. We use **Framer Motion** to orchestrate interactions.
 
-- **Library**: `framer-motion` (React)
+- **Library**: `framer-motion` (React), `lottie-react`
 - **Micro-interactions**:
   - **Button Hover**: Elements lift (`translateY(-2px)`) and cast a glow (`shadow-lg`) to encourage clicking.
   - **Scroll Reveal**: Sections fade in and slide up as the user explores the page, creating a narrative flow.
