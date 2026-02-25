@@ -1,0 +1,5 @@
+﻿src/pages/home/index.tsx(20,18): error TS2307: Cannot find module '@/src/pages/home/components/Hero/Hero' or its corresponding type declarations.
+src/pages/home/index.tsx(21,22): error TS2307: Cannot find module '@/src/pages/home/components/Features/Features' or its corresponding type declarations.
+src/pages/home/index.tsx(22,26): error TS2307: Cannot find module '@/src/pages/home/components/Testimonials/Testimonials' or its corresponding type declarations.
+src/pages/home/index.tsx(23,22): error TS2307: Cannot find module '@/src/pages/home/components/Articles/Articles' or its corresponding type declarations.
+src/pages/home/index.tsx(24,17): error TS2307: Cannot find module '@/src/pages/home/components/FAQ/FAQ' or its corresponding type declarations.
