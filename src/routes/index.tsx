@@ -17,6 +17,9 @@ import CompanyDetail from "../pages/company-detail";
 import MyBookings from "../pages/my-bookings";
 import OAuth2Callback from "../pages/auth/oauth2";
 import ChangePassword from "../pages/auth/change-password";
+import ManageTours from "../pages/tours/ManageTours";
+import CreateTour from "../pages/tours/CreateTour";
+import EditTour from "../pages/tours/EditTour";
 
 const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <motion.div
@@ -54,6 +57,30 @@ export const AnimatedRoutes = () => {
       element: (
         <PageWrapper>
           <Tours />
+        </PageWrapper>
+      ),
+    },
+    {
+      path: "/tours/manage",
+      element: (
+        <PageWrapper>
+          <ManageTours />
+        </PageWrapper>
+      ),
+    },
+    {
+      path: "/tours/create",
+      element: (
+        <PageWrapper>
+          <CreateTour />
+        </PageWrapper>
+      ),
+    },
+    {
+      path: "/tours/:id/edit",
+      element: (
+        <PageWrapper>
+          <EditTour />
         </PageWrapper>
       ),
     },
