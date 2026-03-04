@@ -10,13 +10,24 @@ import {
   MapPin,
   ArrowLeft,
 } from "lucide-react";
+import { useLogin } from "./hooks/useLogin";
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [focusField, setFocusField] = useState(null);
+  const { handleLogin, loading, error } = useLogin();
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) return;
+    try {
+      await handleLogin({ identifier: email, password });
+    } catch (err) {
+      // Error is handled by the hook
+    }
+  };
 
   // --- ANIMATION VARIANTS ---
   const containerVariants = {
@@ -103,8 +114,19 @@ const Login = () => {
             </p>
           </motion.div>
 
+          {/* --- ERROR MESSAGE --- */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 p-3 rounded-xl bg-red-500/20 border border-red-500/50 text-red-100 text-sm text-center"
+            >
+              {error}
+            </motion.div>
+          )}
+
           {/* --- FORM --- */}
-          <div className="space-y-4">
+          <form onSubmit={onSubmit} className="space-y-4">
             {/* EMAIL INPUT - Simple Facebook Style */}
             <motion.div variants={itemVariants}>
               <input
@@ -157,16 +179,26 @@ const Login = () => {
             {/* MAGNETIC BUTTON */}
             <motion.div variants={itemVariants}>
               <motion.button
-                whileHover={{
-                  scale: 1.02,
-                  boxShadow: "0 0 30px rgba(255, 200, 87, 0.4)",
-                }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full py-3 rounded-2xl font-bold uppercase tracking-wider text-[#002B49] bg-gradient-to-r from-[#FFC857] to-[#FCA311] shadow-[0_0_15px_rgba(255,200,87,0.2)] relative overflow-hidden text-sm"
+                type="submit"
+                disabled={loading}
+                whileHover={
+                  !loading
+                    ? {
+                        scale: 1.02,
+                        boxShadow: "0 0 30px rgba(255, 200, 87, 0.4)",
+                      }
+                    : {}
+                }
+                whileTap={!loading ? { scale: 0.98 } : {}}
+                className={`w-full py-3 rounded-2xl font-bold uppercase tracking-wider text-[#002B49] bg-gradient-to-r from-[#FFC857] to-[#FCA311] shadow-[0_0_15px_rgba(255,200,87,0.2)] relative overflow-hidden text-sm ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
               >
-                <span className="relative z-10">Initialize Session</span>
+                <span className="relative z-10">
+                  {loading ? "Initializing..." : "Initialize Session"}
+                </span>
                 {/* Shine Effect */}
-                <div className="absolute inset-0 bg-white/20 translate-x-[-100%] animate-[shine_3s_infinite]" />
+                {!loading && (
+                  <div className="absolute inset-0 bg-white/20 translate-x-[-100%] animate-[shine_3s_infinite]" />
+                )}
               </motion.button>
             </motion.div>
 
@@ -185,6 +217,11 @@ const Login = () => {
             {/* SOCIAL BUTTONS */}
             <div className="space-y-2">
               <motion.button
+                type="button"
+                onClick={() => {
+                  window.location.href =
+                    "http://localhost:8080/api/v1/oauth2/authorize/google";
+                }}
                 variants={itemVariants}
                 whileHover={{
                   y: -2,
@@ -223,7 +260,7 @@ const Login = () => {
                 Continue with Apple
               </motion.button>
             </div>
-          </div>
+          </form>
         </motion.div>
 
         {/* FOOTER */}
