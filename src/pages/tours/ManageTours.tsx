@@ -173,7 +173,7 @@ const ManageTours: React.FC = () => {
                                                     </div>
                                                 </td>
                                                 <td className="px-8 py-6">
-                                                    <p className="font-black text-cta text-lg">{tour.basePrice.toLocaleString()} VND</p>
+                                                    <p className="font-black text-cta text-lg">{tour.adultPrice.toLocaleString()} VND</p>
                                                 </td>
                                                 <td className="px-8 py-6">
                                                     <div className="flex items-center gap-2 text-gray-500 font-bold">

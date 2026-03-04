@@ -40,7 +40,8 @@ export interface Tour {
   description: string;
   image: string;
   gallery: string[];
-  price: number;
+  adultPrice: number;
+  childrenPrice: number;
   duration: string;
   rating: number;
   reviewCount: number;
@@ -111,7 +112,8 @@ export interface PagedResponse<T> {
 export interface TourListItem {
   id: number;
   title: string;
-  basePrice: number;
+  adultPrice: number;
+  childrenPrice: number;
   thumbnailUrl: string;
   placeName: string;
   rating?: number;
@@ -147,7 +149,8 @@ export interface TourDetail {
   title: string;
   description: string;
   itinerary: string;
-  basePrice: number;
+  adultPrice: number;
+  childrenPrice: number;
   durationDays: number;
   durationNights: number;
   status: string;

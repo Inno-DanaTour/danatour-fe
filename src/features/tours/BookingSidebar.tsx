@@ -34,11 +34,28 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ tour }) => {
               {new Intl.NumberFormat("vi-VN", {
                 style: "currency",
                 currency: "VND",
-              }).format(tour.price)}
+              }).format(tour.adultPrice)}
             </span>
           </div>
           <div className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-bold">
             Best Price
+          </div>
+        </div>
+
+        {/* Price breakdown */}
+        <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
+          <p className="text-xs font-black uppercase tracking-widest text-gray-400">Price Details</p>
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-gray-600">👤 Adult</span>
+            <span className="font-black text-gray-900">
+              {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(tour.adultPrice)}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-gray-600">🧒 Children</span>
+            <span className="font-black text-gray-900">
+              {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(tour.childrenPrice)}
+            </span>
           </div>
         </div>
 

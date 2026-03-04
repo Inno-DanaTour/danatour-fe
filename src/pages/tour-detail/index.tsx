@@ -68,7 +68,8 @@ const TourDetail: React.FC = () => {
           description: data.description,
           image: data.images[0]?.imageUrl || "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80",
           gallery: data.images.map(img => img.imageUrl),
-          price: data.basePrice,
+          adultPrice: data.adultPrice,
+          childrenPrice: data.childrenPrice,
           duration: `${data.durationDays}D / ${data.durationNights}N`,
           rating: 4.8, // Mock if not in DTO
           reviewCount: 24, // Mock if not in DTO
@@ -324,7 +325,7 @@ const TourDetail: React.FC = () => {
                                   {new Intl.NumberFormat("vi-VN", {
                                     style: "currency",
                                     currency: "VND",
-                                  }).format(tour.price)}
+                                  }).format(tour.adultPrice)}
                                 </div>
                               </div>
 
@@ -395,7 +396,7 @@ const TourDetail: React.FC = () => {
             {new Intl.NumberFormat("vi-VN", {
               style: "currency",
               currency: "VND",
-            }).format(tour.price)}
+            }).format(tour.adultPrice)}
           </span>
         </div>
         <button

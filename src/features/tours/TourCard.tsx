@@ -71,7 +71,7 @@ const TourCard: React.FC<TourCardProps> = ({ tour, viewType }) => {
               {new Intl.NumberFormat("vi-VN", {
                 style: "currency",
                 currency: "VND",
-              }).format(tour.price)}
+              }).format(tour.adultPrice)}
             </span>
           </div>
           <button className="btn-primary py-1.5 px-5 text-xs">Details</button>

@@ -27,7 +27,8 @@ const CreateTour: React.FC = () => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [itinerary, setItinerary] = useState("");
-    const [basePrice, setBasePrice] = useState<number>(0);
+    const [adultPrice, setAdultPrice] = useState<number>(0);
+    const [childrenPrice, setChildrenPrice] = useState<number>(0);
     const [durationDays, setDurationDays] = useState<number>(1);
     const [durationNights, setDurationNights] = useState<number>(0);
     const [categoryId, setCategoryId] = useState<number | "">("");
@@ -116,7 +117,8 @@ const CreateTour: React.FC = () => {
                 title,
                 description,
                 itinerary,
-                basePrice,
+                adultPrice,
+                childrenPrice,
                 durationDays,
                 durationNights,
                 categoryId: Number(categoryId),
@@ -259,13 +261,24 @@ const CreateTour: React.FC = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="space-y-2">
-                                <label className="text-sm font-black uppercase tracking-widest text-gray-400">Base Price (VND)</label>
+                                <label className="text-sm font-black uppercase tracking-widest text-gray-400">Adult Price (VND)</label>
                                 <input
                                     required
                                     type="number"
                                     min="0"
-                                    value={basePrice}
-                                    onChange={(e) => setBasePrice(Number(e.target.value))}
+                                    value={adultPrice}
+                                    onChange={(e) => setAdultPrice(Number(e.target.value))}
+                                    className="w-full bg-gray-50 border-none rounded-2xl p-5 focus:ring-2 focus:ring-primary/20 text-xl font-black text-cta"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-black uppercase tracking-widest text-gray-400">Children Price (VND)</label>
+                                <input
+                                    required
+                                    type="number"
+                                    min="0"
+                                    value={childrenPrice}
+                                    onChange={(e) => setChildrenPrice(Number(e.target.value))}
                                     className="w-full bg-gray-50 border-none rounded-2xl p-5 focus:ring-2 focus:ring-primary/20 text-xl font-black text-cta"
                                 />
                             </div>

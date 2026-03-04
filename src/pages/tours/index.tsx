@@ -40,7 +40,8 @@ const Tours: React.FC = () => {
           description: `Discover the beauty of ${item.placeName}.`,
           image: item.thumbnailUrl || "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80",
           gallery: [],
-          price: item.basePrice,
+          adultPrice: item.adultPrice,
+          childrenPrice: item.childrenPrice,
           duration: `${item.durationDays}D / ${item.durationNights}N`,
           rating: item.rating || 5,
           reviewCount: Math.floor(Math.random() * 50) + 10,
@@ -64,12 +65,12 @@ const Tours: React.FC = () => {
     .filter((tour) => {
       const matchesSearch = tour.name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesZone = selectedZone === "ALL" || String(tour.zone) === selectedZone;
-      const matchesPrice = tour.price <= priceRange;
+      const matchesPrice = tour.adultPrice <= priceRange;
       return matchesSearch && matchesZone && matchesPrice;
     })
     .sort((a, b) => {
-      if (sortBy === "price_asc") return a.price - b.price;
-      if (sortBy === "price_desc") return b.price - a.price;
+      if (sortBy === "price_asc") return a.adultPrice - b.adultPrice;
+      if (sortBy === "price_desc") return b.adultPrice - a.adultPrice;
       if (sortBy === "rating") return b.rating - a.rating;
       return 0;
     });
