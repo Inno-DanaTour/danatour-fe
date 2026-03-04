@@ -40,7 +40,8 @@ export interface Tour {
   description: string;
   image: string;
   gallery: string[];
-  price: number;
+  adultPrice: number;
+  childrenPrice: number;
   duration: string;
   rating: number;
   reviewCount: number;
@@ -48,7 +49,7 @@ export interface Tour {
   highlights: string[];
   itinerary: ItineraryItem[];
   reviews: Review[];
-  companyId: number;
+  schedules?: TourSchedule[];
 }
 
 export interface AppState {
@@ -90,4 +91,74 @@ export interface Booking {
   status: BookingStatus;
   createdAt: string;
   startDate: string;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  code: number;
+  message: string;
+  data: T;
+  total: number;
+}
+
+export interface PagedResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+}
+
+export interface TourListItem {
+  id: number;
+  title: string;
+  adultPrice: number;
+  childrenPrice: number;
+  thumbnailUrl: string;
+  placeName: string;
+  rating?: number;
+  durationDays: number;
+  durationNights: number;
+  status: string;
+}
+
+export interface TourImage {
+  imageUrl: string;
+  isThumbnail: boolean;
+}
+
+export interface TourSchedule {
+  id: number;
+  startDate: string;
+  endDate: string;
+  capacity: number;
+}
+
+export interface CategoryResponse {
+  id: number;
+  name: string;
+}
+
+export interface PlaceResponse {
+  id: number;
+  name: string;
+}
+
+export interface TourDetail {
+  id: number;
+  title: string;
+  description: string;
+  itinerary: string;
+  adultPrice: number;
+  childrenPrice: number;
+  durationDays: number;
+  durationNights: number;
+  status: string;
+  category: CategoryResponse;
+  place: PlaceResponse;
+  images: TourImage[];
+  schedules: TourSchedule[];
 }
