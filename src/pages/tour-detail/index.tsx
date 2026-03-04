@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
-import { Check, Star, ArrowLeft, CheckCircle } from "lucide-react";
+import { Check, Star, ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
 import Header from "../../components/layout/Header";
 import ImageGallery from "../../features/tours/ImageGallery";
 import ItineraryTimeline from "../../features/tours/ItineraryTimeline";
 import BookingSidebar from "../../features/tours/BookingSidebar";
 import ReviewCard from "../../components/ui/ReviewCard";
-import { TOURS } from "../../constants/constants";
-import { Tour } from "../../types/types";
+import { tourService } from "../../services/tourService";
+import { Tour, ItineraryItem } from "../../types/types";
 
 const TourDetail: React.FC = () => {
   const { scrollYProgress } = useScroll();
@@ -20,18 +20,85 @@ const TourDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [tour, setTour] = useState<Tour | null>(null);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<
-    "overview" | "itinerary" | "reviews"
+    "overview" | "itinerary" | "schedules" | "reviews"
   >("overview");
 
   useEffect(() => {
-    const foundTour = TOURS.find((t) => t.id === id);
-    if (foundTour) {
-      setTour(foundTour);
-    } else {
-      navigate("/tours");
-    }
+    const fetchDetail = async () => {
+      if (!id) return;
+      try {
+        setLoading(true);
+        const data = await tourService.getTourDetail(id);
+
+        // Parse itinerary string into ItineraryItem[]
+        let mappedItinerary: ItineraryItem[] = [];
+        if (data.itinerary) {
+          const lines = data.itinerary.split('\n').filter(line => line.trim() !== "");
+          if (lines.length > 0 && lines[0].toLowerCase().includes("day")) {
+            // Simple parsing: Each line starting with "Day" is a new day
+            let currentDay = 0;
+            lines.forEach(line => {
+              if (line.toLowerCase().startsWith("day")) {
+                currentDay++;
+                const parts = line.split(':');
+                mappedItinerary.push({
+                  day: currentDay,
+                  title: parts[0].trim(),
+                  description: parts.slice(1).join(':').trim() || "Activities for the day"
+                });
+              } else if (mappedItinerary.length > 0) {
+                mappedItinerary[mappedItinerary.length - 1].description += " " + line.trim();
+              }
+            });
+          } else {
+            // Fallback: One big Day 1
+            mappedItinerary = [{
+              day: 1,
+              title: "Full Journey",
+              description: data.itinerary
+            }];
+          }
+        }
+
+        const mappedTour: Tour = {
+          id: String(data.id),
+          name: data.title,
+          description: data.description,
+          image: data.images[0]?.imageUrl || "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80",
+          gallery: data.images.map(img => img.imageUrl),
+          adultPrice: data.adultPrice,
+          childrenPrice: data.childrenPrice,
+          duration: `${data.durationDays}D / ${data.durationNights}N`,
+          rating: 4.8, // Mock if not in DTO
+          reviewCount: 24, // Mock if not in DTO
+          zone: data.place.name as any,
+          highlights: ["Local Guide", "Transportation", "Entrance Fees", "Lunch included"],
+          itinerary: mappedItinerary,
+          reviews: [],
+          schedules: data.schedules
+        };
+        setTour(mappedTour);
+      } catch (err) {
+        console.error("Failed to fetch tour detail:", err);
+        navigate("/tours");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDetail();
   }, [id, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
+        <p className="text-gray-500 font-bold animate-pulse">Loading journey details...</p>
+      </div>
+    );
+  }
 
   if (!tour) return null;
 
@@ -66,7 +133,7 @@ const TourDetail: React.FC = () => {
             >
               <div className="flex flex-wrap items-center gap-4 mb-4">
                 <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] md:text-sm font-bold uppercase tracking-wider">
-                  {tour.zone}
+                  {String(tour.zone)}
                 </span>
                 <div className="flex items-center gap-1 text-yellow-500 font-bold text-sm md:text-base">
                   <Star size={18} fill="currentColor" />
@@ -90,15 +157,14 @@ const TourDetail: React.FC = () => {
               className="border-b border-gray-200 sticky top-20 bg-background/80 backdrop-blur-md z-30 pt-4"
             >
               <div className="flex gap-6 md:gap-10 overflow-x-auto no-scrollbar">
-                {["overview", "itinerary", "reviews"].map((tab) => (
+                {["overview", "itinerary", "schedules", "reviews"].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab as any)}
-                    className={`pb-4 text-base md:text-lg font-bold capitalize transition-all relative shrink-0 ${
-                      activeTab === tab
-                        ? "text-primary"
-                        : "text-gray-400 hover:text-gray-600"
-                    }`}
+                    className={`pb-4 text-base md:text-lg font-bold capitalize transition-all relative shrink-0 ${activeTab === tab
+                      ? "text-primary"
+                      : "text-gray-400 hover:text-gray-600"
+                      }`}
                   >
                     {tab}
                     {activeTab === tab && (
@@ -127,7 +193,7 @@ const TourDetail: React.FC = () => {
                       <h3 className="text-xl md:text-2xl font-bold mb-4">
                         Tour Overview
                       </h3>
-                      <p className="text-gray-600 leading-relaxed text-base md:text-lg">
+                      <p className="text-gray-600 leading-relaxed text-base md:text-lg whitespace-pre-line">
                         {tour.description}
                       </p>
                     </div>
@@ -168,29 +234,22 @@ const TourDetail: React.FC = () => {
                         <div className="flex-grow space-y-1">
                           <div className="flex items-center gap-2">
                             <h4 className="font-black text-xl text-gray-900">
-                              Da Nang Discovery Co.
+                              Local Partner
                             </h4>
                             <CheckCircle size={16} className="text-green-500" />
                           </div>
                           <p className="text-gray-500 text-sm line-clamp-2">
-                            Authentic local experiences across Central Vietnam
-                            since 2015. We show you the hidden gems.
+                            Authentic local experiences across Vietnam. We show you the hidden gems.
                           </p>
                           <div className="flex items-center gap-4 pt-2">
                             <span className="flex items-center gap-1 text-yellow-500 font-bold text-xs">
-                              <Star size={12} fill="currentColor" /> 4.9
+                              <Star size={12} fill="currentColor" /> 5.0
                             </span>
                             <span className="text-xs text-gray-400 font-bold uppercase tracking-widest">
-                              12 Tours Active
+                              Verified Provider
                             </span>
                           </div>
                         </div>
-                        <button
-                          onClick={() => navigate("/companies/provider-1")}
-                          className="w-full md:w-auto px-6 py-3 bg-primary/10 text-primary rounded-xl font-bold text-sm hover:bg-primary hover:text-white transition-all whitespace-nowrap"
-                        >
-                          View Profile
-                        </button>
                       </div>
                     </div>
                   </motion.div>
@@ -210,6 +269,84 @@ const TourDetail: React.FC = () => {
                   </motion.div>
                 )}
 
+                {activeTab === "schedules" && (
+                  <motion.div
+                    key="schedules"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="space-y-6"
+                  >
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-xl md:text-2xl font-bold">Upcoming Departures</h3>
+                      <span className="text-gray-500 text-sm font-medium">All times in local timezone</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4">
+                      {tour.schedules && tour.schedules.length > 0 ? (
+                        tour.schedules.map((s) => (
+                          <div
+                            key={s.id}
+                            className="bg-white p-5 md:p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row md:items-center justify-between gap-6"
+                          >
+                            <div className="flex items-center gap-6">
+                              <div className="flex flex-col items-center justify-center bg-primary/5 text-primary rounded-2xl w-16 h-16 shrink-0">
+                                <span className="text-[10px] uppercase font-black tracking-widest leading-none mb-1">
+                                  {new Date(s.startDate).toLocaleDateString("en-US", { month: "short" })}
+                                </span>
+                                <span className="text-2xl font-black leading-none">
+                                  {new Date(s.startDate).toLocaleDateString("en-US", { day: "numeric" })}
+                                </span>
+                              </div>
+
+                              <div>
+                                <div className="font-bold text-gray-900 text-lg">
+                                  {new Date(s.startDate).toLocaleDateString("en-US", { weekday: 'long' })}
+                                </div>
+                                <div className="text-gray-500 text-sm flex items-center gap-2">
+                                  <span>{new Date(s.startDate).toLocaleDateString("vi-VN")}</span>
+                                  <span>→</span>
+                                  <span>{new Date(s.endDate).toLocaleDateString("vi-VN")}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between md:justify-end gap-10">
+                              <div className="text-right">
+                                <div className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">Availability</div>
+                                <div className={`font-bold text-sm ${s.capacity > 5 ? 'text-green-500' : 'text-cta'}`}>
+                                  {s.capacity} spots left
+                                </div>
+                              </div>
+
+                              <div className="text-right">
+                                <div className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">Price per guest</div>
+                                <div className="font-black text-xl text-primary">
+                                  {new Intl.NumberFormat("vi-VN", {
+                                    style: "currency",
+                                    currency: "VND",
+                                  }).format(tour.adultPrice)}
+                                </div>
+                              </div>
+
+                              <button className="btn-primary py-3 px-8 rounded-2xl shadow-lg shadow-primary/20 whitespace-nowrap hidden md:block">
+                                Book This Date
+                              </button>
+                            </div>
+                            <button className="btn-primary py-4 px-8 rounded-2xl md:hidden">
+                              Select This Date
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-100">
+                          <p className="text-gray-400 font-medium">No upcoming departures found for this tour.</p>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+
                 {activeTab === "reviews" && (
                   <motion.div
                     key="reviews"
@@ -222,9 +359,6 @@ const TourDetail: React.FC = () => {
                       <h3 className="text-xl md:text-2xl font-bold">
                         Traveler Reviews
                       </h3>
-                      <button className="btn-secondary text-xs md:text-sm py-2 px-6">
-                        Write a Review
-                      </button>
                     </div>
                     {tour.reviews.length > 0 ? (
                       <div className="space-y-4">
@@ -262,19 +396,10 @@ const TourDetail: React.FC = () => {
             {new Intl.NumberFormat("vi-VN", {
               style: "currency",
               currency: "VND",
-            }).format(tour.price)}
+            }).format(tour.adultPrice)}
           </span>
         </div>
         <button
-          onClick={() =>
-            navigate("/checkout", {
-              state: {
-                tour,
-                guestCount: 1,
-                date: new Date().toISOString().split("T")[0],
-              },
-            })
-          }
           className="btn-primary py-3.5 px-10 text-base shadow-xl shadow-cta/20"
         >
           Book Now
