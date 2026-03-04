@@ -8,7 +8,8 @@ import ItineraryTimeline from "../../features/tours/ItineraryTimeline";
 import BookingSidebar from "../../features/tours/BookingSidebar";
 import ReviewCard from "../../components/ui/ReviewCard";
 import { TOURS } from "../../constants/constants";
-import { Tour } from "../../types/types";
+import { companyService } from "../company-detail/services/companyService";
+import { Company, Tour } from "../../types/types";
 
 const TourDetail: React.FC = () => {
   const { scrollYProgress } = useScroll();
@@ -20,6 +21,8 @@ const TourDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [tour, setTour] = useState<Tour | null>(null);
+  const [company, setCompany] = useState<Company | null>(null);
+  const [allCompanies, setAllCompanies] = useState<Company[]>([]);
   const [activeTab, setActiveTab] = useState<
     "overview" | "itinerary" | "reviews"
   >("overview");
@@ -28,6 +31,15 @@ const TourDetail: React.FC = () => {
     const foundTour = TOURS.find((t) => t.id === id);
     if (foundTour) {
       setTour(foundTour);
+      // Fetch dynamic company info using the tour's real provider ID
+      companyService.getCompanyById(foundTour.companyId)
+        .then(setCompany)
+        .catch(console.error);
+      
+      // Fetch all companies to display at the bottom
+      companyService.getAllCompanies()
+        .then(setAllCompanies)
+        .catch(console.error);
     } else {
       navigate("/tours");
     }
@@ -80,6 +92,54 @@ const TourDetail: React.FC = () => {
                 {tour.name}
               </h1>
               <ImageGallery images={tour.gallery} />
+            </motion.div>
+
+            {/* Provider Section - Prominent Position */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+            >
+              {company ? (
+                <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-black/5 flex flex-col md:flex-row gap-6 items-start md:items-center">
+                  <div className="w-20 h-20 rounded-2xl overflow-hidden shrink-0 shadow-lg">
+                    <img
+                      src={company.logoUrl || "https://images.unsplash.com/photo-1599305090748-35699709d435?w=500&auto=format&fit=crop&q=60"}
+                      className="w-full h-full object-cover"
+                      alt={company.name}
+                    />
+                  </div>
+                  <div className="flex-grow space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-black text-xl text-gray-900">
+                        {company.name}
+                      </h4>
+                      <CheckCircle size={16} className="text-green-500" />
+                    </div>
+                    <p className="text-gray-500 text-sm line-clamp-2 font-medium">
+                      {company.description}
+                    </p>
+                    <div className="flex items-center gap-4 pt-2">
+                      <span className="flex items-center gap-1 text-yellow-500 font-bold text-xs bg-yellow-50 px-2 py-1 rounded-full">
+                        <Star size={12} fill="currentColor" /> {company.averageRating}
+                      </span>
+                      <span className="text-xs text-gray-400 font-bold uppercase tracking-widest">
+                        {company.totalTours} Tours Active
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => navigate(`/companies/${company.id}`)}
+                    className="w-full md:w-auto px-6 py-3 bg-primary/10 text-primary rounded-xl font-bold text-sm hover:bg-primary hover:text-white transition-all whitespace-nowrap"
+                  >
+                    View Profile
+                  </button>
+                </div>
+              ) : (
+                <div className="h-32 flex items-center justify-center bg-gray-50 rounded-[2rem] border border-dashed animate-pulse">
+                  <p className="text-gray-400 font-medium">Loading provider info...</p>
+                </div>
+              )}
             </motion.div>
 
             {/* Tabs */}
@@ -153,46 +213,56 @@ const TourDetail: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="pt-12 border-t border-gray-100">
-                      <h3 className="text-xl md:text-2xl font-bold mb-6">
-                        About the Provider
-                      </h3>
-                      <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-black/5 flex flex-col md:flex-row gap-6 items-start md:items-center">
-                        <div className="w-20 h-20 rounded-2xl overflow-hidden shrink-0 shadow-lg">
-                          <img
-                            src="https://images.unsplash.com/photo-1599305090748-35699709d435?w=500&auto=format&fit=crop&q=60"
-                            className="w-full h-full object-cover"
-                            alt="Provider"
-                          />
-                        </div>
-                        <div className="flex-grow space-y-1">
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-black text-xl text-gray-900">
-                              Da Nang Discovery Co.
-                            </h4>
-                            <CheckCircle size={16} className="text-green-500" />
-                          </div>
-                          <p className="text-gray-500 text-sm line-clamp-2">
-                            Authentic local experiences across Central Vietnam
-                            since 2015. We show you the hidden gems.
-                          </p>
-                          <div className="flex items-center gap-4 pt-2">
-                            <span className="flex items-center gap-1 text-yellow-500 font-bold text-xs">
-                              <Star size={12} fill="currentColor" /> 4.9
-                            </span>
-                            <span className="text-xs text-gray-400 font-bold uppercase tracking-widest">
-                              12 Tours Active
-                            </span>
+
+                    {/* All Companies Section - Horizontal Scroller */}
+                    {allCompanies.filter(c => c.id !== company?.id).length > 0 && (
+                      <div className="pt-12 mt-8 border-t border-gray-100 bg-gray-50/50 -mx-6 px-6 py-12 rounded-[3rem]">
+                        <div className="flex items-center justify-between mb-8 px-2">
+                          <div className="space-y-1">
+                            <h3 className="text-2xl md:text-3xl font-black text-gray-900">
+                              Explore Our Partners
+                            </h3>
+                            <p className="text-gray-500 text-sm font-medium">
+                              Discover more authentic local experiences from our trusted providers.
+                            </p>
                           </div>
                         </div>
-                        <button
-                          onClick={() => navigate("/companies/provider-1")}
-                          className="w-full md:w-auto px-6 py-3 bg-primary/10 text-primary rounded-xl font-bold text-sm hover:bg-primary hover:text-white transition-all whitespace-nowrap"
-                        >
-                          View Profile
-                        </button>
+                        <div className="flex gap-6 overflow-x-auto pb-8 no-scrollbar touch-pan-x">
+                          {allCompanies
+                            .filter(c => c.id !== company?.id)
+                            .map((c) => (
+                              <motion.div
+                                key={c.id}
+                                whileHover={{ y: -8, scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => navigate(`/companies/${c.id}`)}
+                                className="min-w-[220px] md:min-w-[260px] bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all cursor-pointer text-center space-y-4 shrink-0 group"
+                              >
+                                <div className="w-20 h-20 md:w-24 md:h-24 rounded-3xl overflow-hidden mx-auto shadow-md group-hover:shadow-xl transition-all duration-500">
+                                  <img
+                                    src={c.logoUrl || "https://images.unsplash.com/photo-1599305090748-35699709d435?w=500&auto=format&fit=crop&q=60"}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                    alt={c.name}
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <h5 className="font-black text-base md:text-lg text-gray-900 group-hover:text-primary transition-colors line-clamp-1">
+                                    {c.name}
+                                  </h5>
+                                  <div className="flex items-center justify-center gap-1.5 text-yellow-500 font-black text-xs">
+                                    <Star size={14} fill="currentColor" /> {c.averageRating}
+                                  </div>
+                                </div>
+                                <div className="pt-2">
+                                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-primary/60 transition-colors">
+                                    {c.totalTours} Tours Active
+                                  </span>
+                                </div>
+                              </motion.div>
+                            ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </motion.div>
                 )}
 

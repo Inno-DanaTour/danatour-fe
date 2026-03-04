@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin,
   Star,
@@ -9,25 +9,16 @@ import {
   ArrowLeft,
   Heart,
   Search,
+  Loader2,
 } from "lucide-react";
 import Header from "../../components/layout/Header";
 import { TOURS } from "../../constants/constants";
 import { Company, Tour } from "../../types/types";
+import { companyService } from "./services/companyService";
+import { getAuthToken } from "../../configs/api";
+import { AlertCircle } from "lucide-react";
 
-// Mock Company Data
-const MOCK_COMPANIES: Company[] = [
-  {
-    id: "provider-1",
-    name: "Da Nang Discovery Co.",
-    logo: "https://images.unsplash.com/photo-1599305090748-35699709d435?w=500&auto=format&fit=crop&q=60",
-    description:
-      "Specializing in authentic local experiences across Central Vietnam since 2015. Our mission is to show you the hidden gems of Da Nang through the eyes of a local.",
-    address: "123 Vo Nguyen Giap, Da Nang",
-    rating: 4.9,
-    totalTours: 12,
-    isFollowed: false,
-  },
-];
+// Mock Company Data removed
 
 const CompanyDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -36,28 +27,65 @@ const CompanyDetail: React.FC = () => {
   const [isFollowed, setIsFollowed] = useState(false);
   const [activeTours, setActiveTours] = useState<Tour[]>([]);
 
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+
   useEffect(() => {
-    // Mock fetch
-    const foundCompany = MOCK_COMPANIES.find((c) => c.id === id);
-    if (foundCompany) {
-      setCompany(foundCompany);
-      setIsFollowed(!!foundCompany.isFollowed);
-      // Mock filter tours by provider (here just taking a few from constants)
-      setActiveTours(TOURS.slice(0, 3));
-    } else {
-      // Create a default if not found for demo purposes
-      const defaultCompany = { ...MOCK_COMPANIES[0], id: id || "provider-1" };
-      setCompany(defaultCompany);
-      setActiveTours(TOURS);
-    }
+    const fetchCompany = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await companyService.getCompanyById(id);
+        setCompany(data);
+        setIsFollowed(!!data.isFollowed);
+        // Still mocking tours for now as backend doesn't have tours per company yet
+        setActiveTours(TOURS.slice(0, 3));
+      } catch (err: any) {
+        setError(err.message || "Failed to load company details");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (id) fetchCompany();
   }, [id]);
 
-  const handleToggleFollow = () => {
-    setIsFollowed(!isFollowed);
-    // In real app, call API here
+  const handleToggleFollow = async () => {
+    if (!id) return;
+    
+    // Check if user is logged in
+    if (!getAuthToken()) {
+      setShowLoginPrompt(true);
+      // Auto-hide prompt after 5 seconds
+      setTimeout(() => setShowLoginPrompt(false), 5000);
+      return;
+    }
+
+    try {
+      const response = await companyService.toggleFollow(id);
+      setIsFollowed(response.is_following);
+    } catch (err: any) {
+      setError(err.message || "Failed to toggle follow status");
+    }
   };
 
-  if (!company) return null;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error || !company) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center text-center p-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">{error || "Company not found"}</h2>
+        <button onClick={() => navigate(-1)} className="btn-primary px-8">Go Back</button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -74,6 +102,34 @@ const CompanyDetail: React.FC = () => {
           Back
         </motion.button>
 
+        {/* Login Prompt Notification */}
+        <AnimatePresence>
+          {showLoginPrompt && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-full max-w-md px-4"
+            >
+              <div className="bg-white rounded-2xl shadow-2xl border border-primary/20 p-4 flex items-center gap-4 bg-gradient-to-r from-primary/5 to-transparent">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <AlertCircle size={24} />
+                </div>
+                <div className="flex-grow">
+                  <h4 className="text-sm font-black text-gray-900 uppercase tracking-wider">Login Required</h4>
+                  <p className="text-xs text-gray-500 font-medium">Please sign in to follow this agency and receive updates.</p>
+                </div>
+                <button 
+                  onClick={() => navigate("/login")}
+                  className="px-4 py-2 bg-primary text-white text-xs font-black rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20"
+                >
+                  LOGIN
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Company Profile Header */}
         <section className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl shadow-black/5 border border-gray-100 mb-12">
           <div className="flex flex-col md:flex-row gap-10 items-start md:items-center">
@@ -83,7 +139,7 @@ const CompanyDetail: React.FC = () => {
               className="w-32 h-32 md:w-40 md:h-40 rounded-3xl overflow-hidden shadow-2xl shrink-0"
             >
               <img
-                src={company.logo}
+                src={company.logoUrl || "https://images.unsplash.com/photo-1599305090748-35699709d435?w=500&auto=format&fit=crop&q=60"}
                 alt={company.name}
                 className="w-full h-full object-cover"
               />
@@ -108,9 +164,9 @@ const CompanyDetail: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <Star size={18} fill="#FFC107" className="text-[#FFC107]" />
                   <span className="font-bold text-gray-900">
-                    {company.rating}
+                    {company.averageRating}
                   </span>
-                  <span className="text-gray-400">(2.4k reviews)</span>
+                  <span className="text-gray-400">({company.totalTours} tours)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Users size={18} className="text-primary" />

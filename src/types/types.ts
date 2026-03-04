@@ -48,6 +48,7 @@ export interface Tour {
   highlights: string[];
   itinerary: ItineraryItem[];
   reviews: Review[];
+  companyId: number;
 }
 
 export interface AppState {
@@ -57,13 +58,16 @@ export interface AppState {
 }
 
 export interface Company {
-  id: string;
+  id: number | string;
   name: string;
-  logo: string;
+  logoUrl?: string;
   description: string;
   address: string;
-  rating: number;
+  averageRating: number;
   totalTours: number;
+  status?: string;
+  contactEmail?: string;
+  contactPhone?: string;
   isFollowed?: boolean;
 }
 
