@@ -1,6 +1,6 @@
 const BASE_URL = 'http://localhost:8080/api/v1';
 
-const getToken = () => localStorage.getItem('token');
+export const getToken = () => localStorage.getItem('token');
 
 export const parseJwt = (token: string) => {
   try {
@@ -38,18 +38,11 @@ const getHeaders = (isMultipart: boolean = false) => {
 };
 
 export const api = {
-  get: async <T>(endpoint: string, isRetry = false): Promise<T> => {
-    const token = getAuthToken();
+  get: async <T>(endpoint: string): Promise<T> => {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'GET',
       headers: getHeaders(),
     });
-
-    if ((response.status === 401 || response.status === 403) && !isRetry) {
-      localStorage.removeItem('token');
-      return api.get<T>(endpoint, true);
-    }
-
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'An error occurred' }));
       throw new Error(error.message || 'Network response was not ok');
@@ -57,8 +50,7 @@ export const api = {
     return response.json();
   },
 
-  post: async <T>(endpoint: string, data: any, isRetry = false): Promise<T> => {
-    const token = getAuthToken();
+  post: async <T>(endpoint: string, data: any): Promise<T> => {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'POST',
       headers: getHeaders(),
@@ -84,8 +76,7 @@ export const api = {
     return response.json();
   },
 
-  put: async <T>(endpoint: string, data?: any, isRetry = false): Promise<T> => {
-    const token = getAuthToken();
+  put: async <T>(endpoint: string, data?: any): Promise<T> => {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'PUT',
       headers: getHeaders(),
@@ -103,6 +94,17 @@ export const api = {
       method: 'PUT',
       headers: getHeaders(true),
       body: formData,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+      throw new Error(error.message || 'Network response was not ok');
+    }
+    return response.json();
+  },
+   delete: async <T>(endpoint: string): Promise<T> => {
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
     });
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'An error occurred' }));

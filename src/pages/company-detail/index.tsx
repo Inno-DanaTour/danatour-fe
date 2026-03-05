@@ -15,7 +15,7 @@ import Header from "../../components/layout/Header";
 import { TOURS } from "../../constants/constants";
 import { Company, Tour } from "../../types/types";
 import { companyService } from "./services/companyService";
-import { getAuthToken } from "../../configs/api";
+import { getToken } from "../../configs/api";
 import { AlertCircle } from "lucide-react";
 
 // Mock Company Data removed
@@ -54,10 +54,8 @@ const CompanyDetail: React.FC = () => {
   const handleToggleFollow = async () => {
     if (!id) return;
     
-    // Check if user is logged in
-    if (!getAuthToken()) {
+    if (!getToken()) {
       setShowLoginPrompt(true);
-      // Auto-hide prompt after 5 seconds
       setTimeout(() => setShowLoginPrompt(false), 5000);
       return;
     }
