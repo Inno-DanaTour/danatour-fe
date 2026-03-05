@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CreditCard, Trash2, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
+import { CreditCard, Trash2, ShieldCheck, AlertCircle, Loader2, CheckCircle2, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../configs/api';
 import Header from "../../components/layout/Header";
@@ -39,13 +39,61 @@ const PaymentMethodManager: React.FC = () => {
     isDefault: false,
   });
 
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [shake, setShake] = useState(false);
+
   // --- Helper Functions ---
-  const getCardProvider = (cardNumber: string) => {
-    // Basic detection logic
-    if (cardNumber.startsWith('4')) return 'VISA';
-    if (/^5[1-5]/.test(cardNumber)) return 'Mastercard';
-    return 'VISA'; // Default fallback
+  const validateLuhn = (num: string) => {
+    const digits = num.replace(/\D/g, '');
+    if (digits.length < 13) return false;
+    let sum = 0;
+    let shouldDouble = false;
+    for (let i = digits.length - 1; i >= 0; i--) {
+      let digit = parseInt(digits.charAt(i));
+      if (shouldDouble) {
+        if ((digit *= 2) > 9) digit -= 9;
+      }
+      sum += digit;
+      shouldDouble = !shouldDouble;
+    }
+    return (sum % 10) === 0;
   };
+
+  const validateExpiry = (expiry: string) => {
+    if (!/^\d{2}\/\d{2}$/.test(expiry)) return "Format MM/YY required";
+    const [month, year] = expiry.split('/').map(n => parseInt(n));
+    if (month < 1 || month > 12) return "Month: 01-12";
+    
+    const now = new Date();
+    const currentYear = now.getFullYear() % 100;
+    const currentMonth = now.getMonth() + 1;
+    
+    if (year < currentYear || (year === currentYear && month < currentMonth)) {
+      return "Card has expired";
+    }
+    return "";
+  };
+
+  const getFormErrors = (data: NewCardForm) => {
+    const errors: Record<string, string> = {};
+    if (!data.cardHolderName || data.cardHolderName.length < 3) errors.cardHolderName = "Name too short";
+    
+    const rawCard = data.cardNumber.replace(/\s/g, '');
+    if (rawCard.length < 16) errors.cardNumber = "Card number must be 16 digits";
+    else if (!validateLuhn(rawCard)) errors.cardNumber = "Invalid card number (Luhn check failed)";
+    
+    const expiryError = validateExpiry(data.expiry);
+    if (expiryError) errors.expiry = expiryError;
+    
+    if (data.cvv.length < 3) errors.cvv = "CVV must be 3 digits";
+    
+    return errors;
+  };
+
+  useEffect(() => {
+    setFormErrors(getFormErrors(formData));
+  }, [formData]);
 
   const maskCardNumber = (num: string) => {
     if (!num || num.length < 4) return '**** **** **** ****';
@@ -54,21 +102,9 @@ const PaymentMethodManager: React.FC = () => {
   };
 
   const formatCardInput = (value: string) => {
-    // Xóa ký tự không phải số và format dạng xxxx xxxx xxxx xxxx
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    const matches = v.match(/\d{4,16}/g);
-    const match = (matches && matches[0]) || '';
-    const parts = [];
-
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
-    }
-
-    if (parts.length) {
-      return parts.join(' ');
-    } else {
-      return value;
-    }
+    const v = value.replace(/\D/g, '');
+    const parts = v.match(/.{1,4}/g);
+    return parts ? parts.join(' ') : v;
   };
 
   // --- API Calls ---
@@ -93,25 +129,32 @@ const PaymentMethodManager: React.FC = () => {
   const handleAddCard = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setSubmitLoading(true);
-
-    // Validate cơ bản
-    if (formData.cardNumber.replace(/\s/g, '').length < 16) {
-      setError('Số thẻ phải đủ 16 số.');
-      setSubmitLoading(false);
+    
+    const errors = getFormErrors(formData);
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      setTouched({
+        cardHolderName: true,
+        cardNumber: true,
+        expiry: true,
+        cvv: true
+      });
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
       return;
     }
 
+    setSubmitLoading(true);
+
+    const rawCardNum = formData.cardNumber.replace(/\s/g, '');
     const payload = {
-      provider: getCardProvider(formData.cardNumber.replace(/\s/g, '')),
-      cardNumber: formData.cardNumber.replace(/\s/g, ''),
+      provider: getCardProvider(rawCardNum),
+      cardNumber: rawCardNum,
       default: formData.isDefault,
     };
 
     try {
       await api.post(API_ENDPOINT, payload);
-      
-      // Reset form
       setFormData({
         cardHolderName: '',
         cardNumber: '',
@@ -119,15 +162,19 @@ const PaymentMethodManager: React.FC = () => {
         cvv: '',
         isDefault: false,
       });
-      
-      // Tải lại danh sách thẻ
+      setTouched({});
       await fetchCards();
     } catch (err: any) {
-      console.error('Add card error:', err);
       setError(err.message || 'Không thể thêm thẻ mới. Vui lòng thử lại.');
     } finally {
       setSubmitLoading(false);
     }
+  };
+
+  const getCardProvider = (cardNumber: string) => {
+    if (cardNumber.startsWith('4')) return 'VISA';
+    if (/^5[1-5]/.test(cardNumber)) return 'Mastercard';
+    return 'VISA';
   };
 
   const handleDeleteCard = async (id: string | number) => {
@@ -242,43 +289,89 @@ const PaymentMethodManager: React.FC = () => {
             Add New Card
         </h3>
 
-        <form onSubmit={handleAddCard} className="space-y-6">
+        <motion.form 
+          animate={shake ? { x: [-10, 10, -10, 10, 0] } : {}}
+          transition={{ duration: 0.4 }}
+          onSubmit={handleAddCard} 
+          className="space-y-6"
+        >
+          {/* Cardholder Name */}
           <div className="space-y-2">
-            <label className="text-sm font-black uppercase tracking-widest text-gray-400">Name on Card</label>
-            <input
-              type="text"
-              placeholder="NGUYEN VAN A"
-              value={formData.cardHolderName}
-              onChange={(e) => setFormData({ ...formData, cardHolderName: e.target.value.toUpperCase() })}
-              required
-              className="w-full bg-gray-50 border-none rounded-2xl p-5 focus:ring-2 focus:ring-primary/20 text-lg font-medium"
-            />
+            <div className="flex justify-between items-end">
+              <label className="text-sm font-black uppercase tracking-widest text-gray-400">Name on Card</label>
+              <AnimatePresence>
+                {touched.cardHolderName && formErrors.cardHolderName && (
+                  <motion.span initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="text-xs font-bold text-red-500">
+                    {formErrors.cardHolderName}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </div>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="NGUYEN VAN A"
+                value={formData.cardHolderName}
+                onBlur={() => setTouched(prev => ({ ...prev, cardHolderName: true }))}
+                onChange={(e) => setFormData({ ...formData, cardHolderName: e.target.value.toUpperCase() })}
+                required
+                className={`w-full bg-gray-50 border-2 rounded-2xl p-5 transition-all text-lg font-medium outline-none ${touched.cardHolderName ? (formErrors.cardHolderName ? 'border-red-200 focus:border-red-500' : 'border-green-100 focus:border-green-500') : 'border-transparent focus:border-primary/20'}`}
+              />
+              {touched.cardHolderName && !formErrors.cardHolderName && (
+                <CheckCircle2 className="absolute right-5 top-1/2 -translate-y-1/2 text-green-500" size={20} />
+              )}
+            </div>
           </div>
 
+          {/* Card Number */}
           <div className="space-y-2">
-            <label className="text-sm font-black uppercase tracking-widest text-gray-400">Card Number</label>
+            <div className="flex justify-between items-end">
+              <label className="text-sm font-black uppercase tracking-widest text-gray-400">Card Number</label>
+              <AnimatePresence>
+                {touched.cardNumber && formErrors.cardNumber && (
+                  <motion.span initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="text-xs font-bold text-red-500">
+                    {formErrors.cardNumber}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </div>
             <div className="relative flex items-center">
-              <CreditCard size={20} className="absolute left-5 text-gray-400" />
+              <CreditCard size={20} className={`absolute left-5 transition-colors ${touched.cardNumber ? (formErrors.cardNumber ? 'text-red-400' : 'text-green-500') : 'text-gray-400'}`} />
               <input
                 type="text"
                 placeholder="0000 0000 0000 0000"
                 maxLength={19}
                 value={formData.cardNumber}
+                onBlur={() => setTouched(prev => ({ ...prev, cardNumber: true }))}
                 onChange={(e) => setFormData({ ...formData, cardNumber: formatCardInput(e.target.value) })}
                 required
-                className="w-full bg-gray-50 border-none rounded-2xl p-5 pl-14 focus:ring-2 focus:ring-primary/20 text-lg font-medium font-mono"
+                className={`w-full bg-gray-50 border-2 rounded-2xl p-5 pl-14 transition-all text-lg font-medium font-mono outline-none ${touched.cardNumber ? (formErrors.cardNumber ? 'border-red-200 focus:border-red-500' : 'border-green-100 focus:border-green-500') : 'border-transparent focus:border-primary/20'}`}
               />
+              {touched.cardNumber && !formErrors.cardNumber && (
+                <CheckCircle2 className="absolute right-5 text-green-500" size={20} />
+              )}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-6">
+            {/* Expiry */}
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest text-gray-400">Expiry</label>
+              <div className="flex justify-between items-end flex-wrap gap-x-2">
+                <label className="text-sm font-black uppercase tracking-widest text-gray-400">Expiry</label>
+                <AnimatePresence>
+                  {touched.expiry && formErrors.expiry && (
+                    <motion.span initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="text-[10px] font-bold text-red-500">
+                      {formErrors.expiry}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </div>
               <input
                 type="text"
                 placeholder="MM/YY"
                 maxLength={5}
                 value={formData.expiry}
+                onBlur={() => setTouched(prev => ({ ...prev, expiry: true }))}
                 onChange={(e) => {
                   let val = e.target.value.replace(/\D/g, '');
                   if (val.length >= 3) {
@@ -287,19 +380,31 @@ const PaymentMethodManager: React.FC = () => {
                   setFormData({ ...formData, expiry: val });
                 }}
                 required
-                className="w-full bg-gray-50 border-none rounded-2xl p-5 focus:ring-2 focus:ring-primary/20 text-lg font-medium text-center tracking-widest"
+                className={`w-full bg-gray-50 border-2 rounded-2xl p-5 transition-all text-lg font-medium text-center tracking-widest outline-none ${touched.expiry ? (formErrors.expiry ? 'border-red-200 focus:border-red-500' : 'border-green-100 focus:border-green-500') : 'border-transparent focus:border-primary/20'}`}
               />
             </div>
+
+            {/* CVV */}
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest text-gray-400">CVV</label>
+              <div className="flex justify-between items-end">
+                <label className="text-sm font-black uppercase tracking-widest text-gray-400">CVV</label>
+                <AnimatePresence>
+                  {touched.cvv && formErrors.cvv && (
+                    <motion.span initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="text-[10px] font-bold text-red-500">
+                      {formErrors.cvv}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </div>
               <input
                 type="password"
                 placeholder="•••"
                 maxLength={3}
                 value={formData.cvv}
+                onBlur={() => setTouched(prev => ({ ...prev, cvv: true }))}
                 onChange={(e) => setFormData({ ...formData, cvv: e.target.value.replace(/\D/g, '') })}
                 required
-                className="w-full bg-gray-50 border-none rounded-2xl p-5 focus:ring-2 focus:ring-primary/20 text-lg font-medium text-center tracking-widest"
+                className={`w-full bg-gray-50 border-2 rounded-2xl p-5 transition-all text-lg font-medium text-center tracking-widest outline-none ${touched.cvv ? (formErrors.cvv ? 'border-red-200 focus:border-red-500' : 'border-green-100 focus:border-green-500') : 'border-transparent focus:border-primary/20'}`}
               />
             </div>
           </div>
@@ -314,15 +419,7 @@ const PaymentMethodManager: React.FC = () => {
               />
               <div className="w-6 h-6 rounded-md border-2 border-gray-300 peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
                 {formData.isDefault && (
-                  <motion.svg
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="w-4 h-4 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={3}
-                  >
+                  <motion.svg initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </motion.svg>
                 )}
@@ -333,11 +430,18 @@ const PaymentMethodManager: React.FC = () => {
             </span>
           </label>
 
-          <div className="pt-6 flex justify-end">
-            <button
+          <div className="pt-6 flex flex-col md:flex-row items-center gap-4">
+            <div className="flex items-center gap-2 text-gray-400 text-xs font-medium">
+              <ShieldCheck size={16} className="text-green-500" />
+              Secured by 256-bit SSL encryption
+            </div>
+            <div className="flex-grow"></div>
+            <motion.button
+              whileHover={Object.keys(formErrors).length === 0 ? { scale: 1.02 } : {}}
+              whileTap={Object.keys(formErrors).length === 0 ? { scale: 0.98 } : {}}
               type="submit"
               disabled={submitLoading}
-              className="btn-primary py-5 px-10 text-lg font-black shadow-2xl shadow-primary/30 flex items-center justify-center gap-3 rounded-2xl w-full md:w-auto"
+              className={`btn-primary py-5 px-10 text-lg font-black shadow-2xl flex items-center justify-center gap-3 rounded-2xl w-full md:w-auto transition-all ${Object.keys(formErrors).length > 0 && Object.keys(touched).length > 0 ? 'bg-gray-400 cursor-not-allowed shadow-none' : 'shadow-primary/30'}`}
             >
               {submitLoading ? (
                  <>
@@ -350,9 +454,9 @@ const PaymentMethodManager: React.FC = () => {
                    Save Card Securely
                  </>
               )}
-            </button>
+            </motion.button>
           </div>
-        </form>
+        </motion.form>
       </section>
       </main>
     </div>
