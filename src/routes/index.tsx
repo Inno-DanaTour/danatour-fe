@@ -20,6 +20,7 @@ import ChangePassword from "../pages/auth/change-password";
 import ManageTours from "../pages/tours/ManageTours";
 import CreateTour from "../pages/tours/CreateTour";
 import EditTour from "../pages/tours/EditTour";
+import PaymentMethodManager from "../pages/payment/PaymentMethodManager";
 
 const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <motion.div
@@ -169,6 +170,14 @@ export const AnimatedRoutes = () => {
       element: (
         <PageWrapper>
           <ChangePassword />
+        </PageWrapper>
+      ),
+    },
+    {
+      path: "/payment-methods",
+      element: (
+        <PageWrapper>
+          <PaymentMethodManager />
         </PageWrapper>
       ),
     },
