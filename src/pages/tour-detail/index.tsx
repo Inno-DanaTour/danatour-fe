@@ -150,7 +150,7 @@ const TourDetail: React.FC = () => {
             </motion.div>
 
             {/* Provider Section - Prominent Position */}
-            <motion.div
+            {/* <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
@@ -195,7 +195,7 @@ const TourDetail: React.FC = () => {
                   <p className="text-gray-400 font-medium">Loading provider info...</p>
                 </div>
               )}
-            </motion.div>
+            </motion.div> */}
 
             {/* Tabs */}
             <motion.div
@@ -269,7 +269,7 @@ const TourDetail: React.FC = () => {
 
 
                     {/* All Companies Section - Horizontal Scroller */}
-                    {allCompanies.filter(c => c.id !== company?.id).length > 0 && (
+                    {/* {allCompanies.filter(c => c.id !== company?.id).length > 0 && (
                       <div className="pt-12 mt-8 border-t border-gray-100 bg-gray-50/50 -mx-6 px-6 py-12 rounded-[3rem]">
                         <div className="flex items-center justify-between mb-8 px-2">
                           <div className="space-y-1">
@@ -301,7 +301,7 @@ const TourDetail: React.FC = () => {
                           </div>
                         </div>
                       </div>
-                    )}
+                    )} */}
                   </motion.div>
                 )}
 

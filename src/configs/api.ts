@@ -101,10 +101,23 @@ export const api = {
     }
     return response.json();
   },
-   delete: async <T>(endpoint: string): Promise<T> => {
+  delete: async <T>(endpoint: string): Promise<T> => {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'DELETE',
       headers: getHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+      throw new Error(error.message || 'Network response was not ok');
+    }
+    return response.json();
+  },
+
+  patch: async <T>(endpoint: string, data?: any): Promise<T> => {
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      method: 'PATCH',
+      headers: getHeaders(),
+      body: data ? JSON.stringify(data) : undefined,
     });
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'An error occurred' }));

@@ -6,14 +6,17 @@ import {
     Eye,
     Search,
     Filter,
-    MoreVertical,
     Calendar,
     Users,
     TrendingUp,
     Package,
     Loader2,
-    MapPin
+    MapPin,
+    Lock,
+    Unlock,
+    X,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import Header from "../../components/layout/Header";
 import { tourService } from "../../services/tourService";
 import { TourListItem } from "../../types/types";
@@ -25,6 +28,32 @@ const ManageTours: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
+
+    // Modal states
+    const [isLockModalOpen, setIsLockModalOpen] = useState(false);
+    const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
+    const [selectedTourId, setSelectedTourId] = useState<number | null>(null);
+    const [selectedTourForUnlock, setSelectedTourForUnlock] = useState<TourListItem | null>(null);
+    const [lockReason, setLockReason] = useState("");
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    const handleStatusUpdate = async (tourId: number, newStatus: "ACTIVE" | "LOCKED", reason?: string) => {
+        try {
+            setErrorMessage(null);
+            await tourService.updateTourStatus(tourId, {
+                status: newStatus,
+                lockReason: reason || undefined
+            });
+            setIsLockModalOpen(false);
+            setIsUnlockModalOpen(false);
+            setLockReason("");
+            setSelectedTourForUnlock(null);
+            fetchMyTours(getUserIdFromToken());
+        } catch (err: any) {
+            setErrorMessage("Failed to update tour status.");
+        }
+    };
+
 
     useEffect(() => {
         const providerId = getUserIdFromToken();
@@ -46,6 +75,13 @@ const ManageTours: React.FC = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const getLockerName = (lockedBy?: string) => {
+        if (!lockedBy) return "Unknown";
+        if (lockedBy.startsWith("ADMIN:")) return "Administrator";
+        if (lockedBy.startsWith("PROVIDER:")) return "You";
+        return lockedBy;
     };
 
     return (
@@ -90,6 +126,18 @@ const ManageTours: React.FC = () => {
                     ))}
                 </div>
 
+                {/* Main Error Bar (if any) */}
+                {errorMessage && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-8 p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl font-bold flex items-center gap-3"
+                    >
+                        <X className="shrink-0" size={20} />
+                        {errorMessage}
+                    </motion.div>
+                )}
+
                 {/* Filters & Search */}
                 <div className="bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm mb-8 flex flex-col md:flex-row gap-4 items-center">
                     <div className="relative flex-1 w-full">
@@ -124,7 +172,7 @@ const ManageTours: React.FC = () => {
                 ) : error ? (
                     <div className="bg-red-50 text-red-500 p-10 rounded-[2.5rem] text-center border border-red-100">
                         <p className="text-xl font-bold mb-4">{error}</p>
-                        <button onClick={fetchMyTours} className="btn-primary py-3 px-8 mx-auto">Try Again</button>
+                        <button onClick={() => fetchMyTours(getUserIdFromToken())} className="btn-primary py-3 px-8 mx-auto">Try Again</button>
                     </div>
                 ) : tours.length === 0 ? (
                     <div className="bg-gray-50 p-20 rounded-[3rem] text-center border-2 border-dashed border-gray-200">
@@ -163,8 +211,18 @@ const ManageTours: React.FC = () => {
                                             <tr key={tour.id} className="hover:bg-gray-50/50 transition-colors group">
                                                 <td className="px-8 py-6">
                                                     <div className="flex items-center gap-4">
-                                                        <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-sm">
-                                                            <img src={tour.thumbnailUrl} alt={tour.title} className="w-full h-full object-cover" />
+                                                        <div className="relative w-16 h-16 rounded-2xl overflow-hidden shadow-sm shrink-0">
+                                                            <img
+                                                                src={tour.thumbnailUrl}
+                                                                alt={tour.title}
+                                                                className={`w-full h-full object-cover ${tour.status === "LOCKED" ? "opacity-30 mix-blend-luminosity" : ""}`}
+                                                            />
+                                                            {tour.status === "LOCKED" && (
+                                                                <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center backdrop-blur-[2px]">
+                                                                    <Lock size={14} className="text-white mb-0.5" />
+                                                                    <span className="text-[8px] font-black tracking-widest text-white uppercase">Locked</span>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                         <div>
                                                             <p className="font-black text-lg group-hover:text-primary transition-colors">{tour.title}</p>
@@ -182,9 +240,12 @@ const ManageTours: React.FC = () => {
                                                     </div>
                                                 </td>
                                                 <td className="px-8 py-6">
-                                                    <span className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${tour.status === "LOCKED" ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"
+                                                    <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${tour.status === "ACTIVE" ? "bg-green-100 text-green-700" :
+                                                        tour.status === "PENDING" ? "bg-yellow-100 text-yellow-700" :
+                                                            tour.status === "DRAFT" ? "bg-gray-200 text-gray-700" :
+                                                                "bg-red-100 text-red-600"
                                                         }`}>
-                                                        {tour.status || "ACTIVE"}
+                                                        {tour.status || "PENDING"}
                                                     </span>
                                                 </td>
                                                 <td className="px-8 py-6">
@@ -203,8 +264,21 @@ const ManageTours: React.FC = () => {
                                                         >
                                                             <Edit3 size={18} />
                                                         </button>
-                                                        <button className="p-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all">
-                                                            <MoreVertical size={18} />
+                                                        <button
+                                                            onClick={() => {
+                                                                if (tour.status === "LOCKED") {
+                                                                    setSelectedTourForUnlock(tour);
+                                                                    setIsUnlockModalOpen(true);
+                                                                } else {
+                                                                    setSelectedTourId(tour.id);
+                                                                    setIsLockModalOpen(true);
+                                                                }
+                                                            }}
+                                                            className={`p-3 bg-gray-100 rounded-xl transition-all shadow-sm ${tour.status === "LOCKED" ? "hover:bg-green-500 hover:text-white" : "hover:bg-red-500 hover:text-white"}`}
+                                                            title={tour.status === "LOCKED" ? "Unlock Tour" : "Lock Tour"}
+                                                        >
+                                                            {tour.status === "LOCKED" ? <Unlock size={18} /> : <Lock size={18} />}
+                                                            <span className="sr-only">{tour.status === "LOCKED" ? "Unlock" : "Lock"}</span>
                                                         </button>
                                                     </div>
                                                 </td>
@@ -216,6 +290,142 @@ const ManageTours: React.FC = () => {
                     </div>
                 )}
             </main>
+
+            {/* Lock Reason Modal */}
+            <AnimatePresence>
+                {isLockModalOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative"
+                        >
+                            <button
+                                onClick={() => {
+                                    setIsLockModalOpen(false);
+                                    setLockReason("");
+                                }}
+                                className="absolute top-6 right-6 text-gray-400 hover:text-gray-900 transition-colors"
+                            >
+                                <X size={24} />
+                            </button>
+
+                            <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-6">
+                                <Lock size={32} />
+                            </div>
+
+                            <h2 className="text-2xl font-black mb-2">Lock this Tour?</h2>
+                            <p className="text-gray-500 mb-6">Please provide a reason. This will be visible to the provider/admin records.</p>
+
+                            <textarea
+                                value={lockReason}
+                                onChange={(e) => setLockReason(e.target.value)}
+                                placeholder="Enter reason for locking this tour..."
+                                className="w-full bg-gray-50 border-none rounded-2xl p-4 font-medium min-h-[120px] focus:ring-2 focus:ring-red-500/20 mb-6 resize-none"
+                            />
+
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={() => {
+                                        setIsLockModalOpen(false);
+                                        setLockReason("");
+                                    }}
+                                    className="flex-1 py-4 px-6 rounded-2xl font-bold bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => handleStatusUpdate(selectedTourId!, "LOCKED", lockReason)}
+                                    disabled={!lockReason.trim()}
+                                    className="flex-1 py-4 px-6 rounded-2xl font-bold bg-red-500 hover:bg-red-600 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    Confirm Lock
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Unlock Reason & Info Modal */}
+            <AnimatePresence>
+                {isUnlockModalOpen && selectedTourForUnlock && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative"
+                        >
+                            <button
+                                onClick={() => {
+                                    setIsUnlockModalOpen(false);
+                                    setSelectedTourForUnlock(null);
+                                    setErrorMessage(null);
+                                }}
+                                className="absolute top-6 right-6 text-gray-400 hover:text-gray-900 transition-colors"
+                            >
+                                <X size={24} />
+                            </button>
+
+                            <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
+                                <Unlock size={32} />
+                            </div>
+
+                            <h2 className="text-2xl font-black mb-2">Unlock Tour?</h2>
+
+                            <div className="bg-gray-50 rounded-2xl p-6 mb-6">
+                                <div className="mb-4">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Locked By</p>
+                                    <p className="font-bold text-gray-900">{getLockerName(selectedTourForUnlock.lockedBy)}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Reason</p>
+                                    <p className="text-gray-600 font-medium italic">{selectedTourForUnlock.lockReason || "No reason provided."}</p>
+                                </div>
+                            </div>
+
+                            {selectedTourForUnlock.lockedBy?.startsWith("ADMIN:") && (
+                                <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl font-bold text-sm">
+                                    You cannot unlock this tour, please contact admin.
+                                </div>
+                            )}
+
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={() => {
+                                        setIsUnlockModalOpen(false);
+                                        setSelectedTourForUnlock(null);
+                                        setErrorMessage(null);
+                                    }}
+                                    className="flex-1 py-4 px-6 rounded-2xl font-bold bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors"
+                                >
+                                    Close
+                                </button>
+                                <button
+                                    onClick={() => handleStatusUpdate(selectedTourForUnlock.id, "ACTIVE")}
+                                    disabled={selectedTourForUnlock.lockedBy?.startsWith("ADMIN:")}
+                                    className="flex-1 py-4 px-6 rounded-2xl font-bold bg-green-500 hover:bg-green-600 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    Confirm Unlock
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
         </div>
     );
 };

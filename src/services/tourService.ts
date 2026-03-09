@@ -41,5 +41,41 @@ export const tourService = {
     getPlaces: async (): Promise<PlaceResponse[]> => {
         const response = await api.get<ApiResponse<PlaceResponse[]>>("/places");
         return response.data;
+    },
+
+    searchTours: async (
+        page: number = 1,
+        size: number = 10,
+        filters?: {
+            keyword?: string;
+            minPrice?: number;
+            maxPrice?: number;
+            zone?: string;
+            categoryId?: number;
+            minDuration?: number;
+            maxDuration?: number;
+            sort?: string;
+        }
+    ): Promise<PagedResponse<import("../types/types").TourSummaryResponse>> => {
+        let url = `/tours/search?page=${page - 1}&size=${size}`;
+        if (filters?.keyword) url += `&keyword=${encodeURIComponent(filters.keyword)}`;
+        if (filters?.minPrice) url += `&minPrice=${filters.minPrice}`;
+        if (filters?.maxPrice) url += `&maxPrice=${filters.maxPrice}`;
+        if (filters?.zone) url += `&zone=${encodeURIComponent(filters.zone)}`;
+        if (filters?.categoryId) url += `&categoryId=${filters.categoryId}`;
+        if (filters?.minDuration !== undefined) url += `&minDuration=${filters.minDuration}`;
+        if (filters?.maxDuration !== undefined) url += `&maxDuration=${filters.maxDuration}`;
+        if (filters?.sort) url += `&sort=${filters.sort}`;
+
+        const response = await api.get<ApiResponse<PagedResponse<import("../types/types").TourSummaryResponse>>>(url);
+        return response.data;
+    },
+
+    updateTourStatus: async (
+        id: number | string,
+        data: import("../types/types").TourStatusUpdateRequest
+    ): Promise<TourDetail> => {
+        const response = await api.patch<ApiResponse<TourDetail>>(`/tours/${id}/status`, data);
+        return response.data;
     }
 };

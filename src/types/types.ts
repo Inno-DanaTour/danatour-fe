@@ -123,6 +123,8 @@ export interface TourListItem {
   durationDays: number;
   durationNights: number;
   status: string;
+  lockReason?: string;
+  lockedBy?: string;
 }
 
 export interface TourImage {
@@ -161,4 +163,26 @@ export interface TourDetail {
   place: PlaceResponse;
   images: TourImage[];
   schedules: TourSchedule[];
+  lockReason?: string;
+  lockedBy?: string;
+}
+
+export interface TourSummaryResponse {
+  id: number;
+  title: string;
+  thumbnail: string;
+  adultPrice: number;
+  durationDays: number;
+  durationNights: number;
+  categoryName: string;
+  placeName: string;
+  status: string;
+  viewCount: number;
+  lockReason?: string;
+  lockedBy?: string;
+}
+
+export interface TourStatusUpdateRequest {
+  status: string;
+  lockReason?: string;
 }
