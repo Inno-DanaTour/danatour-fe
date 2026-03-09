@@ -11,10 +11,10 @@ import { ZoneType, Tour, TourListItem } from "../../types/types";
 import { motion, AnimatePresence } from "framer-motion";
 
 const SORT_OPTIONS = [
-  { id: "recommended", name: "Recommended" },
-  { id: "price_asc", name: "Price: Low to High" },
-  { id: "price_desc", name: "Price: High to Low" },
-  { id: "rating", name: "Most Popular" },
+  { id: "id,desc", name: "Recommended" },
+  { id: "adultPrice,asc", name: "Price: Low to High" },
+  { id: "adultPrice,desc", name: "Price: High to Low" },
+  { id: "viewCount,desc", name: "Most Popular" },
 ];
 
 const Tours: React.FC = () => {
@@ -22,9 +22,10 @@ const Tours: React.FC = () => {
   const [viewType, setViewType] = useState<"grid" | "list">("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedZone, setSelectedZone] = useState<ZoneType | "ALL">("ALL");
-  const [priceRange, setPriceRange] = useState(10000000);
+  const [priceRange, setPriceRange] = useState(50000000);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [sortBy, setSortBy] = useState<string>("recommended");
+  const [sortBy, setSortBy] = useState<string>("id,desc");
+  const [selectedDurations, setSelectedDurations] = useState<string[]>([]);
 
   const [tours, setTours] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,17 +34,43 @@ const Tours: React.FC = () => {
     const fetchTours = async () => {
       try {
         setLoading(true);
-        const data = await tourService.getTours(1, 100);
+
+        const filters: any = {
+          keyword: searchQuery || undefined,
+          zone: selectedZone !== "ALL" ? selectedZone : undefined,
+          maxPrice: priceRange < 50000000 ? priceRange : undefined,
+          sort: sortBy
+        };
+
+        // Duration mapping logic
+        if (selectedDurations.length > 0) {
+          const ranges = selectedDurations.map(d => {
+            if (d === "1-3 Days") return { min: 1, max: 3 };
+            if (d === "4-7 Days") return { min: 4, max: 7 };
+            if (d === "> 7 Days") return { min: 8, max: 100 };
+            return { min: 1, max: 100 };
+          });
+
+          // Use the absolute min and max of all selected ranges
+          // Note: This still treats it as a single range [minOfAll, maxOfAll]
+          // which might include unwanted middle ranges if discrete ones are picked.
+          // But for single selection (which is the most common use case), it works perfectly.
+          filters.minDuration = Math.min(...ranges.map(r => r.min));
+          filters.maxDuration = Math.max(...ranges.map(r => r.max));
+        }
+
+        const data = await tourService.searchTours(1, 100, filters);
+
         const mappedTours: Tour[] = data.content.map(item => ({
           id: String(item.id),
           name: item.title,
           description: `Discover the beauty of ${item.placeName}.`,
-          image: item.thumbnailUrl || "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80",
+          image: item.thumbnail || "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80",
           gallery: [],
           adultPrice: item.adultPrice,
-          childrenPrice: item.childrenPrice,
+          childrenPrice: 0,
           duration: `${item.durationDays}D / ${item.durationNights}N`,
-          rating: item.rating || 5,
+          rating: 5,
           reviewCount: Math.floor(Math.random() * 50) + 10,
           zone: item.placeName as any,
           highlights: [],
@@ -59,21 +86,9 @@ const Tours: React.FC = () => {
     };
 
     fetchTours();
-  }, []);
+  }, [searchQuery, selectedZone, priceRange, sortBy, selectedDurations]);
 
-  const filteredTours = tours
-    .filter((tour) => {
-      const matchesSearch = tour.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesZone = selectedZone === "ALL" || String(tour.zone) === selectedZone;
-      const matchesPrice = tour.adultPrice <= priceRange;
-      return matchesSearch && matchesZone && matchesPrice;
-    })
-    .sort((a, b) => {
-      if (sortBy === "price_asc") return a.adultPrice - b.adultPrice;
-      if (sortBy === "price_desc") return b.adultPrice - a.adultPrice;
-      if (sortBy === "rating") return b.rating - a.rating;
-      return 0;
-    });
+  const filteredTours = tours; // Backend does filtering now
 
   return (
     <div className="min-h-screen bg-background text-gray-900">
@@ -176,6 +191,8 @@ const Tours: React.FC = () => {
               setSelectedZone={setSelectedZone}
               priceRange={priceRange}
               setPriceRange={setPriceRange}
+              selectedDurations={selectedDurations}
+              setSelectedDurations={setSelectedDurations}
             />
           </aside>
 
