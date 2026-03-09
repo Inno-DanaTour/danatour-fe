@@ -96,10 +96,14 @@ const Login = () => {
             variants={itemVariants}
             className="w-full flex flex-col items-center mb-4"
           >
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FFC857] to-[#FFD980] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform mb-2">
-              <MapPin className="w-6 h-6 text-black" />
+            <div className="w-20 h-20">
+              <img
+                src="/logo.png"
+                alt="DanaTour Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
-            <span className="text-xl font-bold text-white tracking-tight font-display">
+            <span className="text-2xl font-black text-white tracking-tight font-display">
               Dana<span className="text-[#FFC857]">Tour</span>
             </span>
           </motion.div>

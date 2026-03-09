@@ -34,8 +34,12 @@ const AdminLayout: React.FC = () => {
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col hidden md:flex shrink-0">
         <div className="p-6 border-b border-gray-100 flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-            <span className="text-primary font-black text-xl">D</span>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden">
+            <img
+              src="/logo.png"
+              alt="DanaTour Logo"
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
             <h2 className="font-black tracking-tight text-gray-900 leading-none">

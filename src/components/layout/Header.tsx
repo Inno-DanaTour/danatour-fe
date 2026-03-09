@@ -1,7 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, MapPin, User, LogOut } from "lucide-react";
+import {
+  Menu,
+  X,
+  MapPin,
+  User,
+  LogOut,
+  Package,
+  PlusCircle,
+} from "lucide-react";
+import { parseJwt, getToken } from "../../configs/api";
+import {
+  profileService,
+  UserProfileResponse,
+} from "../../services/profileService";
 
 interface NavItem {
   label: string;
@@ -18,6 +31,12 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Da Nang Explore", href: "/explore" },
   { label: "Find Tour", href: "/tours" },
   { label: "About", href: "/about" },
+  { label: "Become a Partner", href: "/provider/apply" },
+];
+
+const PROVIDER_NAV_ITEMS: NavItem[] = [
+  { label: "Tour Management", href: "/tours/manage" },
+  { label: "Booking Management", href: "/tours/bookings" },
 ];
 
 const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
@@ -29,24 +48,73 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showManagementMenu, setShowManagementMenu] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userData, setUserData] = useState<UserProfileResponse | null>(null);
 
   useEffect(() => {
     // Check initial auth status
-    const token = localStorage.getItem("token");
+    const token = getToken();
     setIsAuthenticated(!!token);
 
-    // Optional: Add event listener for custom auth change event
-    // if you want to update headers from other components without refresh
+    if (token) {
+      const payload = parseJwt(token);
+      if (payload && payload.scope) {
+        const roles =
+          typeof payload.scope === "string" ? payload.scope.split(" ") : [];
+        if (
+          roles.includes("ROLE_TOUR_COMPANY") ||
+          roles.includes("TOUR_COMPANY")
+        ) {
+          setUserRole("TOUR_COMPANY");
+        }
+      }
+    }
+
     const handleStorageChange = () => {
-      setIsAuthenticated(!!localStorage.getItem("token"));
+      const newToken = getToken();
+      setIsAuthenticated(!!newToken);
+      if (!newToken) {
+        setUserRole(null);
+        setUserData(null);
+      } else {
+        const payload = parseJwt(newToken);
+        const scope = payload && payload.scope ? payload.scope : "";
+        const roles = typeof scope === "string" ? scope.split(" ") : [];
+        if (
+          roles.includes("ROLE_TOUR_COMPANY") ||
+          roles.includes("TOUR_COMPANY")
+        ) {
+          setUserRole("TOUR_COMPANY");
+        }
+      }
     };
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchUserProfile();
+    } else {
+      setUserData(null);
+    }
+  }, [isAuthenticated]);
+
+  const fetchUserProfile = async () => {
+    try {
+      const data = await profileService.getProfile();
+      setUserData(data);
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsAuthenticated(false);
+    setUserRole(null);
+    setUserData(null);
     setShowProfileMenu(false);
     setIsMenuOpen(false);
     navigate("/");
@@ -147,7 +215,13 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-1">
-              {NAV_ITEMS.map((item) => (
+              {NAV_ITEMS.filter(
+                (item) =>
+                  !(
+                    item.label === "Become a Partner" &&
+                    userRole === "TOUR_COMPANY"
+                  ),
+              ).map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
@@ -161,6 +235,62 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
                   {item.label}
                 </a>
               ))}
+
+              {/* Provider Management Dropdown */}
+              {userRole === "TOUR_COMPANY" && (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowManagementMenu(!showManagementMenu)}
+                    className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                  >
+                    Management
+                    <motion.span
+                      animate={{ rotate: showManagementMenu ? 180 : 0 }}
+                      className="inline-block"
+                    >
+                      <svg
+                        width="10"
+                        height="6"
+                        viewBox="0 0 10 6"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M1 1L5 5L9 1"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </motion.span>
+                  </button>
+
+                  <AnimatePresence>
+                    {showManagementMenu && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute left-0 mt-2 w-56 rounded-xl bg-[#0f172a] border border-white/10 shadow-2xl py-2 overflow-hidden"
+                      >
+                        {PROVIDER_NAV_ITEMS.map((item) => (
+                          <button
+                            key={item.href}
+                            onClick={(e) => {
+                              setShowManagementMenu(false);
+                              handleNavClick(e as any, item.href);
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                          >
+                            {item.label}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
             </div>
             {/* Desktop Action Buttons */}
             <div className="hidden md:flex items-center gap-4">
@@ -168,9 +298,17 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
                 <div className="relative">
                   <button
                     onClick={() => setShowProfileMenu(!showProfileMenu)}
-                    className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer"
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer overflow-hidden"
                   >
-                    <User className="text-white w-5 h-5" />
+                    {userData?.avatarUrl ? (
+                      <img
+                        src={userData.avatarUrl}
+                        alt={userData.fullName}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="text-white w-5 h-5" />
+                    )}
                   </button>
 
                   <AnimatePresence>
@@ -184,11 +322,20 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
                         <button
                           onClick={() => {
                             setShowProfileMenu(false);
-                            navigate("/profile"); // Assuming you'll have a profile page
+                            navigate("/profile");
                           }}
                           className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
                         >
                           My Profile
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowProfileMenu(false);
+                            navigate("/my-bookings");
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                        >
+                          My Bookings
                         </button>
                         <button
                           onClick={handleLogout}
@@ -277,7 +424,13 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
               </div>
 
               <div className="flex flex-col gap-2">
-                {NAV_ITEMS.map((item, index) => (
+                {NAV_ITEMS.filter(
+                  (item) =>
+                    !(
+                      item.label === "Become a Partner" &&
+                      userRole === "TOUR_COMPANY"
+                    ),
+                ).map((item, index) => (
                   <motion.button
                     key={item.href}
                     onClick={(e) => handleNavClick(e, item.href)}
@@ -293,6 +446,68 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
                     {item.label}
                   </motion.button>
                 ))}
+                {userRole === "TOUR_COMPANY" && (
+                  <div className="mt-4 pt-4 border-t border-white/10 space-y-1">
+                    <p className="px-4 text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+                      Management
+                    </p>
+                    {PROVIDER_NAV_ITEMS.map((item, index) => (
+                      <motion.button
+                        key={item.href}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 + index * 0.1 }}
+                        onClick={(e) => handleNavClick(e as any, item.href)}
+                        className={`w-full px-4 py-3 text-lg font-medium hover:bg-white/10 rounded-xl transition-colors text-left cursor-pointer flex items-center gap-3 ${
+                          isActive(item.href)
+                            ? "text-accent"
+                            : "text-gray-300 hover:text-white"
+                        }`}
+                      >
+                        {item.label}
+                      </motion.button>
+                    ))}
+                  </div>
+                )}
+                {isAuthenticated && (
+                  <motion.button
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.22 }}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      navigate("/profile");
+                    }}
+                    className="px-4 py-3 text-lg font-medium text-gray-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors text-left cursor-pointer flex items-center gap-3"
+                  >
+                    <div className="w-6 h-6 rounded-full overflow-hidden bg-white/10 flex items-center justify-center border border-white/20">
+                      {userData?.avatarUrl ? (
+                        <img
+                          src={userData.avatarUrl}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User size={16} />
+                      )}
+                    </div>
+                    My Profile
+                  </motion.button>
+                )}
+                {isAuthenticated && (
+                  <motion.button
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.25 }}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      navigate("/my-bookings");
+                    }}
+                    className="px-4 py-3 text-lg font-medium text-gray-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors text-left cursor-pointer flex items-center gap-3"
+                  >
+                    <Package size={20} /> My Bookings
+                  </motion.button>
+                )}
                 {isAuthenticated ? (
                   <motion.button
                     initial={{ opacity: 0, x: 20 }}

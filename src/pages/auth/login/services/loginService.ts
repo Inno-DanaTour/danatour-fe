@@ -34,3 +34,22 @@ export const logout = async (token: string): Promise<ApiResponse<any>> => {
     throw error;
   }
 };
+export const refreshToken = async (
+  token: string,
+): Promise<ApiResponse<AuthResponse>> => {
+  try {
+    const res = await api.post<ApiResponse<AuthResponse>>(
+      API_ENDPOINT.REFRESH_TOKEN,
+      {
+        token,
+      },
+    );
+    if (res.code && res.code !== 200) {
+      throw new Error(`Error refreshing token: ${res.message}`);
+    }
+    return res;
+  } catch (error) {
+    console.error("Failed to refresh token", error);
+    throw error;
+  }
+};

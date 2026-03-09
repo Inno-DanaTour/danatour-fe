@@ -34,6 +34,41 @@ const TourCompanyDetailsModal: React.FC<ModalProps> = ({
   const [rejectMode, setRejectMode] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
 
+  // Preview State
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // Confirmation Modal State
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: "info" | "success" | "danger";
+    onConfirm?: () => void;
+    showConfirmButton?: boolean;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "info",
+  });
+
+  const showMessage = (
+    title: string,
+    message: string,
+    type: "info" | "success" | "danger" = "info",
+    onConfirm?: () => void,
+    showConfirmButton: boolean = true,
+  ) => {
+    setConfirmModal({
+      isOpen: true,
+      title,
+      message,
+      type,
+      onConfirm,
+      showConfirmButton,
+    });
+  };
+
   useEffect(() => {
     fetchDetail();
   }, [companyId]);
@@ -53,35 +88,58 @@ const TourCompanyDetailsModal: React.FC<ModalProps> = ({
   };
 
   const handleApprove = async () => {
-    if (
-      !window.confirm(
-        "Approve this company? They will be granted Tour Company permissions.",
-      )
-    )
-      return;
-    setIsProcessing(true);
-    try {
-      await adminProviderService.approveApplication(companyId);
-      alert("Company Application Approved Successfully.");
-      onStatusChanged();
-    } catch (err: any) {
-      alert(err.message || "Failed to approve application.");
-      setIsProcessing(false);
-    }
+    showMessage(
+      "Confirm Approval",
+      "Approve this company? They will be granted Tour Company permissions.",
+      "info",
+      async () => {
+        setIsProcessing(true);
+        try {
+          await adminProviderService.approveApplication(companyId);
+          showMessage(
+            "Success",
+            "Company Application Approved Successfully.",
+            "success",
+            () => {
+              onStatusChanged();
+            },
+            false,
+          );
+        } catch (err: any) {
+          showMessage(
+            "Error",
+            err.message || "Failed to approve application.",
+            "danger",
+          );
+          setIsProcessing(false);
+        }
+      },
+    );
   };
 
   const handleReject = async () => {
     if (!rejectReason.trim()) {
-      alert("Please provide a rejection reason.");
+      showMessage("Warning", "Please provide a rejection reason.", "danger");
       return;
     }
     setIsProcessing(true);
     try {
       await adminProviderService.rejectApplication(companyId, rejectReason);
-      alert("Company Application Rejected.");
-      onStatusChanged();
+      showMessage(
+        "Rejected",
+        "Company Application Rejected.",
+        "info",
+        () => {
+          onStatusChanged();
+        },
+        false,
+      );
     } catch (err: any) {
-      alert(err.message || "Failed to reject application.");
+      showMessage(
+        "Error",
+        err.message || "Failed to reject application.",
+        "danger",
+      );
       setIsProcessing(false);
     }
   };
@@ -218,12 +276,10 @@ const TourCompanyDetailsModal: React.FC<ModalProps> = ({
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {data.documents.map((doc) => (
-                      <a
+                      <div
                         key={doc.id}
-                        href={doc.documentUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="group flex flex-col p-4 bg-white border border-gray-200 rounded-2xl hover:border-primary hover:shadow-lg transition-all"
+                        onClick={() => setPreviewUrl(doc.documentUrl)}
+                        className="group flex flex-col p-4 bg-white border border-gray-200 rounded-2xl hover:border-primary hover:shadow-lg transition-all cursor-pointer"
                       >
                         <div className="flex items-start justify-between mb-3">
                           <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center shrink-0">
@@ -241,7 +297,7 @@ const TourCompanyDetailsModal: React.FC<ModalProps> = ({
                           Uploaded:{" "}
                           {new Date(doc.uploadedAt).toLocaleDateString()}
                         </p>
-                      </a>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -317,6 +373,109 @@ const TourCompanyDetailsModal: React.FC<ModalProps> = ({
           </div>
         )}
       </div>
+
+      {/* Internal Document Preview Overlay */}
+      {previewUrl && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div
+            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            onClick={() => setPreviewUrl(null)}
+          ></div>
+          <div className="relative max-w-5xl w-full h-full max-h-[85vh] flex flex-col">
+            <button
+              onClick={() => setPreviewUrl(null)}
+              className="absolute -top-12 right-0 p-2 text-white hover:text-primary transition-colors bg-white/10 rounded-full"
+            >
+              <X size={24} />
+            </button>
+            <div className="bg-white rounded-3xl overflow-hidden h-full flex items-center justify-center p-2 shadow-2xl">
+              <img
+                src={previewUrl}
+                alt="Document Preview"
+                className="max-w-full max-h-full object-contain rounded-2xl"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() =>
+              !isProcessing &&
+              setConfirmModal((prev) => ({ ...prev, isOpen: false }))
+            }
+          ></div>
+          <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="flex flex-col items-center text-center">
+              <div
+                className={`p-4 rounded-2xl mb-4 ${
+                  confirmModal.type === "success"
+                    ? "bg-emerald-100 text-emerald-600"
+                    : confirmModal.type === "danger"
+                      ? "bg-red-100 text-red-600"
+                      : "bg-blue-100 text-blue-600"
+                }`}
+              >
+                {confirmModal.type === "success" ? (
+                  <CheckCircle size={32} />
+                ) : confirmModal.type === "danger" ? (
+                  <XCircle size={32} />
+                ) : (
+                  <AlertCircle size={32} />
+                )}
+              </div>
+              <h3 className="text-xl font-black text-gray-900 mb-2">
+                {confirmModal.title}
+              </h3>
+              <p className="text-gray-500 font-medium mb-8">
+                {confirmModal.message}
+              </p>
+
+              <div className="flex gap-3 w-full">
+                {confirmModal.showConfirmButton ? (
+                  <>
+                    <button
+                      onClick={() =>
+                        setConfirmModal((prev) => ({ ...prev, isOpen: false }))
+                      }
+                      className="flex-1 px-6 py-3 rounded-xl font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirmModal.onConfirm) confirmModal.onConfirm();
+                        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+                      }}
+                      className={`flex-1 px-6 py-3 rounded-xl font-bold text-white transition-all shadow-lg ${
+                        confirmModal.type === "danger"
+                          ? "bg-red-500 hover:bg-red-600 shadow-red-200"
+                          : "bg-primary hover:bg-primary-dark shadow-primary/20"
+                      }`}
+                    >
+                      Confirm
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => {
+                      if (confirmModal.onConfirm) confirmModal.onConfirm();
+                      setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+                    }}
+                    className="w-full px-6 py-3 rounded-xl font-bold bg-primary text-white hover:bg-primary-dark transition-all shadow-lg shadow-primary/20"
+                  >
+                    Got it
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

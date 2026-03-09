@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Tour } from "../../types/types";
-import { Users, Calendar, ShieldCheck, Minus, Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Users, User, Calendar, ShieldCheck, Minus, Plus } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 interface BookingSidebarProps {
   tour: Tour;
@@ -9,15 +9,29 @@ interface BookingSidebarProps {
 
 const BookingSidebar: React.FC<BookingSidebarProps> = ({ tour }) => {
   const navigate = useNavigate();
-  const [guestCount, setGuestCount] = useState(2);
-  const [date, setDate] = useState("2024-10-24");
+  const [searchParams] = useSearchParams();
+
+  const [adults, setAdults] = useState(
+    parseInt(searchParams.get("adults") || "1", 10),
+  );
+  const [children, setChildren] = useState(
+    parseInt(searchParams.get("children") || "0", 10),
+  );
+  const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(
+    tour.schedules && tour.schedules.length > 0 ? tour.schedules[0].id : null,
+  );
 
   const handleBookNow = () => {
+    if (!selectedScheduleId) {
+      alert("Please select a date first.");
+      return;
+    }
     navigate("/checkout", {
       state: {
         tour,
-        guestCount,
-        date,
+        adults,
+        children,
+        scheduleId: selectedScheduleId,
       },
     });
   };
@@ -44,17 +58,27 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ tour }) => {
 
         {/* Price breakdown */}
         <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
-          <p className="text-xs font-black uppercase tracking-widest text-gray-400">Price Details</p>
+          <p className="text-xs font-black uppercase tracking-widest text-gray-400">
+            Price Details
+          </p>
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium text-gray-600">👤 Adult</span>
             <span className="font-black text-gray-900">
-              {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(tour.adultPrice)}
+              {new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              }).format(tour.adultPrice)}
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-gray-600">🧒 Children</span>
+            <span className="text-sm font-medium text-gray-600">
+              🧒 Children
+            </span>
             <span className="font-black text-gray-900">
-              {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(tour.childrenPrice)}
+              {new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              }).format(tour.childrenPrice)}
             </span>
           </div>
         </div>
@@ -67,18 +91,19 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ tour }) => {
                 <span>Date</span>
               </div>
               <select
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
+                value={selectedScheduleId || ""}
+                onChange={(e) => setSelectedScheduleId(Number(e.target.value))}
                 className="bg-transparent font-bold text-gray-900 border-none p-0 focus:ring-0 cursor-pointer text-sm"
               >
                 {tour.schedules && tour.schedules.length > 0 ? (
                   tour.schedules.map((s) => (
-                    <option key={s.id} value={s.startDate}>
-                      {new Date(s.startDate).toLocaleDateString("vi-VN", {
+                    <option key={s.id} value={s.id}>
+                      {new Date(s.startDate).toLocaleDateString("en-US", {
                         day: "numeric",
                         month: "short",
-                        year: "numeric"
-                      })} ({s.capacity} left)
+                        year: "numeric",
+                      })}{" "}
+                      ({s.availableSlots} left)
                     </option>
                   ))
                 ) : (
@@ -87,27 +112,53 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ tour }) => {
               </select>
             </div>
 
-            <div className="flex justify-between items-center text-sm">
-              <div className="flex items-center gap-2 text-gray-600 font-medium">
-                <Users size={18} />
-                <span>Guests</span>
+            <div className="space-y-4 pt-2 border-t border-gray-100">
+              <div className="flex justify-between items-center text-sm">
+                <div className="flex items-center gap-2 text-gray-600 font-medium">
+                  <User size={18} />
+                  <span>Adults</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setAdults(Math.max(1, adults - 1))}
+                    className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center font-bold hover:border-primary hover:text-primary transition-colors bg-white shadow-sm"
+                  >
+                    <Minus size={14} />
+                  </button>
+                  <span className="font-bold text-gray-900 w-4 text-center">
+                    {adults}
+                  </span>
+                  <button
+                    onClick={() => setAdults(adults + 1)}
+                    className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center font-bold hover:border-primary hover:text-primary transition-colors bg-white shadow-sm"
+                  >
+                    <Plus size={14} />
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setGuestCount(Math.max(1, guestCount - 1))}
-                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center font-bold hover:border-primary hover:text-primary transition-colors bg-white shadow-sm"
-                >
-                  <Minus size={14} />
-                </button>
-                <span className="font-bold text-gray-900 w-4 text-center">
-                  {guestCount}
-                </span>
-                <button
-                  onClick={() => setGuestCount(guestCount + 1)}
-                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center font-bold hover:border-primary hover:text-primary transition-colors bg-white shadow-sm"
-                >
-                  <Plus size={14} />
-                </button>
+
+              <div className="flex justify-between items-center text-sm">
+                <div className="flex items-center gap-2 text-gray-600 font-medium">
+                  <Users size={18} />
+                  <span>Children</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setChildren(Math.max(0, children - 1))}
+                    className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center font-bold hover:border-primary hover:text-primary transition-colors bg-white shadow-sm"
+                  >
+                    <Minus size={14} />
+                  </button>
+                  <span className="font-bold text-gray-900 w-4 text-center">
+                    {children}
+                  </span>
+                  <button
+                    onClick={() => setChildren(children + 1)}
+                    className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center font-bold hover:border-primary hover:text-primary transition-colors bg-white shadow-sm"
+                  >
+                    <Plus size={14} />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
