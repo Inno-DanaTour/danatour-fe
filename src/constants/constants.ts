@@ -192,6 +192,7 @@ export const TOURS: Tour[] = [
         date: "2024-03-20",
       },
     ],
+    companyId: 1,
   },
   {
     id: "2",
@@ -242,6 +243,7 @@ export const TOURS: Tour[] = [
         date: "2024-03-15",
       },
     ],
+    companyId: 1,
   },
   {
     id: "3",
@@ -272,6 +274,7 @@ export const TOURS: Tour[] = [
       },
     ],
     reviews: [],
+    companyId: 2,
   },
   {
     id: "4",
@@ -303,6 +306,7 @@ export const TOURS: Tour[] = [
       },
     ],
     reviews: [],
+    companyId: 2,
   },
 ];
 

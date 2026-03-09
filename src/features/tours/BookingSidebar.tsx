@@ -34,11 +34,28 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ tour }) => {
               {new Intl.NumberFormat("vi-VN", {
                 style: "currency",
                 currency: "VND",
-              }).format(tour.price)}
+              }).format(tour.adultPrice)}
             </span>
           </div>
           <div className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-bold">
             Best Price
+          </div>
+        </div>
+
+        {/* Price breakdown */}
+        <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
+          <p className="text-xs font-black uppercase tracking-widest text-gray-400">Price Details</p>
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-gray-600">👤 Adult</span>
+            <span className="font-black text-gray-900">
+              {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(tour.adultPrice)}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-gray-600">🧒 Children</span>
+            <span className="font-black text-gray-900">
+              {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(tour.childrenPrice)}
+            </span>
           </div>
         </div>
 
@@ -52,11 +69,21 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ tour }) => {
               <select
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="bg-transparent font-bold text-gray-900 border-none p-0 focus:ring-0 cursor-pointer"
+                className="bg-transparent font-bold text-gray-900 border-none p-0 focus:ring-0 cursor-pointer text-sm"
               >
-                <option value="2024-10-24">Oct 24, 2024</option>
-                <option value="2024-10-25">Oct 25, 2024</option>
-                <option value="2024-10-26">Oct 26, 2024</option>
+                {tour.schedules && tour.schedules.length > 0 ? (
+                  tour.schedules.map((s) => (
+                    <option key={s.id} value={s.startDate}>
+                      {new Date(s.startDate).toLocaleDateString("vi-VN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric"
+                      })} ({s.capacity} left)
+                    </option>
+                  ))
+                ) : (
+                  <option value="">No dates available</option>
+                )}
               </select>
             </div>
 
