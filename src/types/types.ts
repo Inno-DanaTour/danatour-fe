@@ -50,6 +50,7 @@ export interface Tour {
   itinerary: ItineraryItem[];
   reviews: Review[];
   schedules?: TourSchedule[];
+  companyId?: number;
 }
 
 export interface AppState {
@@ -135,6 +136,7 @@ export interface TourSchedule {
   startDate: string;
   endDate: string;
   capacity: number;
+  availableSlots: number;
 }
 
 export interface CategoryResponse {
@@ -161,4 +163,5 @@ export interface TourDetail {
   place: PlaceResponse;
   images: TourImage[];
   schedules: TourSchedule[];
+  companyId: number;
 }

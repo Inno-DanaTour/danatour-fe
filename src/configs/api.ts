@@ -20,7 +20,7 @@ export const getUserIdFromToken = () => {
   const token = getToken();
   if (!token) return null;
   const payload = parseJwt(token);
-  return payload ? payload.userId : null;
+  return payload ? payload.sub : null;
 };
 
 const getHeaders = (isMultipart: boolean = false) => {
@@ -38,8 +38,21 @@ const getHeaders = (isMultipart: boolean = false) => {
 };
 
 export const api = {
-  get: async <T>(endpoint: string): Promise<T> => {
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
+  get: async <T>(endpoint: string, options?: { params?: any }): Promise<T> => {
+    let url = `${BASE_URL}${endpoint}`;
+    if (options?.params) {
+      const params = new URLSearchParams();
+      Object.entries(options.params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
+      });
+      const queryString = params.toString();
+      if (queryString) {
+        url += (url.includes('?') ? '&' : '?') + queryString;
+      }
+    }
+    const response = await fetch(url, {
       method: 'GET',
       headers: getHeaders(),
     });
@@ -101,7 +114,26 @@ export const api = {
     }
     return response.json();
   },
-   delete: async <T>(endpoint: string): Promise<T> => {
+
+  patch: async <T>(endpoint: string, data?: any, options?: { params?: any }): Promise<T> => {
+    let url = `${BASE_URL}${endpoint}`;
+    if (options?.params) {
+      const queryString = new URLSearchParams(options.params as Record<string, string>).toString();
+      url += `?${queryString}`;
+    }
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: getHeaders(),
+      body: data ? JSON.stringify(data) : undefined,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+      throw new Error(error.message || 'Network response was not ok');
+    }
+    return response.json();
+  },
+
+  delete: async <T>(endpoint: string): Promise<T> => {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'DELETE',
       headers: getHeaders(),

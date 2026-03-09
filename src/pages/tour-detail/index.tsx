@@ -8,7 +8,8 @@ import ItineraryTimeline from "../../features/tours/ItineraryTimeline";
 import BookingSidebar from "../../features/tours/BookingSidebar";
 import ReviewCard from "../../components/ui/ReviewCard";
 import { tourService } from "../../services/tourService";
-import { Tour, ItineraryItem } from "../../types/types";
+import { Tour, ItineraryItem, Company } from "../../types/types";
+import { companyService } from "../company-detail/services/companyService";
 
 const TourDetail: React.FC = () => {
   const { scrollYProgress } = useScroll();
@@ -21,6 +22,8 @@ const TourDetail: React.FC = () => {
   const navigate = useNavigate();
   const [tour, setTour] = useState<Tour | null>(null);
   const [loading, setLoading] = useState(true);
+  const [company, setCompany] = useState<Company | null>(null);
+  const [allCompanies, setAllCompanies] = useState<Company[]>([]);
   const [activeTab, setActiveTab] = useState<
     "overview" | "itinerary" | "schedules" | "reviews"
   >("overview");
@@ -35,30 +38,36 @@ const TourDetail: React.FC = () => {
         // Parse itinerary string into ItineraryItem[]
         let mappedItinerary: ItineraryItem[] = [];
         if (data.itinerary) {
-          const lines = data.itinerary.split('\n').filter(line => line.trim() !== "");
+          const lines = data.itinerary
+            .split("\n")
+            .filter((line) => line.trim() !== "");
           if (lines.length > 0 && lines[0].toLowerCase().includes("day")) {
             // Simple parsing: Each line starting with "Day" is a new day
             let currentDay = 0;
-            lines.forEach(line => {
+            lines.forEach((line) => {
               if (line.toLowerCase().startsWith("day")) {
                 currentDay++;
-                const parts = line.split(':');
+                const parts = line.split(":");
                 mappedItinerary.push({
                   day: currentDay,
                   title: parts[0].trim(),
-                  description: parts.slice(1).join(':').trim() || "Activities for the day"
+                  description:
+                    parts.slice(1).join(":").trim() || "Activities for the day",
                 });
               } else if (mappedItinerary.length > 0) {
-                mappedItinerary[mappedItinerary.length - 1].description += " " + line.trim();
+                mappedItinerary[mappedItinerary.length - 1].description +=
+                  " " + line.trim();
               }
             });
           } else {
             // Fallback: One big Day 1
-            mappedItinerary = [{
-              day: 1,
-              title: "Full Journey",
-              description: data.itinerary
-            }];
+            mappedItinerary = [
+              {
+                day: 1,
+                title: "Full Journey",
+                description: data.itinerary,
+              },
+            ];
           }
         }
 
@@ -66,20 +75,48 @@ const TourDetail: React.FC = () => {
           id: String(data.id),
           name: data.title,
           description: data.description,
-          image: data.images[0]?.imageUrl || "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80",
-          gallery: data.images.map(img => img.imageUrl),
+          image:
+            data.images[0]?.imageUrl ||
+            "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80",
+          gallery: data.images.map((img) => img.imageUrl),
           adultPrice: data.adultPrice,
           childrenPrice: data.childrenPrice,
           duration: `${data.durationDays}D / ${data.durationNights}N`,
           rating: 4.8, // Mock if not in DTO
           reviewCount: 24, // Mock if not in DTO
           zone: data.place.name as any,
-          highlights: ["Local Guide", "Transportation", "Entrance Fees", "Lunch included"],
+          highlights: [
+            "Local Guide",
+            "Transportation",
+            "Entrance Fees",
+            "Lunch included",
+          ],
           itinerary: mappedItinerary,
           reviews: [],
-          schedules: data.schedules
+          schedules: data.schedules,
+          companyId: data.companyId,
         };
         setTour(mappedTour);
+
+        // Fetch company data if companyId exists
+        if (data.companyId) {
+          try {
+            const companyData = await companyService.getCompanyById(
+              data.companyId,
+            );
+            setCompany(companyData);
+          } catch (cErr) {
+            console.error("Failed to fetch company info:", cErr);
+          }
+        }
+
+        // Fetch all companies for the partners section
+        try {
+          const companies = await companyService.getAllCompanies();
+          setAllCompanies(companies);
+        } catch (acErr) {
+          console.error("Failed to fetch all companies:", acErr);
+        }
       } catch (err) {
         console.error("Failed to fetch tour detail:", err);
         navigate("/tours");
@@ -95,7 +132,9 @@ const TourDetail: React.FC = () => {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
         <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
-        <p className="text-gray-500 font-bold animate-pulse">Loading journey details...</p>
+        <p className="text-gray-500 font-bold animate-pulse">
+          Loading journey details...
+        </p>
       </div>
     );
   }
@@ -159,7 +198,10 @@ const TourDetail: React.FC = () => {
                 <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-black/5 flex flex-col md:flex-row gap-6 items-start md:items-center">
                   <div className="w-20 h-20 rounded-2xl overflow-hidden shrink-0 shadow-lg">
                     <img
-                      src={company.logoUrl || "https://images.unsplash.com/photo-1599305090748-35699709d435?w=500&auto=format&fit=crop&q=60"}
+                      src={
+                        company.logoUrl ||
+                        "https://images.unsplash.com/photo-1599305090748-35699709d435?w=500&auto=format&fit=crop&q=60"
+                      }
                       className="w-full h-full object-cover"
                       alt={company.name}
                     />
@@ -176,7 +218,8 @@ const TourDetail: React.FC = () => {
                     </p>
                     <div className="flex items-center gap-4 pt-2">
                       <span className="flex items-center gap-1 text-yellow-500 font-bold text-xs bg-yellow-50 px-2 py-1 rounded-full">
-                        <Star size={12} fill="currentColor" /> {company.averageRating}
+                        <Star size={12} fill="currentColor" />{" "}
+                        {company.averageRating}
                       </span>
                       <span className="text-xs text-gray-400 font-bold uppercase tracking-widest">
                         {company.totalTours} Tours Active
@@ -192,7 +235,9 @@ const TourDetail: React.FC = () => {
                 </div>
               ) : (
                 <div className="h-32 flex items-center justify-center bg-gray-50 rounded-[2rem] border border-dashed animate-pulse">
-                  <p className="text-gray-400 font-medium">Loading provider info...</p>
+                  <p className="text-gray-400 font-medium">
+                    Loading provider info...
+                  </p>
                 </div>
               )}
             </motion.div>
@@ -205,24 +250,27 @@ const TourDetail: React.FC = () => {
               className="border-b border-gray-200 sticky top-20 bg-background/80 backdrop-blur-md z-30 pt-4"
             >
               <div className="flex gap-6 md:gap-10 overflow-x-auto no-scrollbar">
-                {["overview", "itinerary", "schedules", "reviews"].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab as any)}
-                    className={`pb-4 text-base md:text-lg font-bold capitalize transition-all relative shrink-0 ${activeTab === tab
-                      ? "text-primary"
-                      : "text-gray-400 hover:text-gray-600"
+                {["overview", "itinerary", "schedules", "reviews"].map(
+                  (tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab as any)}
+                      className={`pb-4 text-base md:text-lg font-bold capitalize transition-all relative shrink-0 ${
+                        activeTab === tab
+                          ? "text-primary"
+                          : "text-gray-400 hover:text-gray-600"
                       }`}
-                  >
-                    {tab}
-                    {activeTab === tab && (
-                      <motion.div
-                        layoutId="activeTabDetails"
-                        className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-full"
-                      />
-                    )}
-                  </button>
-                ))}
+                    >
+                      {tab}
+                      {activeTab === tab && (
+                        <motion.div
+                          layoutId="activeTabDetails"
+                          className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-full"
+                        />
+                      )}
+                    </button>
+                  ),
+                )}
               </div>
             </motion.div>
 
@@ -267,9 +315,9 @@ const TourDetail: React.FC = () => {
                       </div>
                     </div>
 
-
                     {/* All Companies Section - Horizontal Scroller */}
-                    {allCompanies.filter(c => c.id !== company?.id).length > 0 && (
+                    {allCompanies.filter((c) => c.id !== company?.id).length >
+                      0 && (
                       <div className="pt-12 mt-8 border-t border-gray-100 bg-gray-50/50 -mx-6 px-6 py-12 rounded-[3rem]">
                         <div className="flex items-center justify-between mb-8 px-2">
                           <div className="space-y-1">
@@ -277,7 +325,8 @@ const TourDetail: React.FC = () => {
                               Explore Our Partners
                             </h3>
                             <p className="text-gray-500 text-sm font-medium">
-                              Discover more authentic local experiences from our trusted providers.
+                              Discover more authentic local experiences from our
+                              trusted providers.
                             </p>
                           </div>
                         </div>
@@ -289,7 +338,8 @@ const TourDetail: React.FC = () => {
                             <CheckCircle size={16} className="text-green-500" />
                           </div>
                           <p className="text-gray-500 text-sm line-clamp-2">
-                            Authentic local experiences across Vietnam. We show you the hidden gems.
+                            Authentic local experiences across Vietnam. We show
+                            you the hidden gems.
                           </p>
                           <div className="flex items-center gap-4 pt-2">
                             <span className="flex items-center gap-1 text-yellow-500 font-bold text-xs">
@@ -328,8 +378,12 @@ const TourDetail: React.FC = () => {
                     className="space-y-6"
                   >
                     <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-xl md:text-2xl font-bold">Upcoming Departures</h3>
-                      <span className="text-gray-500 text-sm font-medium">All times in local timezone</span>
+                      <h3 className="text-xl md:text-2xl font-bold">
+                        Upcoming Departures
+                      </h3>
+                      <span className="text-gray-500 text-sm font-medium">
+                        All times in local timezone
+                      </span>
                     </div>
 
                     <div className="grid grid-cols-1 gap-4">
@@ -342,35 +396,58 @@ const TourDetail: React.FC = () => {
                             <div className="flex items-center gap-6">
                               <div className="flex flex-col items-center justify-center bg-primary/5 text-primary rounded-2xl w-16 h-16 shrink-0">
                                 <span className="text-[10px] uppercase font-black tracking-widest leading-none mb-1">
-                                  {new Date(s.startDate).toLocaleDateString("en-US", { month: "short" })}
+                                  {new Date(s.startDate).toLocaleDateString(
+                                    "en-US",
+                                    { month: "short" },
+                                  )}
                                 </span>
                                 <span className="text-2xl font-black leading-none">
-                                  {new Date(s.startDate).toLocaleDateString("en-US", { day: "numeric" })}
+                                  {new Date(s.startDate).toLocaleDateString(
+                                    "en-US",
+                                    { day: "numeric" },
+                                  )}
                                 </span>
                               </div>
 
                               <div>
                                 <div className="font-bold text-gray-900 text-lg">
-                                  {new Date(s.startDate).toLocaleDateString("en-US", { weekday: 'long' })}
+                                  {new Date(s.startDate).toLocaleDateString(
+                                    "en-US",
+                                    { weekday: "long" },
+                                  )}
                                 </div>
                                 <div className="text-gray-500 text-sm flex items-center gap-2">
-                                  <span>{new Date(s.startDate).toLocaleDateString("vi-VN")}</span>
+                                  <span>
+                                    {new Date(s.startDate).toLocaleDateString(
+                                      "vi-VN",
+                                    )}
+                                  </span>
                                   <span>→</span>
-                                  <span>{new Date(s.endDate).toLocaleDateString("vi-VN")}</span>
+                                  <span>
+                                    {new Date(s.endDate).toLocaleDateString(
+                                      "vi-VN",
+                                    )}
+                                  </span>
                                 </div>
                               </div>
                             </div>
 
                             <div className="flex items-center justify-between md:justify-end gap-10">
                               <div className="text-right">
-                                <div className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">Availability</div>
-                                <div className={`font-bold text-sm ${s.capacity > 5 ? 'text-green-500' : 'text-cta'}`}>
-                                  {s.capacity} spots left
+                                <div className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">
+                                  Availability
+                                </div>
+                                <div
+                                  className={`font-bold text-sm ${s.availableSlots > 5 ? "text-green-500" : "text-cta"}`}
+                                >
+                                  {s.availableSlots} spots left
                                 </div>
                               </div>
 
                               <div className="text-right">
-                                <div className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">Price per guest</div>
+                                <div className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">
+                                  Price per guest
+                                </div>
                                 <div className="font-black text-xl text-primary">
                                   {new Intl.NumberFormat("vi-VN", {
                                     style: "currency",
@@ -390,7 +467,9 @@ const TourDetail: React.FC = () => {
                         ))
                       ) : (
                         <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-100">
-                          <p className="text-gray-400 font-medium">No upcoming departures found for this tour.</p>
+                          <p className="text-gray-400 font-medium">
+                            No upcoming departures found for this tour.
+                          </p>
                         </div>
                       )}
                     </div>
@@ -449,9 +528,7 @@ const TourDetail: React.FC = () => {
             }).format(tour.adultPrice)}
           </span>
         </div>
-        <button
-          className="btn-primary py-3.5 px-10 text-base shadow-xl shadow-cta/20"
-        >
+        <button className="btn-primary py-3.5 px-10 text-base shadow-xl shadow-cta/20">
           Book Now
         </button>
       </div>
