@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { parseJwt } from "../../../configs/api";
 
 const OAuth2Callback: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -31,8 +32,16 @@ const OAuth2Callback: React.FC = () => {
         // Redirect to change password page if it's a new user
         navigate("/change-password");
       } else {
-        // Redirect to home if existing user
-        navigate("/");
+        // Parse token to check roles
+        const payload = parseJwt(accessToken);
+        const scope = payload?.scope || "";
+
+        if (scope.includes("ROLE_ADMIN")) {
+          navigate("/admin");
+        } else {
+          // Redirect to home if existing user
+          navigate("/");
+        }
       }
     } else {
       // Handle case where no token is provided

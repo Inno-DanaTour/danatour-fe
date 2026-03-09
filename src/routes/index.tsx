@@ -20,6 +20,10 @@ import ChangePassword from "../pages/auth/change-password";
 import ManageTours from "../pages/tours/ManageTours";
 import CreateTour from "../pages/tours/CreateTour";
 import EditTour from "../pages/tours/EditTour";
+import UserProfilePage from "../pages/profile";
+import AdminLayout from "../pages/admin/AdminLayout";
+import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
+import TourCompanyManagementPage from "../pages/admin/TourCompanyManagementPage";
 
 const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <motion.div
@@ -171,6 +175,26 @@ export const AnimatedRoutes = () => {
           <ChangePassword />
         </PageWrapper>
       ),
+    },
+    {
+      path: "/profile",
+      element: (
+        <PageWrapper>
+          <UserProfilePage />
+        </PageWrapper>
+      ),
+    },
+    {
+      path: "/admin",
+      element: (
+        <PageWrapper>
+          <AdminLayout />
+        </PageWrapper>
+      ),
+      children: [
+        { index: true, element: <AdminDashboardPage /> },
+        { path: "companies", element: <TourCompanyManagementPage /> },
+      ],
     },
   ];
 

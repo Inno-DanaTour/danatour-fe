@@ -5,6 +5,7 @@ import {
 } from "../services/loginService";
 import { LoginRequest } from "../types";
 import { useNavigate } from "react-router-dom";
+import { parseJwt } from "../../../../configs/api";
 
 export const useLogin = () => {
   const [loading, setLoading] = useState(false);
@@ -18,7 +19,17 @@ export const useLogin = () => {
       const response = await apiLogin(data);
       if (response && response.data && response.data.token) {
         localStorage.setItem("token", response.data.token);
-        navigate("/");
+
+        // Parse token to check roles
+        const payload = parseJwt(response.data.token);
+        const scope = payload?.scope || "";
+
+        if (scope.includes("ROLE_ADMIN")) {
+          navigate("/admin");
+        } else {
+          navigate("/");
+        }
+
         return response.data;
       }
       throw new Error(response.message || "Invalid response format");
