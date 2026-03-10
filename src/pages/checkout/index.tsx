@@ -17,6 +17,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { bookingService, BookingRequest } from "../../services/bookingService";
+import { paymentService } from "../../services/paymentService";
 import { Loader2 } from "lucide-react";
 import Header from "../../components/layout/Header";
 import { Tour } from "../../types/types";
@@ -62,18 +63,9 @@ const Checkout: React.FC = () => {
 
       const response = await bookingService.createBooking(bookingData);
 
-      // Show success notification
-      setShowSuccess(true);
-
-      // Delay navigation slightly to let the user see the success message
-      setTimeout(() => {
-        navigate("/booking/confirmation", {
-          state: {
-            tour,
-            booking: response,
-          },
-        });
-      }, 2000);
+      // Get payment URL and redirect
+      const paymentUrl = await paymentService.createPaymentUrl(response.id);
+      window.location.href = paymentUrl;
     } catch (err: any) {
       console.error("Booking failed:", err);
       setError(err.message || "Failed to create booking. Please try again.");

@@ -26,6 +26,7 @@ import AdminLayout from "../pages/admin/AdminLayout";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 import TourCompanyManagementPage from "../pages/admin/TourCompanyManagementPage";
 import CompanyBookings from "../pages/tours/CompanyBookings";
+import PaymentResult from "../pages/payment-result";
 
 const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <motion.div
@@ -167,6 +168,14 @@ export const AnimatedRoutes = () => {
       element: (
         <PageWrapper>
           <MyBookings />
+        </PageWrapper>
+      ),
+    },
+    {
+      path: "/payment-result",
+      element: (
+        <PageWrapper>
+          <PaymentResult />
         </PageWrapper>
       ),
     },
