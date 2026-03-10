@@ -24,6 +24,7 @@ import Header from "../../../components/layout/Header";
 import {
   providerService,
   ProviderApplicationInfo,
+  MyProviderApplicationResponse,
 } from "../../../services/providerService";
 import { useLogin } from "../login/hooks/useLogin";
 
@@ -102,9 +103,28 @@ const ProviderOnboarding: React.FC = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const { handleRefreshToken } = useLogin();
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
+  const [existingApplication, setExistingApplication] =
+    useState<MyProviderApplicationResponse | null>(null);
+
+  // Initial status check
+  useEffect(() => {
+    const fetchStatus = async () => {
+      setIsCheckingStatus(true);
+      try {
+        const data = await providerService.getMyApplications();
+        if (data.company) {
+          setExistingApplication(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch application status", err);
+      } finally {
+        setIsCheckingStatus(false);
+      }
+    };
+    fetchStatus();
+  }, []);
 
   // Cleanup effect for ObjectURLs
   useEffect(() => {
@@ -231,7 +251,12 @@ const ProviderOnboarding: React.FC = () => {
 
       await providerService.submitApplication(info, files);
 
-      setSuccess(true);
+      // Refresh token to update roles if approved/changed
+      await handleRefreshToken();
+
+      // Refresh status after submission
+      const data = await providerService.getMyApplications();
+      setExistingApplication(data);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setIsLoading(false);
@@ -241,34 +266,24 @@ const ProviderOnboarding: React.FC = () => {
   const checkApplicationStatus = async () => {
     setIsCheckingStatus(true);
     try {
-      const apps = await providerService.getMyApplications();
-      // Status APPROVED is ordinal 1
-      const isApproved = apps.some(
-        (app) =>
-          app.verificationStatus === 1 || app.verificationStatus === "APPROVED",
-      );
+      const data = await providerService.getMyApplications();
+      setExistingApplication(data);
 
-      if (isApproved) {
+      const status = data.company?.status;
+
+      if (status === "ACTIVE") {
         await handleRefreshToken();
         // Redirect to tour company dashboard or home
         navigate("/");
-      } else {
-        const isRejected = apps.some(
-          (app) =>
-            app.verificationStatus === 2 ||
-            app.verificationStatus === "REJECTED",
+      } else if (status === "REJECTED" || status === "SUSPENDED") {
+        setError(
+          `Your application has been ${status.toLowerCase()}. ${data.company?.rejectionReason || "Please contact support for more details."}`,
         );
-        if (isRejected) {
-          setError(
-            "Your application has been rejected. Please contact support or try again.",
-          );
-          setSuccess(false);
-        } else {
-          setError(
-            "Your application is still under review. Please check back later.",
-          );
-          setTimeout(() => setError(null), 3000);
-        }
+      } else {
+        setError(
+          "Your application is still under review. Please check back later.",
+        );
+        setTimeout(() => setError(null), 3000);
       }
     } catch (err: any) {
       setError("Failed to check status. Please try again later.");
@@ -277,26 +292,115 @@ const ProviderOnboarding: React.FC = () => {
     }
   };
 
-  if (success) {
+  if (existingApplication && existingApplication.company) {
+    const { company, documents } = existingApplication;
+    const isPending = company.status === "PENDING_VERIFICATION";
+    const isActive = company.status === "ACTIVE";
+    const isRejected = company.status === "REJECTED";
+
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="bg-white p-12 rounded-[3rem] shadow-2xl shadow-primary/10 max-w-lg w-full border border-primary/5 relative overflow-hidden"
+          className="bg-white p-12 rounded-[3rem] shadow-2xl shadow-primary/10 max-w-2xl w-full border border-primary/5 relative overflow-hidden"
         >
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-secondary" />
-          <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center text-green-500 mx-auto mb-8 border-4 border-white shadow-xl">
-            <CheckCircle2 size={48} />
-          </div>
-          <h1 className="text-3xl font-black text-gray-900 mb-4 uppercase tracking-tight">
-            Application Submitted!
+
+          {isPending && (
+            <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 mx-auto mb-8 border-4 border-white shadow-xl">
+              <Loader2 className="animate-spin" size={48} />
+            </div>
+          )}
+
+          {isActive && (
+            <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center text-green-500 mx-auto mb-8 border-4 border-white shadow-xl">
+              <CheckCircle2 size={48} />
+            </div>
+          )}
+
+          {isRejected && (
+            <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center text-red-500 mx-auto mb-8 border-4 border-white shadow-xl">
+              <X size={48} />
+            </div>
+          )}
+
+          <h1 className="text-3xl font-black text-gray-900 mb-2 uppercase tracking-tight">
+            {isActive
+              ? "Application Approved!"
+              : isRejected
+                ? "Application Rejected"
+                : "Application Under Review"}
           </h1>
-          <p className="text-gray-500 font-medium mb-10 leading-relaxed">
-            Your application to become a Tour Provider has been received. Our
-            admin team will review your documents and notify you via email
-            within 2-3 business days.
-          </p>
+
+          <div className="mb-8">
+            <span
+              className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                isActive
+                  ? "bg-green-100 text-green-600"
+                  : isRejected
+                    ? "bg-red-100 text-red-600"
+                    : "bg-blue-100 text-blue-600"
+              }`}
+            >
+              {company.status.replace("_", " ")}
+            </span>
+          </div>
+
+          <div className="bg-slate-50/50 rounded-3xl p-6 mb-8 text-left space-y-4 border border-gray-100">
+            <div className="flex justify-between items-center pb-4 border-b border-gray-100">
+              <span className="text-xs font-black text-gray-400 uppercase tracking-widest">
+                Company Name
+              </span>
+              <span className="text-sm font-bold text-gray-900">
+                {company.name}
+              </span>
+            </div>
+            <div className="flex justify-between items-center pb-4 border-b border-gray-100">
+              <span className="text-xs font-black text-gray-400 uppercase tracking-widest">
+                Tax Code
+              </span>
+              <span className="text-sm font-bold text-gray-900">
+                {company.taxCode}
+              </span>
+            </div>
+            {company.rejectionReason && (
+              <div className="pt-2">
+                <span className="text-xs font-black text-red-400 uppercase tracking-widest block mb-2">
+                  Rejection Reason
+                </span>
+                <p className="text-sm font-medium text-red-600 leading-relaxed">
+                  {company.rejectionReason}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="mb-10 text-left">
+            <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">
+              Submitted Documents ({documents.length})
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              {documents.map((doc) => (
+                <div
+                  key={doc.id}
+                  className="p-3 bg-white border border-gray-100 rounded-2xl flex items-center gap-3 shadow-sm"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-primary/5 text-primary flex items-center justify-center shrink-0">
+                    <FileText size={16} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-black text-gray-900 truncate uppercase mt-0.5">
+                      {doc.documentType.replace("_", " ")}
+                    </p>
+                    <span className="text-[8px] font-bold text-green-500 uppercase tracking-tighter">
+                      {doc.verificationStatus}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
           <AnimatePresence>
             {error && (
@@ -307,32 +411,55 @@ const ProviderOnboarding: React.FC = () => {
                 className="bg-red-50 border border-red-100 p-4 rounded-xl flex items-center gap-3 text-red-600 mb-6 overflow-hidden"
               >
                 <AlertCircle size={18} className="shrink-0" />
-                <p className="font-bold text-xs tracking-tight">{error}</p>
+                <p className="font-bold text-xs tracking-tight text-left">
+                  {error}
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
 
           <div className="space-y-4">
-            <button
-              onClick={checkApplicationStatus}
-              disabled={isCheckingStatus}
-              className="w-full py-5 bg-gradient-to-r from-primary to-secondary text-white font-black rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-70"
-            >
-              {isCheckingStatus ? (
-                <>
-                  <Loader2 className="animate-spin" size={20} />
-                  CHECKING STATUS...
-                </>
-              ) : (
-                <>
-                  <FileCheck size={20} />
-                  CHECK APPROVAL STATUS
-                </>
-              )}
-            </button>
+            {isPending && (
+              <button
+                onClick={checkApplicationStatus}
+                disabled={isCheckingStatus}
+                className="w-full py-5 bg-gradient-to-r from-primary to-secondary text-white font-black rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-70"
+              >
+                {isCheckingStatus ? (
+                  <>
+                    <Loader2 className="animate-spin" size={20} />
+                    REFRESHING STATUS...
+                  </>
+                ) : (
+                  <>
+                    <FileCheck size={20} />
+                    REFRESH STATUS
+                  </>
+                )}
+              </button>
+            )}
+
+            {isActive && (
+              <button
+                onClick={() => navigate("/")}
+                className="w-full py-5 bg-gradient-to-r from-primary to-secondary text-white font-black rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+              >
+                GO TO DASHBOARD
+              </button>
+            )}
+
+            {isRejected && (
+              <button
+                onClick={() => setExistingApplication(null)}
+                className="w-full py-5 bg-gradient-to-r from-primary to-secondary text-white font-black rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+              >
+                RE-SUBMIT APPLICATION
+              </button>
+            )}
+
             <button
               onClick={() => navigate("/")}
-              className="w-full py-5 bg-white text-gray-900 font-black rounded-2xl border-2 border-gray-100 hover:bg-gray-50 transition-all"
+              className="w-full py-5 bg-white text-gray-900 font-black rounded-2xl border-2 border-gray-100 hover:bg-gray-50 transition-all uppercase tracking-tight text-sm"
             >
               RETURN TO HOME
             </button>
@@ -358,7 +485,6 @@ const ProviderOnboarding: React.FC = () => {
           <div className="sticky top-32">
             <div className="mb-8 p-2">
               <motion.div
-                c
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-primary text-xs font-black uppercase tracking-widest border border-primary/10 shadow-sm mb-4"

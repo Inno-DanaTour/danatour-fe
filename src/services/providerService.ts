@@ -15,9 +15,38 @@ export interface ProviderApplicationInfo {
 
 export interface ProviderApplicationResponse {
   id: number;
-  success?: boolean;
-  message?: string;
-  [key: string]: any;
+  companyId: number;
+  companyName: string;
+  documentType: string;
+  documentUrl: string;
+  verificationStatus: string;
+  verifiedById?: number;
+  verifiedByName?: string;
+  verifiedAt?: string;
+  uploadedAt: string;
+}
+
+export interface TourCompanyResponse {
+  id: number;
+  name: string;
+  taxCode: string;
+  citizenId: string;
+  description: string;
+  logoUrl?: string;
+  address: string;
+  contactEmail: string;
+  contactPhone: string;
+  averageRating: number;
+  totalTours: number;
+  status: string;
+  rejectionReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MyProviderApplicationResponse {
+  company: TourCompanyResponse | null;
+  documents: ProviderApplicationResponse[];
 }
 
 export const providerService = {
@@ -54,7 +83,7 @@ export const providerService = {
     );
   },
 
-  getMyApplications: async (): Promise<any[]> => {
-    return api.get<any[]>("/provider-applications/my");
+  getMyApplications: async (): Promise<MyProviderApplicationResponse> => {
+    return api.get<MyProviderApplicationResponse>("/provider-applications/me");
   },
 };
