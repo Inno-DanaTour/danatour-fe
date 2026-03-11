@@ -25,7 +25,10 @@ import UserProfilePage from "../pages/profile";
 import AdminLayout from "../pages/admin/AdminLayout";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 import TourCompanyManagementPage from "../pages/admin/TourCompanyManagementPage";
+import AdminPromotions from "../pages/admin/AdminPromotions";
+import CompanyPromotions from "../pages/tours/CompanyPromotions";
 import CompanyBookings from "../pages/tours/CompanyBookings";
+import PromotionDetail from "../pages/promotions/PromotionDetail";
 import PaymentResult from "../pages/payment-result";
 
 const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -221,7 +224,25 @@ export const AnimatedRoutes = () => {
       children: [
         { index: true, element: <AdminDashboardPage /> },
         { path: "companies", element: <TourCompanyManagementPage /> },
+        { path: "promotions", element: <AdminPromotions /> },
+        { path: "promotions/:id", element: <PromotionDetail /> },
       ],
+    },
+    {
+      path: "/tours/promotions",
+      element: (
+        <PageWrapper>
+          <CompanyPromotions />
+        </PageWrapper>
+      ),
+    },
+    {
+      path: "/tours/promotions/:id",
+      element: (
+        <PageWrapper>
+          <PromotionDetail />
+        </PageWrapper>
+      ),
     },
   ];
 

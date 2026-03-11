@@ -7,7 +7,7 @@ import {
   FileText,
   Settings,
   LogOut,
-  TourControl,
+  TicketPercent,
 } from "lucide-react";
 
 const AdminLayout: React.FC = () => {
@@ -23,6 +23,7 @@ const AdminLayout: React.FC = () => {
   const navItems = [
     { path: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { path: "/admin/companies", label: "Tour Companies", icon: Building2 },
+    { path: "/admin/promotions", label: "Promotions", icon: TicketPercent },
     // Mock links for future expansion
     { path: "/admin/users", label: "Users", icon: Users },
     { path: "/admin/reports", label: "Reports", icon: FileText },
@@ -54,16 +55,17 @@ const AdminLayout: React.FC = () => {
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            const isActive = item.path === "/admin"
+              ? location.pathname === "/admin"
+              : location.pathname.startsWith(item.path);
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${
-                  isActive
-                    ? "bg-primary text-white shadow-md shadow-primary/20"
-                    : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
-                }`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${isActive
+                  ? "bg-primary text-white shadow-md shadow-primary/20"
+                  : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+                  }`}
               >
                 <Icon
                   size={18}

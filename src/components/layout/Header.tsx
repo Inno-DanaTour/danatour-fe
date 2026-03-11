@@ -36,6 +36,7 @@ const NAV_ITEMS: NavItem[] = [
 
 const PROVIDER_NAV_ITEMS: NavItem[] = [
   { label: "Tour Management", href: "/tours/manage" },
+  { label: "Promotions", href: "/tours/promotions" },
   { label: "Booking Management", href: "/tours/bookings" },
 ];
 
@@ -189,11 +190,10 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
         initial={{ y: 0 }}
         animate={{ y: isVisible ? 0 : -100 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        className={`fixed top-4 left-4 right-4 z-50 rounded-2xl transition-all duration-300 ${
-          isScrolled
+        className={`fixed top-4 left-4 right-4 z-50 rounded-2xl transition-all duration-300 ${isScrolled
             ? "bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl"
             : "bg-black/30 backdrop-blur-md border border-white/5"
-        }`}
+          }`}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -226,11 +226,10 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
                   key={item.href}
                   href={item.href}
                   onClick={(e) => handleNavClick(e, item.href)}
-                  className={`relative px-4 py-2 text-sm font-medium transition-colors rounded-lg hover:bg-white/10 cursor-pointer ${
-                    isActive(item.href)
+                  className={`relative px-4 py-2 text-sm font-medium transition-colors rounded-lg hover:bg-white/10 cursor-pointer ${isActive(item.href)
                       ? "text-accent"
                       : "text-gray-300 hover:text-white"
-                  }`}
+                    }`}
                 >
                   {item.label}
                 </a>
@@ -437,11 +436,10 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className={`px-4 py-3 text-lg font-medium hover:bg-white/10 rounded-xl transition-colors cursor-pointer text-left ${
-                      isActive(item.href)
+                    className={`px-4 py-3 text-lg font-medium hover:bg-white/10 rounded-xl transition-colors cursor-pointer text-left ${isActive(item.href)
                         ? "text-accent"
                         : "text-gray-300 hover:text-white"
-                    }`}
+                      }`}
                   >
                     {item.label}
                   </motion.button>
@@ -458,11 +456,10 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.3 + index * 0.1 }}
                         onClick={(e) => handleNavClick(e as any, item.href)}
-                        className={`w-full px-4 py-3 text-lg font-medium hover:bg-white/10 rounded-xl transition-colors text-left cursor-pointer flex items-center gap-3 ${
-                          isActive(item.href)
+                        className={`w-full px-4 py-3 text-lg font-medium hover:bg-white/10 rounded-xl transition-colors text-left cursor-pointer flex items-center gap-3 ${isActive(item.href)
                             ? "text-accent"
                             : "text-gray-300 hover:text-white"
-                        }`}
+                          }`}
                       >
                         {item.label}
                       </motion.button>

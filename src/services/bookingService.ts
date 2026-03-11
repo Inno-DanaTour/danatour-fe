@@ -8,6 +8,7 @@ export interface BookingRequest {
   contactName?: string;
   contactEmail?: string;
   contactPhone?: string;
+  promoCode?: string;
 }
 
 export interface BookingResponse {
