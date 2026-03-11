@@ -42,8 +42,12 @@ const Footer: React.FC = () => {
               }}
               className="flex items-center gap-2 group w-fit"
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-sea flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                <MapPin className="w-5 h-5 text-white" />
+              <div className="w-20 h-20">
+                <img
+                  src="/logo.png"
+                  alt="DanaTour Logo"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <span className="text-xl font-bold text-white tracking-tight font-display">
                 Dana<span className="text-accent">Tour</span>

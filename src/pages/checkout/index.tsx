@@ -10,31 +10,288 @@ import {
   MapPin,
   ChevronLeft,
   ShieldCheck,
+  Check,
+  Lock,
+  ArrowRight,
+  PartyPopper,
+  AlertCircle,
+  Banknote,
+  Copy,
+  ExternalLink,
 } from "lucide-react";
+import { bookingService, BookingRequest } from "../../services/bookingService";
+import { paymentService } from "../../services/paymentService";
+import { paymentMethodService } from "../../services/paymentMethodService";
+import { promotionService } from "../../services/promotionService";
+import { Loader2, TicketPercent, X } from "lucide-react";
 import Header from "../../components/layout/Header";
-import { Tour } from "../../types/types";
+import { Tour, PromotionResponse } from "../../types/types";
 
 const Checkout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const tour = location.state?.tour as Tour;
-  const guestCount = location.state?.guestCount || 1;
-  const selectedDate = location.state?.date || "2024-10-24";
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "wallet">("card");
+  const adults = location.state?.adults || 1;
+  const children = location.state?.children || 0;
+  const scheduleId = location.state?.scheduleId;
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "wallet" | "vietqr">("card");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [bankInfo, setBankInfo] = useState<any>(null);
+  const [showVietQR, setShowVietQR] = useState(false);
 
-  if (!tour) {
+  const [contactInfo, setContactInfo] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    nationality: "",
+  });
+
+  const [promoCode, setPromoCode] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<PromotionResponse | null>(null);
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+  const [promoError, setPromoError] = useState<string | null>(null);
+
+  if (!tour || !scheduleId) {
     navigate("/tours");
     return null;
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    navigate("/booking/confirmation", { state: { tour } });
+  const handleApplyPromo = async () => {
+    if (!promoCode.trim()) return;
+    setIsApplyingPromo(true);
+    setPromoError(null);
+    try {
+      const promo = await promotionService.validatePromoCode(promoCode, Number(tour.id));
+      setAppliedPromo(promo);
+      setPromoCode("");
+    } catch (err: any) {
+      setPromoError(err.message || "Invalid promo code");
+    } finally {
+      setIsApplyingPromo(false);
+    }
   };
+
+  const removePromo = () => {
+    setAppliedPromo(null);
+    setPromoError(null);
+  };
+
+  const calculateDiscount = () => {
+    if (!appliedPromo) return 0;
+    const subtotal = tour.adultPrice * adults + tour.childrenPrice * children;
+    if (appliedPromo.discountType === "PERCENTAGE") {
+      const discount = (subtotal * appliedPromo.discountValue) / 100;
+      return appliedPromo.maxDiscountAmount
+        ? Math.min(discount, appliedPromo.maxDiscountAmount)
+        : discount;
+    } else {
+      return appliedPromo.discountValue;
+    }
+  };
+
+  const discountAmount = calculateDiscount();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const bookingData: BookingRequest = {
+        scheduleId,
+        adults: adults,
+        children: children,
+        contactName: contactInfo.fullName,
+        contactEmail: contactInfo.email,
+        contactPhone: contactInfo.phone,
+        promoCode: appliedPromo?.code,
+      };
+
+      const response = await bookingService.createBooking(bookingData);
+
+      if (paymentMethod === "vietqr") {
+        try {
+          const info = await paymentMethodService.getForBooking(response.id);
+          setBankInfo(info);
+          setShowVietQR(true);
+        } catch (err: any) {
+          console.error("Failed to fetch bank info:", err);
+          setError("Booking created, but failed to fetch payment info. Please contact support.");
+        }
+      } else {
+        // Get payment URL and redirect
+        const paymentUrl = await paymentService.createPaymentUrl(response.id);
+        window.location.href = paymentUrl;
+      }
+    } catch (err: any) {
+      console.error("Booking failed:", err);
+      setError(err.message || "Failed to create booking. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const bookingFee = 10000;
+  const subtotal = tour.adultPrice * adults + tour.childrenPrice * children;
+  const totalAmount = Math.max(0, subtotal - discountAmount) + bookingFee;
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onBookClick={() => {}} />
+      {/* Success Notification Overlay */}
+      <AnimatePresence>
+        {showSuccess && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-primary/20 backdrop-blur-xl"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              transition={{ type: "spring", damping: 15, stiffness: 200 }}
+              className="bg-white rounded-[3rem] p-10 md:p-16 max-w-sm w-full text-center shadow-2xl shadow-primary/20 border border-primary/10"
+            >
+              <div className="relative mb-8">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: "spring", bounce: 0.6 }}
+                  className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-green-500/40"
+                >
+                  <Check size={48} className="text-white" />
+                </motion.div>
+                <motion.div
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    rotate: [0, 5, -5, 0],
+                  }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="absolute -top-4 -right-2 w-12 h-12 bg-cta rounded-2xl flex items-center justify-center shadow-lg"
+                >
+                  <PartyPopper size={24} className="text-white" />
+                </motion.div>
+              </div>
+
+              <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">
+                Booking Success!
+              </h2>
+              <p className="text-gray-500 font-medium leading-relaxed">
+                Your journey to{" "}
+                <span className="text-primary font-bold">{tour?.name}</span> is
+                confirmed. Preparing your tickets...
+              </p>
+
+              <div className="mt-8 flex justify-center">
+                <div className="flex gap-1.5">
+                  <motion.div
+                    animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
+                    transition={{ repeat: Infinity, duration: 1, delay: 0 }}
+                    className="w-2 h-2 bg-primary rounded-full"
+                  />
+                  <motion.div
+                    animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
+                    transition={{ repeat: Infinity, duration: 1, delay: 0.2 }}
+                    className="w-2 h-2 bg-primary rounded-full"
+                  />
+                  <motion.div
+                    animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
+                    transition={{ repeat: Infinity, duration: 1, delay: 0.4 }}
+                    className="w-2 h-2 bg-primary rounded-full"
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* VietQR Payment Overlay */}
+      <AnimatePresence>
+        {showVietQR && bankInfo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-white rounded-[2.5rem] p-8 md:p-12 max-w-lg w-full shadow-2xl space-y-8 relative overflow-hidden"
+            >
+              <div className="text-center space-y-2">
+                <h2 className="text-3xl font-black text-gray-900">Transfer Details</h2>
+                <p className="text-gray-500 font-medium">Please scan or transfer to the account below</p>
+              </div>
+
+              {/* QR Code Section */}
+              <div className="bg-gray-50 p-6 rounded-3xl flex flex-col items-center justify-center space-y-4 border border-gray-100">
+                <div className="w-64 h-64 bg-white p-4 rounded-2xl shadow-sm border border-gray-50">
+                  <img
+                    src={`https://img.vietqr.io/image/${bankInfo.bankBin}-${bankInfo.bankAccountNumber}-compact.png?amount=${totalAmount}&addInfo=Booking%20Tour&accountName=${bankInfo.bankAccountName}`}
+                    alt="VietQR"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="flex items-center gap-2 text-primary font-black text-sm uppercase tracking-widest">
+                  <Banknote size={18} />
+                  Safe VietQR Payment
+                </div>
+              </div>
+
+              {/* Bank Details list */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                  <div>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Bank Name</p>
+                    <p className="font-black text-gray-900">{bankInfo.bankShortName}</p>
+                  </div>
+                  <Banknote className="text-gray-300" />
+                </div>
+                <div className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                  <div className="flex-1">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Account Number</p>
+                    <p className="font-black text-gray-900 text-lg tracking-wider">{bankInfo.bankAccountNumber}</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(bankInfo.bankAccountNumber);
+                      alert("Copied to clipboard!");
+                    }}
+                    className="p-3 bg-white rounded-xl shadow-sm text-primary hover:bg-primary hover:text-white transition-all shadow-primary/5"
+                  >
+                    <Copy size={20} />
+                  </button>
+                </div>
+                <div className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                  <div>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Account Holder</p>
+                    <p className="font-black text-gray-900 uppercase">{bankInfo.bankAccountName}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 flex flex-col gap-3">
+                <button
+                  onClick={() => navigate("/my-bookings")}
+                  className="btn-primary w-full py-4 text-lg rounded-2xl font-black shadow-xl shadow-primary/20"
+                >
+                  I've Completed Transfer
+                </button>
+                <button
+                  onClick={() => setShowVietQR(false)}
+                  className="w-full py-3 text-gray-400 font-bold hover:text-gray-600 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <main className="pt-24 md:pt-32 pb-20 px-4 md:px-6 max-w-6xl mx-auto">
         <motion.button
@@ -55,11 +312,22 @@ const Checkout: React.FC = () => {
           Complete Your <span className="text-primary">Booking</span>
         </motion.h1>
 
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl flex items-center gap-3"
+          >
+            <AlertCircle size={20} />
+            <p className="font-medium">{error}</p>
+          </motion.div>
+        )}
+
         <form
           onSubmit={handleSubmit}
           className="flex flex-col lg:flex-row gap-8 lg:gap-12"
         >
-          {/* Form Content */}
+          {/* ... (existing Customer Info and Payment Method sections) */}
           <div className="w-full lg:w-3/5 space-y-8 md:space-y-12">
             {/* Customer Info */}
             <motion.section
@@ -82,6 +350,13 @@ const Checkout: React.FC = () => {
                     type="text"
                     placeholder="John Doe"
                     required
+                    value={contactInfo.fullName}
+                    onChange={(e) =>
+                      setContactInfo({
+                        ...contactInfo,
+                        fullName: e.target.value,
+                      })
+                    }
                     className="input py-3.5 md:py-4 px-4 md:px-6 text-sm md:text-base rounded-xl"
                   />
                 </div>
@@ -93,6 +368,10 @@ const Checkout: React.FC = () => {
                     type="email"
                     placeholder="john@example.com"
                     required
+                    value={contactInfo.email}
+                    onChange={(e) =>
+                      setContactInfo({ ...contactInfo, email: e.target.value })
+                    }
                     className="input py-3.5 md:py-4 px-4 md:px-6 text-sm md:text-base rounded-xl"
                   />
                 </div>
@@ -104,6 +383,10 @@ const Checkout: React.FC = () => {
                     type="tel"
                     placeholder="+84 ..."
                     required
+                    value={contactInfo.phone}
+                    onChange={(e) =>
+                      setContactInfo({ ...contactInfo, phone: e.target.value })
+                    }
                     className="input py-3.5 md:py-4 px-4 md:px-6 text-sm md:text-base rounded-xl"
                   />
                 </div>
@@ -114,6 +397,13 @@ const Checkout: React.FC = () => {
                   <input
                     type="text"
                     placeholder="Vietnam"
+                    value={contactInfo.nationality}
+                    onChange={(e) =>
+                      setContactInfo({
+                        ...contactInfo,
+                        nationality: e.target.value,
+                      })
+                    }
                     className="input py-3.5 md:py-4 px-4 md:px-6 text-sm md:text-base rounded-xl"
                   />
                 </div>
@@ -137,11 +427,10 @@ const Checkout: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("card")}
-                  className={`p-5 md:p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group ${
-                    paymentMethod === "card"
-                      ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
-                      : "border-gray-100 bg-white hover:border-gray-200"
-                  }`}
+                  className={`p-5 md:p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group ${paymentMethod === "card"
+                    ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
+                    : "border-gray-100 bg-white hover:border-gray-200"
+                    }`}
                 >
                   <div
                     className={`p-3 rounded-full transition-colors ${paymentMethod === "card" ? "bg-primary text-white" : "bg-gray-50 text-gray-400 group-hover:bg-gray-100"}`}
@@ -161,11 +450,10 @@ const Checkout: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("wallet")}
-                  className={`p-5 md:p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group ${
-                    paymentMethod === "wallet"
-                      ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
-                      : "border-gray-100 bg-white hover:border-gray-200"
-                  }`}
+                  className={`p-5 md:p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group ${paymentMethod === "wallet"
+                    ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
+                    : "border-gray-100 bg-white hover:border-gray-200"
+                    }`}
                 >
                   <div
                     className={`p-3 rounded-full transition-colors ${paymentMethod === "wallet" ? "bg-primary text-white" : "bg-gray-50 text-gray-400 group-hover:bg-gray-100"}`}
@@ -178,6 +466,29 @@ const Checkout: React.FC = () => {
                     </p>
                     <p className="text-[10px] md:text-xs text-gray-400 uppercase tracking-wider font-bold">
                       MoMo, ZaloPay
+                    </p>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("vietqr" as any)}
+                  className={`p-5 md:p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group ${paymentMethod === ("vietqr" as any)
+                    ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
+                    : "border-gray-100 bg-white hover:border-gray-200"
+                    }`}
+                >
+                  <div
+                    className={`p-3 rounded-full transition-colors ${paymentMethod === ("vietqr" as any) ? "bg-primary text-white" : "bg-gray-50 text-gray-400 group-hover:bg-gray-100"}`}
+                  >
+                    <Banknote size={22} />
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm md:text-base">
+                      Bank Transfer
+                    </p>
+                    <p className="text-[10px] md:text-xs text-gray-400 uppercase tracking-wider font-bold">
+                      VietQR / Bank App
                     </p>
                   </div>
                 </button>
@@ -257,31 +568,107 @@ const Checkout: React.FC = () => {
                     {tour.name}
                   </h4>
                   <p className="text-xs text-gray-400 mt-1 font-medium">
-                    {tour.duration} • {guestCount} Guests
+                    {tour.duration} • {adults + children} Guests
                   </p>
                   <p className="text-xs text-primary font-bold mt-1">
-                    Date: {new Date(selectedDate).toLocaleDateString()}
+                    Date:{" "}
+                    {tour.schedules?.find((s) => s.id === scheduleId)?.startDate
+                      ? new Date(
+                        tour.schedules.find((s) => s.id === scheduleId)!
+                          .startDate,
+                      ).toLocaleDateString()
+                      : "N/A"}
                   </p>
                 </div>
               </div>
 
               <div className="space-y-4 pt-6 border-t border-gray-50 text-sm">
                 <div className="flex justify-between items-center text-gray-500">
-                  <span className="font-medium">Price per guest</span>
+                  <span className="font-medium">Adults (x{adults})</span>
                   <span className="font-black text-gray-900">
-                    {new Intl.NumberFormat("vi-VN").format(tour.price)} VNĐ
+                    {new Intl.NumberFormat("vi-VN").format(
+                      tour.adultPrice * adults,
+                    )}{" "}
+                    VNĐ
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-gray-500">
-                  <span className="font-medium">Guests</span>
-                  <span className="font-black text-gray-900">
-                    x {guestCount}
-                  </span>
-                </div>
+                {children > 0 && (
+                  <div className="flex justify-between items-center text-gray-500">
+                    <span className="font-medium">Children (x{children})</span>
+                    <span className="font-black text-gray-900">
+                      {new Intl.NumberFormat("vi-VN").format(
+                        tour.childrenPrice * children,
+                      )}{" "}
+                      VNĐ
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center text-gray-500">
                   <span className="font-medium">Booking fee</span>
-                  <span className="font-black text-gray-900">50.000 VNĐ</span>
+                  <span className="font-black text-gray-900">
+                    {new Intl.NumberFormat("vi-VN").format(bookingFee)} VNĐ
+                  </span>
                 </div>
+
+                {/* Promo Code Section */}
+                <div className="pt-4 border-t border-gray-50 space-y-3">
+                  {!appliedPromo ? (
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Have a promo code?</p>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <TicketPercent className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                          <input
+                            type="text"
+                            placeholder="COUPON123"
+                            value={promoCode}
+                            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all uppercase"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleApplyPromo}
+                          disabled={isApplyingPromo || !promoCode.trim()}
+                          className="px-4 py-2 bg-primary text-white text-xs font-black rounded-xl hover:bg-primary-dark transition-all disabled:opacity-50"
+                        >
+                          {isApplyingPromo ? <Loader2 size={16} className="animate-spin" /> : "APPLY"}
+                        </button>
+                      </div>
+                      {promoError && (
+                        <p className="text-[10px] text-red-500 font-bold ml-1">{promoError}</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between p-3 bg-green-50 border border-green-100 rounded-2xl">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white shrink-0">
+                          <TicketPercent size={16} />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-green-600 uppercase tracking-widest">Code Applied</p>
+                          <p className="text-sm font-black text-green-700">{appliedPromo.code}</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={removePromo}
+                        className="p-2 hover:bg-green-100 rounded-lg text-green-700 transition-all"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {discountAmount > 0 && (
+                  <div className="flex justify-between items-center text-green-600 animate-in fade-in slide-in-from-top-2">
+                    <span className="font-medium">Discount</span>
+                    <span className="font-black">
+                      -{new Intl.NumberFormat("vi-VN").format(discountAmount)} VNĐ
+                    </span>
+                  </div>
+                )}
 
                 <div className="flex justify-between items-end pt-6 border-t border-primary/10">
                   <span className="text-base md:text-lg font-bold text-gray-900 uppercase tracking-widest">
@@ -292,7 +679,7 @@ const Checkout: React.FC = () => {
                       {new Intl.NumberFormat("vi-VN", {
                         style: "currency",
                         currency: "VND",
-                      }).format(tour.price * guestCount + 50000)}
+                      }).format(totalAmount)}
                     </span>
                   </div>
                 </div>
@@ -301,9 +688,17 @@ const Checkout: React.FC = () => {
               <div className="space-y-4 pt-4">
                 <button
                   type="submit"
-                  className="btn-primary w-full py-4 md:py-5 text-lg md:text-xl shadow-2xl shadow-cta/20 rounded-2xl"
+                  disabled={isSubmitting}
+                  className="btn-primary w-full py-4 md:py-5 text-lg md:text-xl shadow-2xl shadow-cta/20 rounded-2xl flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  Safe Checkout
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 size={24} className="animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    "Safe Checkout"
+                  )}
                 </button>
                 <div className="flex items-center justify-center gap-2 text-green-600">
                   <ShieldCheck size={18} />

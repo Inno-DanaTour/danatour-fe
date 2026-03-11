@@ -17,11 +17,11 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/layout/Header";
-import Hero from "@/components/Hero";
-import Features from "@/components/Features";
-import Testimonials from "@/components/Testimonials";
-import Articles from "@/components/Articles";
-import FAQ from "@/components/FAQ";
+import Hero from "@/src/pages/home/components/Hero/Hero";
+import Features from "@/src/pages/home/components/Features/Features";
+import Testimonials from "@/src/pages/home/components/Testimonials/Testimonials";
+import Articles from "@/src/pages/home/components/Articles/Articles";
+import FAQ from "@/src/pages/home/components/FAQ/FAQ";
 import SignatureJourneys from "@/src/features/tours/SignatureJourneys";
 
 const Home: React.FC = () => {
