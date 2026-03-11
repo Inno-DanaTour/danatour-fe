@@ -4,13 +4,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import Header from "../../components/layout/Header";
 import ProfileInfoTab from "./components/ProfileInfoTab";
 import ChangePasswordTab from "./components/ChangePasswordTab";
+import PaymentMethodsTab from "./components/PaymentMethodsTab";
 import {
   profileService,
   UserProfileResponse,
 } from "../../services/profileService";
 import { useNavigate } from "react-router-dom";
+import { parseJwt, getToken } from "../../configs/api";
+import { Banknote } from "lucide-react";
 
-type TabType = "profile" | "security";
+type TabType = "profile" | "security" | "payment";
 
 const UserProfilePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>("profile");
@@ -21,6 +24,10 @@ const UserProfilePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  const token = getToken();
+  const payload = token ? parseJwt(token) : null;
+  const isTourCompany = payload?.scope?.includes("ROLE_TOUR_COMPANY");
+
   useEffect(() => {
     fetchProfile();
   }, []);
@@ -29,13 +36,10 @@ const UserProfilePage: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      // Assuming getMyInfo or getProfile returns the full profile.
-      // We will use getProfile from ProfileController
       const response = await profileService.getProfile();
       setProfileData(response);
     } catch (err: any) {
       if (err.response?.status === 401 || err.response?.status === 403) {
-        // Not logged in or unauthorized
         navigate("/login");
       } else {
         setError(err.message || "Failed to load profile data.");
@@ -47,6 +51,7 @@ const UserProfilePage: React.FC = () => {
 
   const tabs = [
     { id: "profile", label: "Profile Info", icon: User },
+    ...(isTourCompany ? [{ id: "payment", label: "Payment Methods", icon: Banknote }] : []),
     { id: "security", label: "Security", icon: Shield },
   ];
 
@@ -125,6 +130,7 @@ const UserProfilePage: React.FC = () => {
                       onUpdate={(data) => setProfileData(data)}
                     />
                   )}
+                  {activeTab === "payment" && <PaymentMethodsTab />}
                   {activeTab === "security" && <ChangePasswordTab />}
                 </motion.div>
               </AnimatePresence>

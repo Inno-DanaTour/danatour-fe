@@ -15,9 +15,13 @@ import {
   ArrowRight,
   PartyPopper,
   AlertCircle,
+  Banknote,
+  Copy,
+  ExternalLink,
 } from "lucide-react";
 import { bookingService, BookingRequest } from "../../services/bookingService";
 import { paymentService } from "../../services/paymentService";
+import { paymentMethodService } from "../../services/paymentMethodService";
 import { Loader2 } from "lucide-react";
 import Header from "../../components/layout/Header";
 import { Tour } from "../../types/types";
@@ -29,10 +33,12 @@ const Checkout: React.FC = () => {
   const adults = location.state?.adults || 1;
   const children = location.state?.children || 0;
   const scheduleId = location.state?.scheduleId;
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "wallet">("card");
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "wallet" | "vietqr">("card");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [bankInfo, setBankInfo] = useState<any>(null);
+  const [showVietQR, setShowVietQR] = useState(false);
 
   const [contactInfo, setContactInfo] = useState({
     fullName: "",
@@ -63,9 +69,20 @@ const Checkout: React.FC = () => {
 
       const response = await bookingService.createBooking(bookingData);
 
-      // Get payment URL and redirect
-      const paymentUrl = await paymentService.createPaymentUrl(response.id);
-      window.location.href = paymentUrl;
+      if (paymentMethod === "vietqr") {
+        try {
+          const info = await paymentMethodService.getForBooking(response.id);
+          setBankInfo(info);
+          setShowVietQR(true);
+        } catch (err: any) {
+          console.error("Failed to fetch bank info:", err);
+          setError("Booking created, but failed to fetch payment info. Please contact support.");
+        }
+      } else {
+        // Get payment URL and redirect
+        const paymentUrl = await paymentService.createPaymentUrl(response.id);
+        window.location.href = paymentUrl;
+      }
     } catch (err: any) {
       console.error("Booking failed:", err);
       setError(err.message || "Failed to create booking. Please try again.");
@@ -149,7 +166,90 @@ const Checkout: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <Header onBookClick={() => navigate("/tours")} />
+      {/* VietQR Payment Overlay */}
+      <AnimatePresence>
+        {showVietQR && bankInfo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-white rounded-[2.5rem] p-8 md:p-12 max-w-lg w-full shadow-2xl space-y-8 relative overflow-hidden"
+            >
+              <div className="text-center space-y-2">
+                <h2 className="text-3xl font-black text-gray-900">Transfer Details</h2>
+                <p className="text-gray-500 font-medium">Please scan or transfer to the account below</p>
+              </div>
+
+              {/* QR Code Section */}
+              <div className="bg-gray-50 p-6 rounded-3xl flex flex-col items-center justify-center space-y-4 border border-gray-100">
+                <div className="w-64 h-64 bg-white p-4 rounded-2xl shadow-sm border border-gray-50">
+                  <img 
+                    src={`https://img.vietqr.io/image/${bankInfo.bankBin}-${bankInfo.bankAccountNumber}-compact.png?amount=${totalAmount}&addInfo=Booking%20Tour&accountName=${bankInfo.bankAccountName}`}
+                    alt="VietQR"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="flex items-center gap-2 text-primary font-black text-sm uppercase tracking-widest">
+                  <Banknote size={18} />
+                  Safe VietQR Payment
+                </div>
+              </div>
+
+              {/* Bank Details list */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                  <div>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Bank Name</p>
+                    <p className="font-black text-gray-900">{bankInfo.bankShortName}</p>
+                  </div>
+                  <Banknote className="text-gray-300" />
+                </div>
+                <div className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                  <div className="flex-1">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Account Number</p>
+                    <p className="font-black text-gray-900 text-lg tracking-wider">{bankInfo.bankAccountNumber}</p>
+                  </div>
+                  <button 
+                    onClick={() => {
+                        navigator.clipboard.writeText(bankInfo.bankAccountNumber);
+                        alert("Copied to clipboard!");
+                    }}
+                    className="p-3 bg-white rounded-xl shadow-sm text-primary hover:bg-primary hover:text-white transition-all shadow-primary/5"
+                  >
+                    <Copy size={20} />
+                  </button>
+                </div>
+                <div className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                  <div>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Account Holder</p>
+                    <p className="font-black text-gray-900 uppercase">{bankInfo.bankAccountName}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 flex flex-col gap-3">
+                <button 
+                  onClick={() => navigate("/my-bookings")}
+                  className="btn-primary w-full py-4 text-lg rounded-2xl font-black shadow-xl shadow-primary/20"
+                >
+                  I've Completed Transfer
+                </button>
+                <button 
+                  onClick={() => setShowVietQR(false)}
+                  className="w-full py-3 text-gray-400 font-bold hover:text-gray-600 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <main className="pt-24 md:pt-32 pb-20 px-4 md:px-6 max-w-6xl mx-auto">
         <motion.button
@@ -326,6 +426,30 @@ const Checkout: React.FC = () => {
                     </p>
                     <p className="text-[10px] md:text-xs text-gray-400 uppercase tracking-wider font-bold">
                       MoMo, ZaloPay
+                    </p>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("vietqr" as any)}
+                  className={`p-5 md:p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group ${
+                    paymentMethod === ("vietqr" as any)
+                      ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
+                      : "border-gray-100 bg-white hover:border-gray-200"
+                  }`}
+                >
+                  <div
+                    className={`p-3 rounded-full transition-colors ${paymentMethod === ("vietqr" as any) ? "bg-primary text-white" : "bg-gray-50 text-gray-400 group-hover:bg-gray-100"}`}
+                  >
+                    <Banknote size={22} />
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm md:text-base">
+                      Bank Transfer
+                    </p>
+                    <p className="text-[10px] md:text-xs text-gray-400 uppercase tracking-wider font-bold">
+                      VietQR / Bank App
                     </p>
                   </div>
                 </button>
