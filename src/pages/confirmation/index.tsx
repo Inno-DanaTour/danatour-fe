@@ -17,9 +17,14 @@ const Confirmation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const tour = location.state?.tour as Tour;
+  const booking = location.state?.booking;
 
-  const bookingRef =
-    "DT-" + Math.random().toString(36).substring(2, 9).toUpperCase();
+  if (!tour || !booking) {
+    navigate("/");
+    return null;
+  }
+
+  const bookingRef = booking.bookingCode;
 
   return (
     <div className="min-h-screen bg-background pb-20 overflow-hidden">
@@ -100,11 +105,18 @@ const Confirmation: React.FC = () => {
                 <div className="flex flex-wrap gap-4 text-xs md:text-sm font-bold text-gray-400">
                   <div className="flex items-center gap-2">
                     <Calendar size={16} className="text-primary" />
-                    <span>Oct 24, 2024</span>
+                    <span>
+                      {booking.startDate
+                        ? new Date(booking.startDate).toLocaleDateString()
+                        : "N/A"}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Ticket size={16} className="text-primary" />
-                    <span>2 Tickets</span>
+                    <span>
+                      {booking.adults} Adults
+                      {booking.children > 0 && `, ${booking.children} Children`}
+                    </span>
                   </div>
                 </div>
               </div>
