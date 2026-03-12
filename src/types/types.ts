@@ -168,6 +168,8 @@ export interface TourDetail {
   companyId: number;
   lockReason?: string;
   lockedBy?: string;
+  averageRating: number;
+  reviewCount: number;
 }
 
 export interface TourSummaryResponse {
@@ -183,6 +185,8 @@ export interface TourSummaryResponse {
   viewCount: number;
   lockReason?: string;
   lockedBy?: string;
+  averageRating: number;
+  reviewCount: number;
 }
 
 export interface TourStatusUpdateRequest {
@@ -235,4 +239,23 @@ export interface PromotionUsageResponse {
   bookingCode: string;
   usedAt: string;
   discountAmount: number;
+}
+
+export interface FeedbackResponse {
+  id: number;
+  userId: number;
+  tourId: number;
+  bookingId: number;
+  rating: number;
+  comment: string;
+  reviewerName: string;
+  reviewerAvatarUrl?: string;
+  createdAt: string;
+}
+
+export interface FeedbackParams {
+  rating?: number;
+  page?: number;
+  size?: number;
+  sort?: string;
 }

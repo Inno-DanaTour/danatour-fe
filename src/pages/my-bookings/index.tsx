@@ -12,6 +12,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Filter,
+  Star,
+  MessageSquare,
 } from "lucide-react";
 import Header from "../../components/layout/Header";
 import {
@@ -37,6 +39,14 @@ const MyBookings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  
+  // Feedback Modal State
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [selectedBookingForFeedback, setSelectedBookingForFeedback] = useState<BookingHistoryResponse | null>(null);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
+  const [feedbackSuccess, setFeedbackSuccess] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -90,20 +100,32 @@ const MyBookings: React.FC = () => {
   };
 
   const handleRebook = async (id: number) => {
-    setIsProcessing(id);
+    // ... code for rebook
+  };
+
+  const handleOpenFeedback = (booking: BookingHistoryResponse) => {
+    setSelectedBookingForFeedback(booking);
+    setRating(5);
+    setComment("");
+    setShowFeedbackModal(true);
+  };
+
+  const handleSubmitFeedback = async () => {
+    if (!selectedBookingForFeedback) return;
+    
+    setIsSubmittingFeedback(true);
     try {
-      const data = await bookingService.getRebookInfo(id);
-      navigate(
-        `/tour-detail/${data.tourId}?adults=${data.adults}&children=${data.children}`,
-      );
+      await bookingService.submitFeedback(selectedBookingForFeedback.id, rating, comment);
+      setFeedbackSuccess(true);
+      setTimeout(() => {
+        setShowFeedbackModal(false);
+        setFeedbackSuccess(false);
+        fetchBookings(); // Refresh list to show "Reviewed" badge
+      }, 2000);
     } catch (err: any) {
-      alert(
-        err.response?.data?.message ||
-          err.message ||
-          "This tour is no longer available for re-booking.",
-      );
+      alert(err.response?.data?.message || "Không thể gửi đánh giá. Vui lòng thử lại sau.");
     } finally {
-      setIsProcessing(null);
+      setIsSubmittingFeedback(false);
     }
   };
 
@@ -117,6 +139,8 @@ const MyBookings: React.FC = () => {
         return "bg-red-100 text-red-600 border-red-200";
       case "COMPLETED":
         return "bg-blue-100 text-blue-600 border-blue-200";
+      case "REVIEWED":
+        return "bg-purple-100 text-purple-600 border-purple-200";
       default:
         return "bg-gray-100 text-gray-600 border-gray-200";
     }
@@ -257,6 +281,12 @@ const MyBookings: React.FC = () => {
                         >
                           {getStatusLabel(booking.status)}
                         </span>
+                        {booking.hasFeedback && (
+                          <span className="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border bg-purple-50 text-purple-600 border-purple-100 flex items-center gap-1.5">
+                            <Star size={12} fill="currentColor" className="text-purple-400" />
+                            Reviewed
+                          </span>
+                        )}
                         <span className="text-[10px] text-gray-400 font-extrabold uppercase tracking-[0.2em] bg-gray-50 px-3 py-1 rounded-full">
                           CODE: {booking.bookingCode}
                         </span>
@@ -360,6 +390,17 @@ const MyBookings: React.FC = () => {
                           </button>
                         </div>
                       </div>
+                      
+                      {/* Rate & Review Button for Completed Tours */}
+                      {booking.status === "COMPLETED" && !booking.hasFeedback && (
+                        <button
+                          onClick={() => handleOpenFeedback(booking)}
+                          className="w-full mt-2 py-3 bg-primary text-white rounded-2xl font-black text-xs flex items-center justify-center gap-2 hover:bg-primary-dark transition-all shadow-lg shadow-primary/20"
+                        >
+                          <Star size={14} fill="currentColor" />
+                          Rate & Review
+                        </button>
+                      )}
                     </div>
                   </motion.div>
                 ))}
@@ -424,6 +465,134 @@ const MyBookings: React.FC = () => {
           </div>
         </section>
       </main>
+
+      {/* Feedback Modal */}
+      <AnimatePresence>
+        {showFeedbackModal && selectedBookingForFeedback && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowFeedbackModal(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative bg-white w-full max-w-lg rounded-[3rem] shadow-2xl border border-gray-100"
+            >
+              <div className="p-8 md:p-10">
+                <AnimatePresence mode="wait">
+                  {!feedbackSuccess ? (
+                    <motion.div
+                      key="form"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                    >
+                      <div className="flex justify-between items-start mb-8">
+                        <div>
+                          <h2 className="text-3xl font-black text-gray-900 tracking-tight leading-tight mb-2">
+                            Review Your <span className="text-primary italic">Trip</span>
+                          </h2>
+                          <p className="text-gray-500 font-medium">
+                            Sharing your experience helps the community!
+                          </p>
+                        </div>
+                        <button 
+                          onClick={() => setShowFeedbackModal(false)}
+                          className="p-2 hover:bg-gray-100 rounded-2xl transition-colors"
+                        >
+                          <XCircle size={24} className="text-gray-400" />
+                        </button>
+                      </div>
+
+                      <div className="bg-neutral-50 p-6 rounded-3xl border border-neutral-100 mb-8 flex items-center gap-4">
+                        <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-sm shrink-0">
+                          <img src={selectedBookingForFeedback.thumbnail} alt="" className="w-full h-full object-cover" />
+                        </div>
+                        <h4 className="font-bold text-gray-800 text-lg line-clamp-1">{selectedBookingForFeedback.tourTitle}</h4>
+                      </div>
+
+                      <div className="space-y-8">
+                        {/* Star Rating */}
+                        <div className="text-center">
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Your Rating</p>
+                          <div className="flex justify-center gap-3">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button
+                                key={star}
+                                onClick={() => setRating(star)}
+                                className="transition-transform active:scale-90"
+                              >
+                                <Star 
+                                  size={42} 
+                                  className={`${rating >= star ? 'text-amber-400' : 'text-gray-200'} transition-colors duration-300`}
+                                  fill={rating >= star ? 'currentColor' : 'none'}
+                                  strokeWidth={rating >= star ? 1.5 : 2}
+                                />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Comment */}
+                        <div>
+                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Your Comment</label>
+                          <textarea
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            placeholder="Share what you liked or what could be improved..."
+                            className="w-full h-32 p-5 bg-neutral-50 border border-neutral-200 rounded-3xl focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all resize-none font-medium outline-none"
+                          />
+                        </div>
+
+                        {/* Submit Button */}
+                        <div className="pt-4">
+                          <button
+                            onClick={handleSubmitFeedback}
+                            disabled={isSubmittingFeedback}
+                            className="w-full py-5 bg-primary text-white rounded-3xl font-black text-lg shadow-xl shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                          >
+                            {isSubmittingFeedback ? (
+                              <Loader2 className="animate-spin" />
+                            ) : (
+                              <MessageSquare size={20} />
+                            )}
+                            Submit Review
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="success"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="py-12 text-center"
+                    >
+                      <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
+                        <motion.div
+                          initial={{ pathLength: 0 }}
+                          animate={{ pathLength: 1 }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          <Star size={48} className="text-green-600" fill="currentColor" />
+                        </motion.div>
+                      </div>
+                      <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">Thank You!</h2>
+                      <p className="text-gray-500 font-medium mb-2">Your feedback has been submitted successfully.</p>
+                      <p className="text-primary font-black uppercase tracking-widest text-[10px]">Refreshing your history...</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
