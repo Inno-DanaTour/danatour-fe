@@ -8,6 +8,7 @@ const PaymentMethodsTab: React.FC = () => {
   const [banks, setBanks] = useState<VietQRBank[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
@@ -38,11 +39,16 @@ const PaymentMethodsTab: React.FC = () => {
     }
   };
 
-  const handleAdd = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     try {
-      await paymentMethodService.add(formData);
+      if (editingId) {
+        await paymentMethodService.update(editingId, formData);
+        setEditingId(null);
+      } else {
+        await paymentMethodService.add(formData);
+      }
       setIsAdding(false);
       setFormData({
         provider: "VIETQR",
@@ -53,7 +59,36 @@ const PaymentMethodsTab: React.FC = () => {
       });
       fetchData();
     } catch (err: any) {
-      setError(err.message || "Failed to add payment method");
+      setError(err.message || `Failed to ${editingId ? 'update' : 'add'} payment method`);
+    }
+  };
+
+  const handleEditClick = (method: PaymentMethod) => {
+    setEditingId(method.id);
+    setFormData({
+      provider: method.provider,
+      bankBin: method.bankBin || "",
+      bankShortName: method.bankShortName || "",
+      bankAccountNumber: method.bankAccountNumber || "",
+      bankAccountName: method.bankAccountName || "",
+    });
+    setIsAdding(true);
+  };
+  
+  const handleAddNewClick = () => {
+    if (isAdding) {
+      setIsAdding(false);
+      setEditingId(null);
+    } else {
+      setEditingId(null);
+      setFormData({
+        provider: "VIETQR",
+        bankBin: "",
+        bankShortName: "",
+        bankAccountNumber: "",
+        bankAccountName: "",
+      });
+      setIsAdding(true);
     }
   };
 
@@ -94,7 +129,7 @@ const PaymentMethodsTab: React.FC = () => {
           <p className="text-gray-500 text-sm font-medium">Manage how customers pay for your tours.</p>
         </div>
         <button
-          onClick={() => setIsAdding(!isAdding)}
+          onClick={handleAddNewClick}
           className="btn-primary px-6 py-2.5 flex items-center gap-2 rounded-xl text-sm"
         >
           {isAdding ? "Cancel" : <><Plus size={18} /> Add New</>}
@@ -117,7 +152,7 @@ const PaymentMethodsTab: React.FC = () => {
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <form onSubmit={handleAdd} className="bg-gray-50 p-6 md:p-8 rounded-[2rem] border border-gray-100 space-y-6">
+            <form onSubmit={handleSubmit} className="bg-gray-50 p-6 md:p-8 rounded-[2rem] border border-gray-100 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Select Bank</label>
@@ -164,7 +199,7 @@ const PaymentMethodsTab: React.FC = () => {
                 </div>
               </div>
               <button type="submit" className="btn-primary w-full py-4 rounded-2xl font-black">
-                Save Payment Method
+                {editingId ? "Update Payment Method" : "Save Payment Method"}
               </button>
             </form>
           </motion.div>
@@ -208,6 +243,13 @@ const PaymentMethodsTab: React.FC = () => {
                       <CheckCircle size={20} />
                     </button>
                   )}
+                  <button
+                    onClick={() => handleEditClick(method)}
+                    className="p-2 hover:bg-white rounded-xl text-gray-400 hover:text-blue-500 transition-colors"
+                    title="Edit"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>
+                  </button>
                   <button
                     onClick={() => handleDelete(method.id)}
                     className="p-2 hover:bg-white rounded-xl text-gray-400 hover:text-red-500 transition-colors"

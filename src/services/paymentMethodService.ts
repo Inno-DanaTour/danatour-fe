@@ -42,6 +42,10 @@ export const paymentMethodService = {
     return await api.post<PaymentMethod>("/payment-methods", data);
   },
 
+  update: async (id: number, data: PaymentMethodRequest): Promise<PaymentMethod> => {
+    return await api.put<PaymentMethod>(`/payment-methods/${id}`, data);
+  },
+
   delete: async (id: number): Promise<string> => {
     return await api.delete<string>(`/payment-methods/${id}`);
   },
