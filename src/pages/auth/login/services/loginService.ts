@@ -20,10 +20,11 @@ export const login = async (
   }
 };
 
-export const logout = async (token: string): Promise<ApiResponse<any>> => {
+export const logout = async (token: string, refreshToken?: string): Promise<ApiResponse<any>> => {
   try {
     const res = await api.post<ApiResponse<any>>(API_ENDPOINT.LOGOUT, {
       token,
+      refreshToken,
     });
     if (res.code && res.code !== 200) {
       throw new Error(`Error logout: ${res.message}`);

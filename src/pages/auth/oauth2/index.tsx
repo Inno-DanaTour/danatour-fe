@@ -12,6 +12,7 @@ const OAuth2Callback: React.FC = () => {
     if (processedRef.current) return;
 
     const accessToken = searchParams.get("access_token");
+    const refreshToken = searchParams.get("refresh_token");
     const newUser = searchParams.get("new_user") === "true";
     const userUuid = searchParams.get("user_uuid");
     const error = searchParams.get("error");
@@ -26,6 +27,9 @@ const OAuth2Callback: React.FC = () => {
     if (accessToken) {
       // Save token to localStorage
       localStorage.setItem("token", accessToken);
+      if (refreshToken) {
+        localStorage.setItem("refreshToken", refreshToken);
+      }
       processedRef.current = true;
 
       if (newUser) {

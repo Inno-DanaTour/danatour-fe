@@ -18,8 +18,9 @@ export const useLogin = () => {
     setError(null);
     try {
       const response = await apiLogin(data);
-      if (response && response.data && response.data.token) {
+      if (response && response.data && response.data.token && response.data.refreshToken) {
         localStorage.setItem("token", response.data.token);
+        localStorage.setItem("refreshToken", response.data.refreshToken);
 
         // Parse token to check roles
         const payload = parseJwt(response.data.token);
@@ -47,24 +48,38 @@ export const useLogin = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token") || "";
-      await apiLogout(token);
+      const currentRefreshToken = localStorage.getItem("refreshToken") || getCookie("refresh_token") || undefined;
+      await apiLogout(token, currentRefreshToken);
     } catch (err) {
       console.error("Logout error", err);
     } finally {
       localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      document.cookie = "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       setLoading(false);
       navigate("/login");
     }
+  };
+
+  const getCookie = (name: string) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift();
+    return null;
   };
 
   const handleRefreshToken = async () => {
     setLoading(true);
     setError(null);
     try {
-      const currentToken = localStorage.getItem("token") || "";
-      const response = await apiRefreshToken(currentToken);
-      if (response && response.data && response.data.token) {
+      const currentRefreshToken = localStorage.getItem("refreshToken") || getCookie("refresh_token") || "";
+      if (!currentRefreshToken) {
+        throw new Error("No refresh token found");
+      }
+      const response = await apiRefreshToken(currentRefreshToken);
+      if (response && response.data && response.data.token && response.data.refreshToken) {
         localStorage.setItem("token", response.data.token);
+        localStorage.setItem("refreshToken", response.data.refreshToken);
         return response.data;
       }
       throw new Error(response.message || "Failed to refresh token");

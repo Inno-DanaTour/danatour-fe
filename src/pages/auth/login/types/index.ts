@@ -9,6 +9,7 @@ export interface IntrospectResponse {
 
 export interface AuthResponse {
   token: string;
+  refreshToken: string;
   authenticated: boolean;
 }
 
