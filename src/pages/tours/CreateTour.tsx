@@ -106,8 +106,7 @@ const CreateTour: React.FC = () => {
     setSchedules(newSchedules);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmitInternal = async (status: "PENDING" | "DRAFT") => {
     if (images.length === 0) {
       setError("Please upload at least 1 image");
       return;
@@ -127,6 +126,7 @@ const CreateTour: React.FC = () => {
         durationNights,
         categoryId: Number(categoryId),
         placeId: Number(placeId),
+        status: status,
         schedules: schedules
           .filter((s) => s.startDate && s.endDate)
           .map((s) => ({
@@ -192,20 +192,30 @@ const CreateTour: React.FC = () => {
               Fill in the details to list your new journey
             </p>
           </div>
-          <button
-            form="create-tour-form"
-            type="submit"
-            disabled={loading}
-            className="btn-primary py-4 px-10 shadow-xl shadow-primary/20 flex items-center gap-2"
-          >
-            {loading ? (
-              "Creating..."
-            ) : (
-              <>
-                <Save size={20} /> Save Tour
-              </>
-            )}
-          </button>
+          <div className="flex gap-4">
+            <button
+               type="button"
+               onClick={() => handleSubmitInternal("DRAFT")}
+               disabled={loading}
+               className="px-8 py-4 bg-gray-100 text-gray-700 rounded-xl font-black hover:bg-gray-200 transition-all flex items-center gap-2"
+            >
+              {loading ? "Saving..." : <><Save size={20} /> Save as Draft</>}
+            </button>
+            <button
+              form="create-tour-form"
+              type="submit"
+              disabled={loading}
+              className="btn-primary py-4 px-10 shadow-xl shadow-primary/20 flex items-center gap-2"
+            >
+              {loading ? (
+                "Creating..."
+              ) : (
+                <>
+                  <Save size={20} /> Publish Tour
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {error && (
@@ -217,7 +227,10 @@ const CreateTour: React.FC = () => {
 
         <form
           id="create-tour-form"
-          onSubmit={handleSubmit}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmitInternal("PENDING");
+          }}
           className="space-y-10"
         >
           {/* Basic Info Section */}

@@ -25,6 +25,7 @@ import UserProfilePage from "../pages/profile";
 import AdminLayout from "../pages/admin/AdminLayout";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 import TourCompanyManagementPage from "../pages/admin/TourCompanyManagementPage";
+import AdminTourManagementPage from "../pages/admin/components/AdminTourManagementPage";
 import AdminPromotions from "../pages/admin/AdminPromotions";
 import CompanyPromotions from "../pages/tours/CompanyPromotions";
 import CompanyBookings from "../pages/tours/CompanyBookings";
@@ -223,6 +224,7 @@ export const AnimatedRoutes = () => {
       ),
       children: [
         { index: true, element: <AdminDashboardPage /> },
+        { path: "tours", element: <AdminTourManagementPage /> },
         { path: "companies", element: <TourCompanyManagementPage /> },
         { path: "promotions", element: <AdminPromotions /> },
         { path: "promotions/:id", element: <PromotionDetail /> },

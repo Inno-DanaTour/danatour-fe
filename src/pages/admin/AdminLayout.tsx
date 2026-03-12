@@ -8,6 +8,7 @@ import {
   Settings,
   LogOut,
   TicketPercent,
+  Palmtree,
 } from "lucide-react";
 
 const AdminLayout: React.FC = () => {
@@ -22,6 +23,7 @@ const AdminLayout: React.FC = () => {
 
   const navItems = [
     { path: "/admin", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/admin/tours", label: "Tours", icon: Palmtree },
     { path: "/admin/companies", label: "Tour Companies", icon: Building2 },
     { path: "/admin/promotions", label: "Promotions", icon: TicketPercent },
     // Mock links for future expansion
