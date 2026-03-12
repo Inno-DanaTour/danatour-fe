@@ -33,6 +33,7 @@ export interface BookingHistoryResponse {
   startDate: string;
   totalAmount: number;
   status: string;
+  hasFeedback: boolean;
   createdAt: string;
 }
 
@@ -117,4 +118,11 @@ export const bookingService = {
       params: { status }
     });
   },
+
+  submitFeedback: (bookingId: number, rating: number, comment: string): Promise<ApiResponse<any>> => {
+    return api.post<ApiResponse<any>>(`/users/me/bookings/${bookingId}/feedbacks`, {
+      rating,
+      comment
+    });
+  }
 };

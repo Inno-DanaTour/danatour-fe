@@ -31,6 +31,10 @@ const Tours: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    document.title = "Find Your Perfect Journey | DanaTour";
+  }, []);
+
+  useEffect(() => {
     const fetchTours = async () => {
       try {
         setLoading(true);
@@ -70,8 +74,8 @@ const Tours: React.FC = () => {
           adultPrice: item.adultPrice,
           childrenPrice: 0,
           duration: `${item.durationDays}D / ${item.durationNights}N`,
-          rating: 5,
-          reviewCount: Math.floor(Math.random() * 50) + 10,
+          rating: item.averageRating || 0,
+          reviewCount: item.reviewCount || 0,
           zone: item.placeName as any,
           highlights: [],
           itinerary: [],

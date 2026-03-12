@@ -42,7 +42,8 @@ const TourCard: React.FC<TourCardProps> = ({ tour, viewType }) => {
             </h3>
             <div className="flex items-center gap-1 text-yellow-500 font-bold text-sm">
               <Star size={14} fill="currentColor" />
-              <span>{tour.rating}</span>
+              <span>{tour.rating > 0 ? tour.rating.toFixed(1) : "0.0"}</span>
+              <span className="text-gray-400 font-normal text-xs ml-0.5">({tour.reviewCount})</span>
             </div>
           </div>
 

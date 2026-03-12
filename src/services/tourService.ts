@@ -77,5 +77,18 @@ export const tourService = {
     ): Promise<TourDetail> => {
         const response = await api.patch<ApiResponse<TourDetail>>(`/tours/${id}/status`, data);
         return response.data;
+    },
+
+    getTourFeedbacks: async (tourId: number | string, params?: import("../types/types").FeedbackParams): Promise<PagedResponse<import("../types/types").FeedbackResponse>> => {
+        let url = `/tours/${tourId}/feedbacks?page=${(params?.page || 1) - 1}&size=${params?.size || 10}`;
+        if (params?.rating) url += `&rating=${params.rating}`;
+        if (params?.sort) url += `&sort=${params.sort}`;
+
+        const response = await api.get<ApiResponse<PagedResponse<import("../types/types").FeedbackResponse>>>(url);
+        return response.data;
+    },
+
+    deleteFeedback: async (feedbackId: number): Promise<void> => {
+        await api.delete(`/feedbacks/${feedbackId}`);
     }
 };

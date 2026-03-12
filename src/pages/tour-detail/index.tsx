@@ -1,24 +1,24 @@
-import React, {useState, useEffect} from "react";
-import {useParams, useNavigate} from "react-router-dom";
-import {motion, AnimatePresence, useScroll, useSpring} from "framer-motion";
-import {Check, Star, ArrowLeft, CheckCircle, Loader2} from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
+import { Check, Star, ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
 import Header from "../../components/layout/Header";
 import ImageGallery from "../../features/tours/ImageGallery";
 import ItineraryTimeline from "../../features/tours/ItineraryTimeline";
 import BookingSidebar from "../../features/tours/BookingSidebar";
-import ReviewCard from "../../components/ui/ReviewCard";
-import {tourService} from "../../services/tourService";
-import {Tour, ItineraryItem, Company} from "../../types/types";
-import {companyService} from "../company-detail/services/companyService";
+import FeedbackList from "../../features/tours/FeedbackList";
+import { tourService } from "../../services/tourService";
+import { Tour, ItineraryItem, Company } from "../../types/types";
+import { companyService } from "../company-detail/services/companyService";
 
 const TourDetail: React.FC = () => {
-    const {scrollYProgress} = useScroll();
+    const { scrollYProgress } = useScroll();
     const scaleX = useSpring(scrollYProgress, {
         stiffness: 100,
         damping: 30,
         restDelta: 0.001,
     });
-    const {id} = useParams<{ id: string }>();
+    const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [tour, setTour] = useState<Tour | null>(null);
     const [loading, setLoading] = useState(true);
@@ -82,8 +82,8 @@ const TourDetail: React.FC = () => {
                     adultPrice: data.adultPrice,
                     childrenPrice: data.childrenPrice,
                     duration: `${data.durationDays}D / ${data.durationNights}N`,
-                    rating: 4.8, // Mock if not in DTO
-                    reviewCount: 24, // Mock if not in DTO
+                    rating: data.averageRating || 0,
+                    reviewCount: data.reviewCount || 0,
                     zone: data.place.name as any,
                     highlights: [
                         "Local Guide",
@@ -128,10 +128,19 @@ const TourDetail: React.FC = () => {
         fetchDetail();
     }, [id, navigate]);
 
+    useEffect(() => {
+        if (tour?.name) {
+            document.title = `${tour.name} | DanaTour`;
+        }
+        return () => {
+            document.title = "DanaTour | Authentic Local Experiences";
+        };
+    }, [tour]);
+
     if (loading) {
         return (
             <div className="min-h-screen bg-background flex flex-col items-center justify-center">
-                <Loader2 className="w-12 h-12 text-primary animate-spin mb-4"/>
+                <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
                 <p className="text-gray-500 font-bold animate-pulse">
                     Loading journey details...
                 </p>
@@ -143,22 +152,22 @@ const TourDetail: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-background pb-20">
-            <Header onBookClick={() => navigate("/tours")}/>
+            <Header onBookClick={() => navigate("/tours")} />
 
             <motion.div
                 className="fixed top-0 left-0 right-0 h-1.5 bg-primary origin-left z-[60]"
-                style={{scaleX}}
+                style={{ scaleX }}
             />
 
             <main className="pt-24 md:pt-32 px-4 md:px-6 max-w-7xl mx-auto">
                 {/* Breadcrumbs / Back button */}
                 <motion.button
-                    initial={{opacity: 0, x: -10}}
-                    animate={{opacity: 1, x: 0}}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
                     onClick={() => navigate(-1)}
                     className="flex items-center gap-2 text-gray-500 hover:text-primary transition-colors mb-6 md:mb-8 font-medium text-sm md:text-base"
                 >
-                    <ArrowLeft size={18}/>
+                    <ArrowLeft size={18} />
                     Back to list
                 </motion.button>
 
@@ -166,34 +175,34 @@ const TourDetail: React.FC = () => {
                     {/* Main Content */}
                     <div className="w-full lg:w-2/3 space-y-8 md:space-y-12">
                         <motion.div
-                            initial={{opacity: 0, y: 20}}
-                            animate={{opacity: 1, y: 0}}
-                            transition={{delay: 0.1}}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
                         >
                             <div className="flex flex-wrap items-center gap-4 mb-4">
-                <span
-                    className="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] md:text-sm font-bold uppercase tracking-wider">
-                  {String(tour.zone)}
-                </span>
+                                <span
+                                    className="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] md:text-sm font-bold uppercase tracking-wider">
+                                    {String(tour.zone)}
+                                </span>
                                 <div className="flex items-center gap-1 text-yellow-500 font-bold text-sm md:text-base">
-                                    <Star size={18} fill="currentColor"/>
+                                    <Star size={18} fill="currentColor" />
                                     <span>{tour.rating}</span>
                                     <span className="text-gray-400 font-medium ml-1">
-                    ({tour.reviewCount} reviews)
-                  </span>
+                                        ({tour.reviewCount} reviews)
+                                    </span>
                                 </div>
                             </div>
                             <h1 className="text-3xl md:text-5xl font-black mb-6 leading-tight">
                                 {tour.name}
                             </h1>
-                            <ImageGallery images={tour.gallery}/>
+                            <ImageGallery images={tour.gallery} />
                         </motion.div>
 
                         {/* Provider Section - Prominent Position */}
                         <motion.div
-                            initial={{opacity: 0, y: 20}}
-                            animate={{opacity: 1, y: 0}}
-                            transition={{delay: 0.15}}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.15 }}
                         >
                             {company ? (
                                 <div
@@ -213,20 +222,20 @@ const TourDetail: React.FC = () => {
                                             <h4 className="font-black text-xl text-gray-900">
                                                 {company.name}
                                             </h4>
-                                            <CheckCircle size={16} className="text-green-500"/>
+                                            <CheckCircle size={16} className="text-green-500" />
                                         </div>
                                         <p className="text-gray-500 text-sm line-clamp-2 font-medium">
                                             {company.description}
                                         </p>
                                         <div className="flex items-center gap-4 pt-2">
-                      <span
-                          className="flex items-center gap-1 text-yellow-500 font-bold text-xs bg-yellow-50 px-2 py-1 rounded-full">
-                        <Star size={12} fill="currentColor"/>{" "}
-                          {company.averageRating}
-                      </span>
+                                            <span
+                                                className="flex items-center gap-1 text-yellow-500 font-bold text-xs bg-yellow-50 px-2 py-1 rounded-full">
+                                                <Star size={12} fill="currentColor" />{" "}
+                                                {company.averageRating}
+                                            </span>
                                             <span className="text-xs text-gray-400 font-bold uppercase tracking-widest">
-                        {company.totalTours} Tours Active
-                      </span>
+                                                {company.totalTours} Tours Active
+                                            </span>
                                         </div>
                                     </div>
                                     <button
@@ -248,9 +257,9 @@ const TourDetail: React.FC = () => {
 
                         {/* Tabs */}
                         <motion.div
-                            initial={{opacity: 0}}
-                            animate={{opacity: 1}}
-                            transition={{delay: 0.2}}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.2 }}
                             className="border-b border-gray-200 sticky top-20 bg-background/80 backdrop-blur-md z-30 pt-4"
                         >
                             <div className="flex gap-6 md:gap-10 overflow-x-auto no-scrollbar">
@@ -259,11 +268,10 @@ const TourDetail: React.FC = () => {
                                         <button
                                             key={tab}
                                             onClick={() => setActiveTab(tab as any)}
-                                            className={`pb-4 text-base md:text-lg font-bold capitalize transition-all relative shrink-0 ${
-                                                activeTab === tab
+                                            className={`pb-4 text-base md:text-lg font-bold capitalize transition-all relative shrink-0 ${activeTab === tab
                                                     ? "text-primary"
                                                     : "text-gray-400 hover:text-gray-600"
-                                            }`}
+                                                }`}
                                         >
                                             {tab}
                                             {activeTab === tab && (
@@ -284,9 +292,9 @@ const TourDetail: React.FC = () => {
                                 {activeTab === "overview" && (
                                     <motion.div
                                         key="overview"
-                                        initial={{opacity: 0, y: 10}}
-                                        animate={{opacity: 1, y: 0}}
-                                        exit={{opacity: 0, y: -10}}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
                                         className="space-y-8"
                                     >
                                         <div>
@@ -310,12 +318,12 @@ const TourDetail: React.FC = () => {
                                                     >
                                                         <div
                                                             className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0">
-                                                            <Check size={14}/>
+                                                            <Check size={14} />
                                                         </div>
                                                         <span
                                                             className="text-gray-700 font-medium text-sm md:text-base">
-                              {h}
-                            </span>
+                                                            {h}
+                                                        </span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -342,20 +350,20 @@ const TourDetail: React.FC = () => {
                                                             <h4 className="font-black text-xl text-gray-900">
                                                                 Local Partner
                                                             </h4>
-                                                            <CheckCircle size={16} className="text-green-500"/>
+                                                            <CheckCircle size={16} className="text-green-500" />
                                                         </div>
                                                         <p className="text-gray-500 text-sm line-clamp-2">
                                                             Authentic local experiences across Vietnam. We show
                                                             you the hidden gems.
                                                         </p>
                                                         <div className="flex items-center gap-4 pt-2">
-                            <span className="flex items-center gap-1 text-yellow-500 font-bold text-xs">
-                              <Star size={12} fill="currentColor"/> 5.0
-                            </span>
+                                                            <span className="flex items-center gap-1 text-yellow-500 font-bold text-xs">
+                                                                <Star size={12} fill="currentColor" /> 5.0
+                                                            </span>
                                                             <span
                                                                 className="text-xs text-gray-400 font-bold uppercase tracking-widest">
-                              Verified Provider
-                            </span>
+                                                                Verified Provider
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -366,23 +374,23 @@ const TourDetail: React.FC = () => {
                                 {activeTab === "itinerary" && (
                                     <motion.div
                                         key="itinerary"
-                                        initial={{opacity: 0, y: 10}}
-                                        animate={{opacity: 1, y: 0}}
-                                        exit={{opacity: 0, y: -10}}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
                                     >
                                         <h3 className="text-xl md:text-2xl font-bold mb-8">
                                             What to Expect
                                         </h3>
-                                        <ItineraryTimeline items={tour.itinerary}/>
+                                        <ItineraryTimeline items={tour.itinerary} />
                                     </motion.div>
                                 )}
 
                                 {activeTab === "schedules" && (
                                     <motion.div
                                         key="schedules"
-                                        initial={{opacity: 0, y: 10}}
-                                        animate={{opacity: 1, y: 0}}
-                                        exit={{opacity: 0, y: -10}}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
                                         className="space-y-6"
                                     >
                                         <div className="flex justify-between items-center mb-4">
@@ -390,8 +398,8 @@ const TourDetail: React.FC = () => {
                                                 Upcoming Departures
                                             </h3>
                                             <span className="text-gray-500 text-sm font-medium">
-                        All times in local timezone
-                      </span>
+                                                All times in local timezone
+                                            </span>
                                         </div>
 
                                         <div className="grid grid-cols-1 gap-4">
@@ -404,40 +412,40 @@ const TourDetail: React.FC = () => {
                                                         <div className="flex items-center gap-6">
                                                             <div
                                                                 className="flex flex-col items-center justify-center bg-primary/5 text-primary rounded-2xl w-16 h-16 shrink-0">
-                                <span className="text-[10px] uppercase font-black tracking-widest leading-none mb-1">
-                                  {new Date(s.startDate).toLocaleDateString(
-                                      "en-US",
-                                      {month: "short"},
-                                  )}
-                                </span>
+                                                                <span className="text-[10px] uppercase font-black tracking-widest leading-none mb-1">
+                                                                    {new Date(s.startDate).toLocaleDateString(
+                                                                        "en-US",
+                                                                        { month: "short" },
+                                                                    )}
+                                                                </span>
                                                                 <span className="text-2xl font-black leading-none">
-                                  {new Date(s.startDate).toLocaleDateString(
-                                      "en-US",
-                                      {day: "numeric"},
-                                  )}
-                                </span>
+                                                                    {new Date(s.startDate).toLocaleDateString(
+                                                                        "en-US",
+                                                                        { day: "numeric" },
+                                                                    )}
+                                                                </span>
                                                             </div>
 
                                                             <div>
                                                                 <div className="font-bold text-gray-900 text-lg">
                                                                     {new Date(s.startDate).toLocaleDateString(
                                                                         "en-US",
-                                                                        {weekday: "long"},
+                                                                        { weekday: "long" },
                                                                     )}
                                                                 </div>
                                                                 <div
                                                                     className="text-gray-500 text-sm flex items-center gap-2">
-                                  <span>
-                                    {new Date(s.startDate).toLocaleDateString(
-                                        "vi-VN",
-                                    )}
-                                  </span>
+                                                                    <span>
+                                                                        {new Date(s.startDate).toLocaleDateString(
+                                                                            "vi-VN",
+                                                                        )}
+                                                                    </span>
                                                                     <span>→</span>
                                                                     <span>
-                                    {new Date(s.endDate).toLocaleDateString(
-                                        "vi-VN",
-                                    )}
-                                  </span>
+                                                                        {new Date(s.endDate).toLocaleDateString(
+                                                                            "vi-VN",
+                                                                        )}
+                                                                    </span>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -494,9 +502,9 @@ const TourDetail: React.FC = () => {
                                 {activeTab === "reviews" && (
                                     <motion.div
                                         key="reviews"
-                                        initial={{opacity: 0, y: 10}}
-                                        animate={{opacity: 1, y: 0}}
-                                        exit={{opacity: 0, y: -10}}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
                                         className="space-y-8"
                                     >
                                         <div className="flex items-center justify-between">
@@ -504,20 +512,7 @@ const TourDetail: React.FC = () => {
                                                 Traveler Reviews
                                             </h3>
                                         </div>
-                                        {tour.reviews.length > 0 ? (
-                                            <div className="space-y-4">
-                                                {tour.reviews.map((r) => (
-                                                    <ReviewCard key={r.id} review={r}/>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <div
-                                                className="text-center py-16 md:py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-100">
-                                                <p className="text-gray-400 text-sm md:text-base">
-                                                    No reviews yet. Be the first to share your experience!
-                                                </p>
-                                            </div>
-                                        )}
+                                        <FeedbackList tourId={tour.id} />
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -526,7 +521,7 @@ const TourDetail: React.FC = () => {
 
                     {/* Sidebar */}
                     <div className="hidden lg:block w-full lg:w-1/3">
-                        <BookingSidebar tour={tour}/>
+                        <BookingSidebar tour={tour} />
                     </div>
                 </div>
             </main>
@@ -535,15 +530,15 @@ const TourDetail: React.FC = () => {
             <div
                 className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 z-40 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.15)] flex items-center justify-between pb-safe">
                 <div>
-          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">
-            Price per guest
-          </span>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">
+                        Price per guest
+                    </span>
                     <span className="text-xl font-black text-cta">
-            {new Intl.NumberFormat("vi-VN", {
-                style: "currency",
-                currency: "VND",
-            }).format(tour.adultPrice)}
-          </span>
+                        {new Intl.NumberFormat("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                        }).format(tour.adultPrice)}
+                    </span>
                 </div>
                 <button className="btn-primary py-3.5 px-10 text-base shadow-xl shadow-cta/20">
                     Book Now
