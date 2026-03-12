@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
-import { Check, Star, ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
+import { Check, Star, ArrowLeft, CheckCircle, Loader2, Flag, X, Send, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import Header from "../../components/layout/Header";
 import ImageGallery from "../../features/tours/ImageGallery";
 import ItineraryTimeline from "../../features/tours/ItineraryTimeline";
@@ -9,8 +9,9 @@ import BookingSidebar from "../../features/tours/BookingSidebar";
 import FeedbackList from "../../features/tours/FeedbackList";
 import ReviewCard from "../../components/ui/ReviewCard";
 import { tourService } from "../tours/services/tourService";
-import { Tour, ItineraryItem, Company } from "../../types/types";
+import { Tour, ItineraryItem, Company, TourReportRequest } from "../../types/types";
 import { companyService } from "../company-detail/services/companyService";
+import { getToken } from "../../configs/api";
 
 const TourDetail: React.FC = () => {
     const { scrollYProgress } = useScroll();
@@ -28,6 +29,46 @@ const TourDetail: React.FC = () => {
     const [activeTab, setActiveTab] = useState<
         "overview" | "itinerary" | "schedules" | "reviews"
     >("overview");
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [reportReason, setReportReason] = useState("");
+    const [reportNote, setReportNote] = useState("");
+    const [isReporting, setIsReporting] = useState(false);
+    const [toasts, setToasts] = useState<{ id: number; type: "success" | "error"; message: string }[]>([]);
+    const [toastCounter, setToastCounter] = useState(0);
+
+    const addToast = (type: "success" | "error", message: string) => {
+        const id = toastCounter + 1;
+        setToastCounter(id);
+        setToasts((prev) => [...prev, { id, type, message }]);
+        setTimeout(() => {
+            setToasts((prev) => prev.filter((t) => t.id !== id));
+        }, 4000);
+    };
+
+    const handleReportSubmit = async () => {
+        if (!reportReason) {
+            addToast("error", "Please select a reason for reporting");
+            return;
+        }
+
+        if (!id) return;
+
+        try {
+            setIsReporting(true);
+            const reason = reportNote ? `[${reportReason}] ${reportNote}` : reportReason;
+            const request: TourReportRequest = { reason };
+            await tourService.reportTour(id, request);
+            addToast("success", "Tour reported successfully. Thank you for your feedback.");
+            setShowReportModal(false);
+            setReportReason("");
+            setReportNote("");
+        } catch (err) {
+            console.error("Failed to report tour:", err);
+            addToast("error", "Failed to report tour. Please try again later.");
+        } finally {
+            setIsReporting(false);
+        }
+    };
 
     useEffect(() => {
         const fetchDetail = async () => {
@@ -160,6 +201,32 @@ const TourDetail: React.FC = () => {
                 style={{ scaleX }}
             />
 
+            {/* Toast Notifications */}
+            <div className="fixed top-24 right-6 z-[100] flex flex-col gap-3 pointer-events-none">
+                <AnimatePresence>
+                    {toasts.map((toast) => (
+                        <motion.div
+                            key={toast.id}
+                            initial={{ opacity: 0, x: 80, scale: 0.9 }}
+                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                            exit={{ opacity: 0, x: 80, scale: 0.9 }}
+                            className={`flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl pointer-events-auto border-2 text-sm font-bold backdrop-blur-md
+                                ${toast.type === "success"
+                                    ? "bg-white/90 border-green-100 text-green-700"
+                                    : "bg-white/90 border-red-100 text-red-600"
+                                }`}
+                        >
+                            {toast.type === "success" ? (
+                                <CheckCircle2 size={22} className="text-green-500" />
+                            ) : (
+                                <XCircle size={22} className="text-red-500" />
+                            )}
+                            {toast.message}
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+            </div>
+
             <main className="pt-24 md:pt-32 px-4 md:px-6 max-w-7xl mx-auto">
                 {/* Breadcrumbs / Back button */}
                 <motion.button
@@ -193,9 +260,20 @@ const TourDetail: React.FC = () => {
                                     </span>
                                 </div>
                             </div>
-                            <h1 className="text-3xl md:text-5xl font-black mb-6 leading-tight">
-                                {tour.name}
-                            </h1>
+                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-6">
+                                <h1 className="text-3xl md:text-5xl font-black leading-tight flex-1">
+                                    {tour.name}
+                                </h1>
+                                {getToken() && (
+                                    <button
+                                        onClick={() => setShowReportModal(true)}
+                                        className="flex items-center gap-2 text-gray-400 hover:text-red-500 transition-all font-bold text-sm bg-gray-50 hover:bg-red-50 px-4 py-2 rounded-xl border border-gray-100 mt-2 md:mt-4 shrink-0"
+                                    >
+                                        <Flag size={16} />
+                                        Report Tour
+                                    </button>
+                                )}
+                            </div>
                             <ImageGallery images={tour.gallery} />
                         </motion.div>
 
@@ -545,6 +623,97 @@ const TourDetail: React.FC = () => {
                     Book Now
                 </button>
             </div>
+
+            {/* Report Modal */}
+            <AnimatePresence>
+                {showReportModal && (
+                    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowReportModal(false)}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden relative shadow-2xl border border-gray-100"
+                        >
+                            <div className="bg-red-50 p-8 flex items-center gap-4">
+                                <div className="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center text-red-500">
+                                    <AlertTriangle size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="text-2xl font-black text-gray-900">Report This Tour</h3>
+                                    <p className="text-red-600/70 text-sm font-bold">Help us keep DanaTour safe and authentic</p>
+                                </div>
+                                <button
+                                    onClick={() => setShowReportModal(false)}
+                                    className="ml-auto w-10 h-10 rounded-xl bg-white/50 text-gray-500 hover:text-red-500 flex items-center justify-center transition-colors"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            <div className="p-8 space-y-6">
+                                <div className="space-y-3">
+                                    <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">
+                                        Reason for Reporting
+                                    </label>
+                                    <select
+                                        value={reportReason}
+                                        onChange={(e) => setReportReason(e.target.value)}
+                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-700 focus:border-red-500 focus:outline-none transition-colors appearance-none"
+                                    >
+                                        <option value="">Select a reason...</option>
+                                        <option value="Spam">Spam / Repeated Content</option>
+                                        <option value="Invalid Price">Incorrect / Misleading Price</option>
+                                        <option value="Scam">Scam / Fraudulent activity</option>
+                                        <option value="Inappropriate Content">Inappropriate / Offensive Content</option>
+                                        <option value="Other">Other Issues</option>
+                                    </select>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">
+                                        Additional Notes (Optional)
+                                    </label>
+                                    <textarea
+                                        value={reportNote}
+                                        onChange={(e) => setReportNote(e.target.value)}
+                                        placeholder="Tell us more about the issue..."
+                                        rows={4}
+                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-700 focus:border-red-500 focus:outline-none transition-colors resize-none"
+                                    />
+                                </div>
+
+                                <div className="pt-4 flex gap-4">
+                                    <button
+                                        onClick={() => setShowReportModal(false)}
+                                        className="flex-1 py-4 px-6 rounded-2xl font-bold text-gray-500 hover:bg-gray-100 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleReportSubmit}
+                                        disabled={!reportReason || isReporting}
+                                        className="flex-1 py-4 px-6 bg-red-500 text-white rounded-2xl font-black shadow-xl shadow-red-500/20 hover:bg-red-600 transition-all disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-3"
+                                    >
+                                        {isReporting ? (
+                                            <Loader2 size={20} className="animate-spin" />
+                                        ) : (
+                                            <Send size={20} />
+                                        )}
+                                        Submit Report
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

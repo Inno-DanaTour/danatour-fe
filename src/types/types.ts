@@ -259,3 +259,6 @@ export interface FeedbackParams {
   size?: number;
   sort?: string;
 }
+export interface TourReportRequest {
+  reason: string;
+}
