@@ -20,11 +20,11 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "../../components/layout/Header";
-import { tourService } from "../../services/tourService";
+import { tourService } from "./services/tourService";
 import { TourListItem } from "../../types/types";
 import { getUserIdFromToken } from "../../configs/api";
 
-import { companyService } from "../../services/companyService";
+import { companyService } from "../company-detail/services/companyService";
 
 const ManageTours: React.FC = () => {
     const navigate = useNavigate();

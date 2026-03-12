@@ -1,4 +1,4 @@
-import { api } from "../configs/api";
+import { api } from "../../../configs/api";
 import {
     TourDetail,
     TourListItem,
@@ -6,7 +6,7 @@ import {
     CategoryResponse,
     PlaceResponse,
     ApiResponse
-} from "../types/types";
+} from "../../../types/types";
 
 export const tourService = {
     getTours: async (page: number = 1, size: number = 10, companyId?: number): Promise<PagedResponse<TourListItem>> => {
@@ -56,7 +56,7 @@ export const tourService = {
             maxDuration?: number;
             sort?: string;
         }
-    ): Promise<PagedResponse<import("../types/types").TourSummaryResponse>> => {
+    ): Promise<PagedResponse<import("../../../types/types").TourSummaryResponse>> => {
         let url = `/tours/search?page=${page - 1}&size=${size}`;
         if (filters?.keyword) url += `&keyword=${encodeURIComponent(filters.keyword)}`;
         if (filters?.minPrice) url += `&minPrice=${filters.minPrice}`;
@@ -67,13 +67,13 @@ export const tourService = {
         if (filters?.maxDuration !== undefined) url += `&maxDuration=${filters.maxDuration}`;
         if (filters?.sort) url += `&sort=${filters.sort}`;
 
-        const response = await api.get<ApiResponse<PagedResponse<import("../types/types").TourSummaryResponse>>>(url);
+        const response = await api.get<ApiResponse<PagedResponse<import("../../../types/types").TourSummaryResponse>>>(url);
         return response.data;
     },
 
     updateTourStatus: async (
         id: number | string,
-        data: import("../types/types").TourStatusUpdateRequest
+        data: import("../../../types/types").TourStatusUpdateRequest
     ): Promise<TourDetail> => {
         const response = await api.patch<ApiResponse<TourDetail>>(`/tours/${id}/status`, data);
         return response.data;

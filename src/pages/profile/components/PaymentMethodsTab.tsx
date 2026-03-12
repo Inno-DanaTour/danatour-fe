@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { CreditCard, Plus, Trash2, CheckCircle, Loader2, AlertCircle, Banknote } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { paymentMethodService, PaymentMethod, VietQRBank } from "../../../services/paymentMethodService";
+import { paymentMethodService, PaymentMethod, VietQRBank } from "../../checkout/services/paymentMethodService";
 
 const PaymentMethodsTab: React.FC = () => {
   const [methods, setMethods] = useState<PaymentMethod[]>([]);

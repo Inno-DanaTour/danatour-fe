@@ -13,7 +13,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import Header from "../../components/layout/Header";
-import { tourService } from "../../services/tourService";
+import { tourService } from "./services/tourService";
 import { CategoryResponse, PlaceResponse } from "../../types/types";
 import Dropdown from "../../components/common/Dropdown";
 

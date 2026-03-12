@@ -11,7 +11,7 @@ import {
 import {
   adminProviderService,
   AdminProviderApplicationDetailResponse,
-} from "../../../services/adminProviderService";
+} from "../services/adminProviderService";
 
 interface ModalProps {
   companyId: number;

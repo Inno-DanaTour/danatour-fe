@@ -18,7 +18,7 @@ import {
   MoreVertical,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { tourService } from "../../../services/tourService";
+import { tourService } from "../../tours/services/tourService";
 import {
   TourListItem,
   PagedResponse,

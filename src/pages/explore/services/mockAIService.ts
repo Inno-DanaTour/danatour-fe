@@ -1,5 +1,5 @@
-import { LocationData, ZoneType } from "../types/types";
-import { LOCATIONS } from "../constants/constants";
+import { LocationData, ZoneType } from "../../../types/types";
+import { LOCATIONS } from "../../../constants/constants";
 
 export interface UserPreferences {
   travelStyle: "adventure" | "relaxation" | "culture" | "photography" | "food";

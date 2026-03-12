@@ -14,8 +14,8 @@ import {
     Package,
     Loader2
 } from "lucide-react";
-import { tourService } from "../../services/tourService";
-import { promotionService } from "../../services/promotionService";
+import { tourService } from "../../pages/tours/services/tourService";
+import { promotionService } from "../../pages/promotions/services/promotionService";
 import { TourListItem, PromotionRequest, PromotionResponse } from "../../types/types";
 
 interface PromotionModalProps {

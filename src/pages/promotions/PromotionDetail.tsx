@@ -20,7 +20,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "../../components/layout/Header";
 import PromotionModal from "../../components/promotions/PromotionModal";
-import { promotionService } from "../../services/promotionService";
+import { promotionService } from "./services/promotionService";
 import { PromotionResponse, PromotionUsageResponse } from "../../types/types";
 
 const PromotionDetail: React.FC = () => {

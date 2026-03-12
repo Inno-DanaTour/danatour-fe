@@ -6,7 +6,7 @@ import TourCard from "../../features/tours/TourCard";
 import TourFilter from "../../features/tours/TourFilter";
 import SearchBar from "../../components/common/SearchBar";
 import Dropdown from "../../components/common/Dropdown";
-import { tourService } from "../../services/tourService";
+import { tourService } from "./services/tourService";
 import { ZoneType, Tour, TourListItem } from "../../types/types";
 import { motion, AnimatePresence } from "framer-motion";
 

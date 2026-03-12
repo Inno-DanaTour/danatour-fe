@@ -13,7 +13,7 @@ import {
   profileService,
   UserProfileResponse,
   ProfileUpdateRequest,
-} from "../../../services/profileService";
+} from "../services/profileService";
 
 interface ProfileInfoTabProps {
   initialData: UserProfileResponse | null;

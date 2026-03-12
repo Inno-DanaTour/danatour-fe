@@ -17,7 +17,7 @@ import Header from "../../components/layout/Header";
 import {
   bookingService,
   BookingHistoryResponse,
-} from "../../services/bookingService";
+} from "../checkout/services/bookingService";
 import { PagedResponse } from "../../types/types";
 
 const TABS = [

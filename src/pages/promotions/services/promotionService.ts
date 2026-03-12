@@ -1,5 +1,5 @@
-import { api } from "../configs/api";
-import { ApiResponse, PagedResponse, PromotionRequest, PromotionResponse } from "../types/types";
+import { api } from "../../../configs/api";
+import { ApiResponse, PagedResponse, PromotionRequest, PromotionResponse } from "../../../types/types";
 
 export const promotionService = {
     getAdminPromotions: async (page: number = 1, size: number = 10): Promise<PagedResponse<PromotionResponse>> => {
@@ -65,9 +65,9 @@ export const promotionService = {
         return response.data;
     },
 
-    getPromotionUsage: async (id: number | string, isAdmin: boolean = false): Promise<import("../types/types").PromotionUsageResponse[]> => {
+    getPromotionUsage: async (id: number | string, isAdmin: boolean = false): Promise<import("../../../types/types").PromotionUsageResponse[]> => {
         const prefix = isAdmin ? "/admin" : "/tour-company";
-        const response = await api.get<ApiResponse<import("../types/types").PromotionUsageResponse[]>>(
+        const response = await api.get<ApiResponse<import("../../../types/types").PromotionUsageResponse[]>>(
             `${prefix}/promotions/${id}/usage`
         );
         return response.data;

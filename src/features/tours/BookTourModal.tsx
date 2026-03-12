@@ -12,7 +12,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { LOCATIONS } from "../../constants/constants";
-import { bookingService } from "../../services/bookingService";
+import { bookingService } from "../../pages/checkout/services/bookingService";
 
 interface BookTourModalProps {
   isOpen: boolean;

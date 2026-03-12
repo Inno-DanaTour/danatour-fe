@@ -1,5 +1,5 @@
-import { api } from "../configs/api";
-import { ApiResponse, PagedResponse } from "../types/types";
+import { api } from "../../../configs/api";
+import { ApiResponse, PagedResponse } from "../../../types/types";
 
 export interface BookingRequest {
   scheduleId: number;

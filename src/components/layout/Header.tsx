@@ -14,7 +14,7 @@ import { parseJwt, getToken } from "../../configs/api";
 import {
   profileService,
   UserProfileResponse,
-} from "../../services/profileService";
+} from "../../pages/profile/services/profileService";
 
 interface NavItem {
   label: string;

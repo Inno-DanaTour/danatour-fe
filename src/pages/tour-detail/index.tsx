@@ -7,7 +7,7 @@ import ImageGallery from "../../features/tours/ImageGallery";
 import ItineraryTimeline from "../../features/tours/ItineraryTimeline";
 import BookingSidebar from "../../features/tours/BookingSidebar";
 import ReviewCard from "../../components/ui/ReviewCard";
-import {tourService} from "../../services/tourService";
+import {tourService} from "../tours/services/tourService";
 import {Tour, ItineraryItem, Company} from "../../types/types";
 import {companyService} from "../company-detail/services/companyService";
 

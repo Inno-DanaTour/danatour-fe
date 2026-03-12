@@ -25,7 +25,7 @@ import {
   providerService,
   ProviderApplicationInfo,
   MyProviderApplicationResponse,
-} from "../../../services/providerService";
+} from "../../auth/services/providerService";
 import { useLogin } from "../login/hooks/useLogin";
 
 interface FormState {

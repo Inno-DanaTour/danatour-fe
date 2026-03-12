@@ -12,7 +12,7 @@ import {
     Tag
 } from "lucide-react";
 import Header from "../../components/layout/Header";
-import { tourService } from "../../services/tourService";
+import { tourService } from "./services/tourService";
 import { CategoryResponse, PlaceResponse, TourImage } from "../../types/types";
 import Dropdown from "../../components/common/Dropdown";
 import { motion } from "framer-motion";

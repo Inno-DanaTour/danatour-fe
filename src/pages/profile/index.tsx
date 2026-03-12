@@ -8,7 +8,7 @@ import PaymentMethodsTab from "./components/PaymentMethodsTab";
 import {
   profileService,
   UserProfileResponse,
-} from "../../services/profileService";
+} from "../profile/services/profileService";
 import { useNavigate } from "react-router-dom";
 import { parseJwt, getToken } from "../../configs/api";
 import { Banknote } from "lucide-react";

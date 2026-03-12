@@ -17,7 +17,7 @@ import {
     ChevronRight,
     Loader2
 } from "lucide-react";
-import { promotionService } from "../../services/promotionService";
+import { promotionService } from "../promotions/services/promotionService";
 import { PromotionResponse } from "../../types/types";
 import PromotionModal from "../../components/promotions/PromotionModal";
 

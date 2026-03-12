@@ -13,7 +13,7 @@ import {
   adminProviderService,
   TourCompanyResponse,
   PageResponse,
-} from "../../services/adminProviderService";
+} from "./services/adminProviderService";
 import TourCompanyDetailsModal from "./components/TourCompanyDetailsModal";
 
 const TourCompanyManagementPage: React.FC = () => {

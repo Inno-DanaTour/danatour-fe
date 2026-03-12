@@ -20,7 +20,7 @@ import {
   Bot,
 } from "lucide-react";
 import { ZoneType } from "../../types/types";
-import { UserPreferences } from "../../services/mockAIService";
+import { UserPreferences } from "../../pages/explore/services/mockAIService";
 
 interface AIInputFormProps {
   onSubmit: (preferences: UserPreferences) => void;

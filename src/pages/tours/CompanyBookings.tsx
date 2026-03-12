@@ -13,7 +13,7 @@ import {
 import {
   bookingService,
   CompanyBookingResponse,
-} from "../../services/bookingService";
+} from "../checkout/services/bookingService";
 import Header from "../../components/layout/Header";
 import { useNavigate } from "react-router-dom";
 

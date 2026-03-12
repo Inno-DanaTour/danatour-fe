@@ -6,6 +6,17 @@ export interface ToggleFollowResponse {
   message: string;
 }
 
+export interface UserProviderResponse {
+  id: number;
+  userId: number;
+  userName: string;
+  userEmail: string;
+  companyId: number;
+  companyName: string;
+  role: string;
+  createdAt: string;
+}
+
 export const companyService = {
   getCompanyById: (id: string | number): Promise<Company> => {
     return api.get<Company>(`/companies/${id}`);
@@ -17,5 +28,9 @@ export const companyService = {
 
   getAllCompanies: (): Promise<Company[]> => {
     return api.get<Company[]>("/companies");
+  },
+
+  getMyProviderInfo: async (): Promise<UserProviderResponse> => {
+    return api.get<UserProviderResponse>("/user-providers/me");
   },
 };

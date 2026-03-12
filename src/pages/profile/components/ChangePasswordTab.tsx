@@ -3,7 +3,7 @@ import { Lock, Loader2, Save } from "lucide-react";
 import {
   profileService,
   ChangePasswordRequest,
-} from "../../../services/profileService";
+} from "../services/profileService";
 
 const ChangePasswordTab: React.FC = () => {
   const [formData, setFormData] = useState<ChangePasswordRequest>({

@@ -19,10 +19,10 @@ import {
   Copy,
   ExternalLink,
 } from "lucide-react";
-import { bookingService, BookingRequest } from "../../services/bookingService";
-import { paymentService } from "../../services/paymentService";
-import { paymentMethodService } from "../../services/paymentMethodService";
-import { promotionService } from "../../services/promotionService";
+import { bookingService, BookingRequest } from "./services/bookingService";
+import { paymentService } from "./services/paymentService";
+import { paymentMethodService } from "./services/paymentMethodService";
+import { promotionService } from "../promotions/services/promotionService";
 import { Loader2, TicketPercent, X } from "lucide-react";
 import Header from "../../components/layout/Header";
 import { Tour, PromotionResponse } from "../../types/types";
