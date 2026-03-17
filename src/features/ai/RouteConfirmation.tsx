@@ -16,7 +16,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { ZoneType } from "../../types/types";
-import { UserPreferences } from "../../services/mockAIService";
+import { UserPreferences } from "../../pages/explore/services/mockAIService";
 
 interface RouteConfirmationProps {
   preferences: UserPreferences;

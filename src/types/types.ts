@@ -40,7 +40,8 @@ export interface Tour {
   description: string;
   image: string;
   gallery: string[];
-  price: number;
+  adultPrice: number;
+  childrenPrice: number;
   duration: string;
   rating: number;
   reviewCount: number;
@@ -48,6 +49,10 @@ export interface Tour {
   highlights: string[];
   itinerary: ItineraryItem[];
   reviews: Review[];
+  schedules?: TourSchedule[];
+  companyId?: number;
+  capacity?: number;
+  availableSlots?: number;
 }
 
 export interface AppState {
@@ -57,13 +62,16 @@ export interface AppState {
 }
 
 export interface Company {
-  id: string;
+  id: number | string;
   name: string;
-  logo: string;
+  logoUrl?: string;
   description: string;
   address: string;
-  rating: number;
+  averageRating: number;
   totalTours: number;
+  status?: string;
+  contactEmail?: string;
+  contactPhone?: string;
   isFollowed?: boolean;
 }
 
@@ -86,4 +94,135 @@ export interface Booking {
   status: BookingStatus;
   createdAt: string;
   startDate: string;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  code: number;
+  message: string;
+  data: T;
+  total: number;
+}
+
+export interface PagedResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+}
+
+export interface TourListItem {
+  id: number;
+  title: string;
+  adultPrice: number;
+  childrenPrice: number;
+  thumbnailUrl: string;
+  placeName: string;
+  rating?: number;
+  durationDays: number;
+  durationNights: number;
+  status: string;
+  lockReason?: string;
+  lockedBy?: string;
+  rejectReason?: string;
+  capacity?: number;
+  availableSlots?: number;
+}
+
+export interface TourImage {
+  imageUrl: string;
+  isThumbnail: boolean;
+}
+
+export interface TourSchedule {
+  id: number;
+  startDate: string;
+  endDate: string;
+  capacity: number;
+  availableSlots: number;
+}
+
+export interface CategoryResponse {
+  id: number;
+  name: string;
+}
+
+export interface PlaceResponse {
+  id: number;
+  name: string;
+}
+
+export interface TourDetail {
+  id: number;
+  title: string;
+  description: string;
+  itinerary: string;
+  adultPrice: number;
+  childrenPrice: number;
+  durationDays: number;
+  durationNights: number;
+  status: string;
+  category: CategoryResponse;
+  place: PlaceResponse;
+  images: TourImage[];
+  schedules: TourSchedule[];
+  companyId: number;
+  lockReason?: string;
+  lockedBy?: string;
+  rejectReason?: string;
+  averageRating: number;
+  reviewCount: number;
+}
+
+export interface TourSummaryResponse {
+  id: number;
+  title: string;
+  thumbnail: string;
+  adultPrice: number;
+  durationDays: number;
+  durationNights: number;
+  categoryName: string;
+  placeName: string;
+  status: string;
+  viewCount: number;
+  lockReason?: string;
+  lockedBy?: string;
+  rejectReason?: string;
+  averageRating: number;
+  reviewCount: number;
+  capacity?: number;
+  availableSlots?: number;
+}
+
+export interface TourStatusUpdateRequest {
+  status: string;
+  lockReason?: string;
+}
+
+
+
+export interface FeedbackResponse {
+  id: number;
+  userId: number;
+  tourId: number;
+  bookingId: number;
+  rating: number;
+  comment: string;
+  reviewerName: string;
+  reviewerAvatarUrl?: string;
+  createdAt: string;
+}
+
+export interface FeedbackParams {
+  rating?: number;
+  page?: number;
+  size?: number;
+  sort?: string;
+}
+export interface TourReportRequest {
+  reason: string;
 }

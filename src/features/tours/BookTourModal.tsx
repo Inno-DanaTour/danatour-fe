@@ -12,6 +12,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { LOCATIONS } from "../../constants/constants";
+import { bookingService } from "../../pages/checkout/services/bookingService";
 
 interface BookTourModalProps {
   isOpen: boolean;
@@ -55,6 +56,7 @@ const BookTourModal: React.FC<BookTourModalProps> = ({
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -83,22 +85,37 @@ const BookTourModal: React.FC<BookTourModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setApiError(null);
 
     if (!validateForm()) return;
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      // Map tourId to scheduleId (Mocking id=1 for demo purposes as requested)
+      // In a real app, you'd fetch available schedules for the selected tourId
+      await bookingService.createBooking({
+        scheduleId: 1, 
+        adults: formData.adults,
+        children: formData.children,
+        contactName: formData.name,
+        contactEmail: formData.email,
+        contactPhone: formData.phone,
+      });
 
-    setIsSubmitting(false);
-    setIsSuccess(true);
+      setIsSuccess(true);
+    } catch (err: any) {
+      setApiError(err.message || "An unexpected error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClose = () => {
     if (!isSubmitting) {
       setIsSuccess(false);
       setErrors({});
+      setApiError(null);
       setFormData({
         tourId: "",
         date: "",
@@ -197,6 +214,15 @@ const BookTourModal: React.FC<BookTourModalProps> = ({
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
+                  {apiError && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm font-medium"
+                    >
+                      {apiError}
+                    </motion.div>
+                  )}
                   {/* Tour Selection */}
                   <div>
                     <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">

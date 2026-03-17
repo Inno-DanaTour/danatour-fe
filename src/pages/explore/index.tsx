@@ -15,7 +15,7 @@ import {
   UserPreferences,
   getPersonalizedRoute,
   parsePreferencesFromChat,
-} from "../../services/mockAIService";
+} from "./services/mockAIService";
 import { Sparkles, RotateCcw, MapPin, Clock } from "lucide-react";
 
 // Flow states: form -> processing -> editing -> route
