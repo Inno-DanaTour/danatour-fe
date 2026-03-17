@@ -1,6 +1,6 @@
 import React from "react";
 import { Tour } from "../../types/types";
-import { MapPin, Clock, Star } from "lucide-react";
+import { MapPin, Clock, Star, LayoutGrid } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface TourCardProps {
@@ -58,8 +58,14 @@ const TourCard: React.FC<TourCardProps> = ({ tour, viewType }) => {
             </div>
             <div className="flex items-center gap-1">
               <MapPin size={14} />
-              <span>Da Nang</span>
+              <span>{tour.zone}</span>
             </div>
+            {tour.capacity !== undefined && (
+              <div className="flex items-center gap-1 text-primary font-bold">
+                <LayoutGrid size={14} />
+                <span>{tour.availableSlots}/{tour.capacity} left</span>
+              </div>
+            )}
           </div>
         </div>
 

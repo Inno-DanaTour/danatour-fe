@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import {
   Plus,
   Trash2,
@@ -10,153 +9,46 @@ import {
   Clock,
   MapPin,
   Tag,
-  Image as ImageIcon,
 } from "lucide-react";
 import Header from "../../components/layout/Header";
-import { tourService } from "./services/tourService";
-import { CategoryResponse, PlaceResponse } from "../../types/types";
 import Dropdown from "../../components/common/Dropdown";
+import { useTourForm } from "./hooks/useTourForm";
 
 const CreateTour: React.FC = () => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-
-  // Form State
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [itinerary, setItinerary] = useState("");
-  const [adultPrice, setAdultPrice] = useState<number>(0);
-  const [childrenPrice, setChildrenPrice] = useState<number>(0);
-  const [durationDays, setDurationDays] = useState<number>(1);
-  const [durationNights, setDurationNights] = useState<number>(0);
-  const [categoryId, setCategoryId] = useState<number | "">("");
-  const [placeId, setPlaceId] = useState<number | "">("");
-
-  // Dynamic Lists State
-  const [schedules, setSchedules] = useState<
-    { startDate: string; endDate: string; capacity: number }[]
-  >([]);
-  const [images, setImages] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
-
-  // Metadata State
-  const [categories, setCategories] = useState<CategoryResponse[]>([]);
-  const [places, setPlaces] = useState<PlaceResponse[]>([]);
-
-  useEffect(() => {
-    fetchMetadata();
-  }, []);
-
-  const fetchMetadata = async () => {
-    try {
-      const [cats, pls] = await Promise.all([
-        tourService.getCategories(),
-        tourService.getPlaces(),
-      ]);
-      setCategories(cats || []);
-      setPlaces(pls || []);
-    } catch (err) {
-      console.error("Failed to fetch metadata", err);
-      setCategories([]);
-      setPlaces([]);
-    }
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      if (images.length + newFiles.length > 10) {
-        alert("Maximum 10 images allowed");
-        return;
-      }
-      setImages([...images, ...newFiles]);
-      const newPreviews = newFiles.map((file) =>
-        URL.createObjectURL(file as any),
-      );
-      setPreviews([...previews, ...newPreviews]);
-    }
-  };
-
-  const removeImage = (index: number) => {
-    const newImages = [...images];
-    newImages.splice(index, 1);
-    setImages(newImages);
-
-    const newPreviews = [...previews];
-    URL.revokeObjectURL(newPreviews[index]);
-    newPreviews.splice(index, 1);
-    setPreviews(newPreviews);
-  };
-
-  const addSchedule = () => {
-    setSchedules([...schedules, { startDate: "", endDate: "", capacity: 20 }]);
-  };
-
-  const updateSchedule = (index: number, field: string, value: any) => {
-    const newSchedules = [...schedules];
-    newSchedules[index] = { ...newSchedules[index], [field]: value };
-    setSchedules(newSchedules);
-  };
-
-  const removeSchedule = (index: number) => {
-    const newSchedules = [...schedules];
-    newSchedules.splice(index, 1);
-    setSchedules(newSchedules);
-  };
-
-  const handleSubmitInternal = async (status: "PENDING" | "DRAFT") => {
-    if (images.length === 0) {
-      setError("Please upload at least 1 image");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      const requestData = {
-        title,
-        description,
-        itinerary,
-        adultPrice,
-        childrenPrice,
-        durationDays,
-        durationNights,
-        categoryId: Number(categoryId),
-        placeId: Number(placeId),
-        status: status,
-        schedules: schedules
-          .filter((s) => s.startDate && s.endDate)
-          .map((s) => ({
-            ...s,
-            startDate: s.startDate.split("T")[0],
-            endDate: s.endDate.split("T")[0],
-          })),
-      };
-
-      const formData = new FormData();
-      // Append metadata as a single JSON Blob
-      formData.append(
-        "request",
-        new Blob([JSON.stringify(requestData)], { type: "application/json" }),
-      );
-
-      // Append images
-      images.forEach((img) => {
-        formData.append("images", img);
-      });
-
-      await tourService.createTour(formData);
-      setSuccess(true);
-      setTimeout(() => navigate("/tours/manage"), 2000);
-    } catch (err: any) {
-      setError(err.message || "An error occurred while creating the tour");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    title,
+    setTitle,
+    description,
+    setDescription,
+    itinerary,
+    setItinerary,
+    adultPrice,
+    setAdultPrice,
+    childrenPrice,
+    setChildrenPrice,
+    durationDays,
+    setDurationDays,
+    durationNights,
+    setDurationNights,
+    categoryId,
+    setCategoryId,
+    placeId,
+    setPlaceId,
+    schedules,
+    newPreviews,
+    categories,
+    places,
+    loading,
+    error,
+    success,
+    handleImageChange,
+    removeNewImage,
+    addSchedule,
+    updateSchedule,
+    removeSchedule,
+    handleSubmit,
+    navigate,
+  } = useTourForm("create");
 
   if (success) {
     return (
@@ -194,12 +86,12 @@ const CreateTour: React.FC = () => {
           </div>
           <div className="flex gap-4">
             <button
-               type="button"
-               onClick={() => handleSubmitInternal("DRAFT")}
-               disabled={loading}
-               className="px-8 py-4 bg-gray-100 text-gray-700 rounded-xl font-black hover:bg-gray-200 transition-all flex items-center gap-2"
+              type="button"
+              onClick={(e) => handleSubmit(e, "DRAFT")}
+              disabled={loading}
+              className="px-8 py-4 bg-gray-100 text-gray-700 rounded-xl font-black hover:bg-gray-200 transition-all flex items-center gap-2"
             >
-              {loading ? "Saving..." : <><Save size={20} /> Save as Draft</>}
+              <Save size={20} /> {loading ? "Saving..." : "Save as Draft"}
             </button>
             <button
               form="create-tour-form"
@@ -207,13 +99,7 @@ const CreateTour: React.FC = () => {
               disabled={loading}
               className="btn-primary py-4 px-10 shadow-xl shadow-primary/20 flex items-center gap-2"
             >
-              {loading ? (
-                "Creating..."
-              ) : (
-                <>
-                  <Save size={20} /> Publish Tour
-                </>
-              )}
+              <Save size={20} /> {loading ? "Creating..." : "Publish Tour"}
             </button>
           </div>
         </div>
@@ -227,10 +113,7 @@ const CreateTour: React.FC = () => {
 
         <form
           id="create-tour-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmitInternal("PENDING");
-          }}
+          onSubmit={(e) => handleSubmit(e, "PENDING")}
           className="space-y-10"
         >
           {/* Basic Info Section */}
@@ -243,20 +126,18 @@ const CreateTour: React.FC = () => {
             </h3>
 
             <div className="space-y-6">
-              <div className="grid grid-cols-1 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-black uppercase tracking-widest text-gray-400">
-                    Tour Title
-                  </label>
-                  <input
-                    required
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g. Midnight Dragon Pulse - Hidden Da Nang"
-                    className="w-full bg-gray-50 border-none rounded-2xl p-5 focus:ring-2 focus:ring-primary/20 text-lg font-medium"
-                  />
-                </div>
+              <div className="space-y-2">
+                <label className="text-sm font-black uppercase tracking-widest text-gray-400">
+                  Tour Title
+                </label>
+                <input
+                  required
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Midnight Dragon Pulse - Hidden Da Nang"
+                  className="w-full bg-gray-50 border-none rounded-2xl p-5 focus:ring-2 focus:ring-primary/20 text-lg font-medium"
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -376,7 +257,7 @@ const CreateTour: React.FC = () => {
                 rows={10}
                 value={itinerary}
                 onChange={(e) => setItinerary(e.target.value)}
-                placeholder="Day 1: Arrival & Welcome Dinner...&#10;Day 2: Coastal Exploration..."
+                placeholder="Day 1: Arrival & Welcome Dinner..."
                 className="w-full bg-gray-50 border-none rounded-2xl p-5 focus:ring-2 focus:ring-primary/20 text-lg font-mono"
               />
             </div>
@@ -392,7 +273,7 @@ const CreateTour: React.FC = () => {
             </h3>
 
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              {previews.map((src, i) => (
+              {newPreviews.map((src, i) => (
                 <div
                   key={i}
                   className="relative aspect-square rounded-2xl overflow-hidden group"
@@ -404,7 +285,7 @@ const CreateTour: React.FC = () => {
                   />
                   <button
                     type="button"
-                    onClick={() => removeImage(i)}
+                    onClick={() => removeNewImage(i)}
                     className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <Trash2 size={16} />
@@ -416,7 +297,7 @@ const CreateTour: React.FC = () => {
                   )}
                 </div>
               ))}
-              {previews.length < 10 && (
+              {newPreviews.length < 10 && (
                 <label className="aspect-square rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all text-gray-400 hover:text-primary">
                   <Upload size={32} />
                   <span className="text-[10px] font-black uppercase mt-2">
@@ -432,10 +313,6 @@ const CreateTour: React.FC = () => {
                 </label>
               )}
             </div>
-            <p className="text-xs text-gray-400 font-medium">
-              * Upload 1-10 high quality images. First image will be used as
-              thumbnail.
-            </p>
           </section>
 
           {/* Schedules Section */}
@@ -514,11 +391,6 @@ const CreateTour: React.FC = () => {
                   </button>
                 </div>
               ))}
-              {schedules.length === 0 && (
-                <div className="text-center py-10 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-100 text-gray-400">
-                  No schedules added yet. Add at least one departure date.
-                </div>
-              )}
             </div>
           </section>
 
@@ -528,13 +400,8 @@ const CreateTour: React.FC = () => {
               disabled={loading}
               className="btn-primary py-6 px-20 text-xl font-black shadow-2xl shadow-primary/30 flex items-center gap-3 rounded-[2rem]"
             >
-              {loading ? (
-                "Creating..."
-              ) : (
-                <>
-                  <Save size={24} /> List Your Tour Now
-                </>
-              )}
+              <Save size={24} />{" "}
+              {loading ? "Creating..." : "List Your Tour Now"}
             </button>
           </div>
         </form>

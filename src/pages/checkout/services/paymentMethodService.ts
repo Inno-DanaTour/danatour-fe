@@ -1,37 +1,10 @@
 import { api } from "../../../configs/api";
+import {
+  PaymentMethod,
+  PaymentMethodRequest,
+  VietQRBank,
+} from "../types/checkout.types";
 
-export interface PaymentMethod {
-  id: number;
-  userId: number;
-  provider: string;
-  maskedNumber: string;
-  bankBin?: string;
-  bankShortName?: string;
-  bankAccountNumber?: string;
-  bankAccountName?: string;
-  isDefault: boolean;
-  status: string;
-}
-
-export interface PaymentMethodRequest {
-  provider: string;
-  cardNumber?: string;
-  bankBin?: string;
-  bankShortName?: string;
-  bankAccountNumber?: string;
-  bankAccountName?: string;
-}
-
-export interface VietQRBank {
-  id: number;
-  name: string;
-  code: string;
-  bin: string;
-  shortName: string;
-  logo: string;
-  transferSupported: number;
-  lookupSupported: number;
-}
 
 export const paymentMethodService = {
   getAll: async (): Promise<PaymentMethod[]> => {

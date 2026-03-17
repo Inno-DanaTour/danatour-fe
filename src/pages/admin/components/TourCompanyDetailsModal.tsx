@@ -10,8 +10,9 @@ import {
 } from "lucide-react";
 import {
   adminProviderService,
-  AdminProviderApplicationDetailResponse,
 } from "../services/adminProviderService";
+import { AdminProviderApplicationDetailResponse } from "../types/admin.types";
+
 
 interface ModalProps {
   companyId: number;

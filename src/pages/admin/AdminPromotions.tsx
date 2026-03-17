@@ -18,7 +18,8 @@ import {
     Loader2
 } from "lucide-react";
 import { promotionService } from "../promotions/services/promotionService";
-import { PromotionResponse } from "../../types/types";
+import { PromotionResponse } from "../promotions/types/promotions.types";
+
 import PromotionModal from "../../components/promotions/PromotionModal";
 
 const AdminPromotions: React.FC = () => {

@@ -1,183 +1,34 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Check, Star, ArrowLeft, CheckCircle, Loader2, Flag, X, Send, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import Header from "../../components/layout/Header";
 import ImageGallery from "../../features/tours/ImageGallery";
 import ItineraryTimeline from "../../features/tours/ItineraryTimeline";
 import BookingSidebar from "../../features/tours/BookingSidebar";
 import FeedbackList from "../../features/tours/FeedbackList";
-import ReviewCard from "../../components/ui/ReviewCard";
-import { tourService } from "../tours/services/tourService";
-import { Tour, ItineraryItem, Company, TourReportRequest } from "../../types/types";
-import { companyService } from "../company-detail/services/companyService";
 import { getToken } from "../../configs/api";
+import { useTourDetail } from "./hooks/useTourDetail";
 
 const TourDetail: React.FC = () => {
-    const { scrollYProgress } = useScroll();
-    const scaleX = useSpring(scrollYProgress, {
-        stiffness: 100,
-        damping: 30,
-        restDelta: 0.001,
-    });
-    const { id } = useParams<{ id: string }>();
-    const navigate = useNavigate();
-    const [tour, setTour] = useState<Tour | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [company, setCompany] = useState<Company | null>(null);
-    const [allCompanies, setAllCompanies] = useState<Company[]>([]);
-    const [activeTab, setActiveTab] = useState<
-        "overview" | "itinerary" | "schedules" | "reviews"
-    >("overview");
-    const [showReportModal, setShowReportModal] = useState(false);
-    const [reportReason, setReportReason] = useState("");
-    const [reportNote, setReportNote] = useState("");
-    const [isReporting, setIsReporting] = useState(false);
-    const [toasts, setToasts] = useState<{ id: number; type: "success" | "error"; message: string }[]>([]);
-    const [toastCounter, setToastCounter] = useState(0);
-
-    const addToast = (type: "success" | "error", message: string) => {
-        const id = toastCounter + 1;
-        setToastCounter(id);
-        setToasts((prev) => [...prev, { id, type, message }]);
-        setTimeout(() => {
-            setToasts((prev) => prev.filter((t) => t.id !== id));
-        }, 4000);
-    };
-
-    const handleReportSubmit = async () => {
-        if (!reportReason) {
-            addToast("error", "Please select a reason for reporting");
-            return;
-        }
-
-        if (!id) return;
-
-        try {
-            setIsReporting(true);
-            const reason = reportNote ? `[${reportReason}] ${reportNote}` : reportReason;
-            const request: TourReportRequest = { reason };
-            await tourService.reportTour(id, request);
-            addToast("success", "Tour reported successfully. Thank you for your feedback.");
-            setShowReportModal(false);
-            setReportReason("");
-            setReportNote("");
-        } catch (err) {
-            console.error("Failed to report tour:", err);
-            addToast("error", "Failed to report tour. Please try again later.");
-        } finally {
-            setIsReporting(false);
-        }
-    };
-
-    useEffect(() => {
-        const fetchDetail = async () => {
-            if (!id) return;
-            try {
-                setLoading(true);
-                const data = await tourService.getTourDetail(id);
-
-                // Parse itinerary string into ItineraryItem[]
-                let mappedItinerary: ItineraryItem[] = [];
-                if (data.itinerary) {
-                    const lines = data.itinerary
-                        .split("\n")
-                        .filter((line) => line.trim() !== "");
-                    if (lines.length > 0 && lines[0].toLowerCase().includes("day")) {
-                        // Simple parsing: Each line starting with "Day" is a new day
-                        let currentDay = 0;
-                        lines.forEach((line) => {
-                            if (line.toLowerCase().startsWith("day")) {
-                                currentDay++;
-                                const parts = line.split(":");
-                                mappedItinerary.push({
-                                    day: currentDay,
-                                    title: parts[0].trim(),
-                                    description:
-                                        parts.slice(1).join(":").trim() || "Activities for the day",
-                                });
-                            } else if (mappedItinerary.length > 0) {
-                                mappedItinerary[mappedItinerary.length - 1].description +=
-                                    " " + line.trim();
-                            }
-                        });
-                    } else {
-                        // Fallback: One big Day 1
-                        mappedItinerary = [
-                            {
-                                day: 1,
-                                title: "Full Journey",
-                                description: data.itinerary,
-                            },
-                        ];
-                    }
-                }
-
-                const mappedTour: Tour = {
-                    id: String(data.id),
-                    name: data.title,
-                    description: data.description,
-                    image:
-                        data.images[0]?.imageUrl ||
-                        "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80",
-                    gallery: data.images.map((img) => img.imageUrl),
-                    adultPrice: data.adultPrice,
-                    childrenPrice: data.childrenPrice,
-                    duration: `${data.durationDays}D / ${data.durationNights}N`,
-                    rating: data.averageRating || 0,
-                    reviewCount: data.reviewCount || 0,
-                    zone: data.place.name as any,
-                    highlights: [
-                        "Local Guide",
-                        "Transportation",
-                        "Entrance Fees",
-                        "Lunch included",
-                    ],
-                    itinerary: mappedItinerary,
-                    reviews: [],
-                    schedules: data.schedules,
-                    companyId: data.companyId,
-                };
-                setTour(mappedTour);
-
-                // Fetch company data if companyId exists
-                if (data.companyId) {
-                    try {
-                        const companyData = await companyService.getCompanyById(
-                            data.companyId,
-                        );
-                        setCompany(companyData);
-                    } catch (cErr) {
-                        console.error("Failed to fetch company info:", cErr);
-                    }
-                }
-
-                // Fetch all companies for the partners section
-                try {
-                    const companies = await companyService.getAllCompanies();
-                    setAllCompanies(companies);
-                } catch (acErr) {
-                    console.error("Failed to fetch all companies:", acErr);
-                }
-            } catch (err) {
-                console.error("Failed to fetch tour detail:", err);
-                navigate("/tours");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchDetail();
-    }, [id, navigate]);
-
-    useEffect(() => {
-        if (tour?.name) {
-            document.title = `${tour.name} | DanaTour`;
-        }
-        return () => {
-            document.title = "DanaTour | Authentic Local Experiences";
-        };
-    }, [tour]);
+    const {
+        tour,
+        loading,
+        company,
+        allCompanies,
+        activeTab,
+        setActiveTab,
+        showReportModal,
+        setShowReportModal,
+        reportReason,
+        setReportReason,
+        reportNote,
+        setReportNote,
+        isReporting,
+        toasts,
+        scaleX,
+        handleReportSubmit,
+        navigate,
+    } = useTourDetail();
 
     if (loading) {
         return (
@@ -459,7 +310,7 @@ const TourDetail: React.FC = () => {
                                     >
                                         <h3 className="text-xl md:text-2xl font-bold mb-8">
                                             What to Expect
-                                        </h3>
+            </h3>
                                         <ItineraryTimeline items={tour.itinerary} />
                                     </motion.div>
                                 )}
@@ -524,7 +375,7 @@ const TourDetail: React.FC = () => {
                                                                         {new Date(s.endDate).toLocaleDateString(
                                                                             "vi-VN",
                                                                         )}
-                                                                    </span>
+            </span>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -539,7 +390,7 @@ const TourDetail: React.FC = () => {
                                                                 <div
                                                                     className={`font-bold text-sm ${s.availableSlots > 5 ? "text-green-500" : "text-cta"}`}
                                                                 >
-                                                                    {s.availableSlots} spots left
+                                                                    {s.availableSlots} / {s.capacity} spots left
                                                                 </div>
                                                             </div>
 
@@ -547,7 +398,7 @@ const TourDetail: React.FC = () => {
                                                                 <div
                                                                     className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">
                                                                     Price per guest
-                                                                </div>
+            </div>
                                                                 <div className="font-black text-xl text-primary">
                                                                     {new Intl.NumberFormat("vi-VN", {
                                                                         style: "currency",
@@ -556,12 +407,22 @@ const TourDetail: React.FC = () => {
                                                                 </div>
                                                             </div>
 
-                                                            <button
+                                                             <button
+                                                                onClick={() => {
+                                                                    const el = document.getElementById("booking-sidebar");
+                                                                    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                                                                }}
                                                                 className="btn-primary py-3 px-8 rounded-2xl shadow-lg shadow-primary/20 whitespace-nowrap hidden md:block">
                                                                 Book This Date
                                                             </button>
                                                         </div>
-                                                        <button className="btn-primary py-4 px-8 rounded-2xl md:hidden">
+                                                         <button
+                                                            onClick={() => {
+                                                                const el = document.getElementById("booking-sidebar");
+                                                                el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                                                            }}
+                                                            className="btn-primary py-4 px-8 rounded-2xl md:hidden"
+                                                        >
                                                             Select This Date
                                                         </button>
                                                     </div>
@@ -619,7 +480,14 @@ const TourDetail: React.FC = () => {
                         }).format(tour.adultPrice)}
                     </span>
                 </div>
-                <button className="btn-primary py-3.5 px-10 text-base shadow-xl shadow-cta/20">
+                <button
+                    onClick={() => {
+                        const sidebarElement = document.getElementById("booking-sidebar");
+                        if (sidebarElement) {
+                            sidebarElement.scrollIntoView({ behavior: "smooth", block: "center" });
+                        }
+                    }}
+                    className="btn-primary py-3.5 px-10 text-base shadow-xl shadow-cta/20">
                     Book Now
                 </button>
             </div>

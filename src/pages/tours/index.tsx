@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
 import { LayoutGrid, List, Loader2, ArrowUpDown } from "lucide-react";
 import Header from "../../components/layout/Header";
 import TourCard from "../../features/tours/TourCard";
 import TourFilter from "../../features/tours/TourFilter";
 import SearchBar from "../../components/common/SearchBar";
 import Dropdown from "../../components/common/Dropdown";
-import { tourService } from "./services/tourService";
-import { ZoneType, Tour, TourListItem } from "../../types/types";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTours } from "./hooks/useTours";
+import { SortOption } from "./types/tours.types";
 
-const SORT_OPTIONS = [
+const SORT_OPTIONS: SortOption[] = [
   { id: "id,desc", name: "Recommended" },
   { id: "adultPrice,asc", name: "Price: Low to High" },
   { id: "adultPrice,desc", name: "Price: High to Low" },
@@ -18,85 +17,34 @@ const SORT_OPTIONS = [
 ];
 
 const Tours: React.FC = () => {
-  const navigate = useNavigate();
-  const [viewType, setViewType] = useState<"grid" | "list">("grid");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedZone, setSelectedZone] = useState<ZoneType | "ALL">("ALL");
-  const [priceRange, setPriceRange] = useState(50000000);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [sortBy, setSortBy] = useState<string>("id,desc");
-  const [selectedDurations, setSelectedDurations] = useState<string[]>([]);
-
-  const [tours, setTours] = useState<Tour[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    viewType,
+    setViewType,
+    searchQuery,
+    setSearchQuery,
+    selectedZone,
+    setSelectedZone,
+    priceRange,
+    setPriceRange,
+    isFilterOpen,
+    setIsFilterOpen,
+    sortBy,
+    setSortBy,
+    selectedDurations,
+    setSelectedDurations,
+    tours,
+    loading,
+  } = useTours();
 
   useEffect(() => {
     document.title = "Find Your Perfect Journey | DanaTour";
   }, []);
 
-  useEffect(() => {
-    const fetchTours = async () => {
-      try {
-        setLoading(true);
-
-        const filters: any = {
-          keyword: searchQuery || undefined,
-          zone: selectedZone !== "ALL" ? selectedZone : undefined,
-          maxPrice: priceRange < 50000000 ? priceRange : undefined,
-          sort: sortBy
-        };
-
-        // Duration mapping logic
-        if (selectedDurations.length > 0) {
-          const ranges = selectedDurations.map(d => {
-            if (d === "1-3 Days") return { min: 1, max: 3 };
-            if (d === "4-7 Days") return { min: 4, max: 7 };
-            if (d === "> 7 Days") return { min: 8, max: 100 };
-            return { min: 1, max: 100 };
-          });
-
-          // Use the absolute min and max of all selected ranges
-          // Note: This still treats it as a single range [minOfAll, maxOfAll]
-          // which might include unwanted middle ranges if discrete ones are picked.
-          // But for single selection (which is the most common use case), it works perfectly.
-          filters.minDuration = Math.min(...ranges.map(r => r.min));
-          filters.maxDuration = Math.max(...ranges.map(r => r.max));
-        }
-
-        const data = await tourService.searchTours(1, 100, filters);
-
-        const mappedTours: Tour[] = data.content.map(item => ({
-          id: String(item.id),
-          name: item.title,
-          description: `Discover the beauty of ${item.placeName}.`,
-          image: item.thumbnail || "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80",
-          gallery: [],
-          adultPrice: item.adultPrice,
-          childrenPrice: 0,
-          duration: `${item.durationDays}D / ${item.durationNights}N`,
-          rating: item.averageRating || 0,
-          reviewCount: item.reviewCount || 0,
-          zone: item.placeName as any,
-          highlights: [],
-          itinerary: [],
-          reviews: []
-        }));
-        setTours(mappedTours);
-      } catch (err) {
-        console.error("Failed to fetch tours:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTours();
-  }, [searchQuery, selectedZone, priceRange, sortBy, selectedDurations]);
-
-  const filteredTours = tours; // Backend does filtering now
+  const navigate = (path: string) => window.location.href = path; // Simple mock for Header requirement if needed, but Header uses useNavigate internally
 
   return (
     <div className="min-h-screen bg-background text-gray-900">
-      <Header onBookClick={() => navigate("/tours")} />
+      <Header onBookClick={() => (window.location.href = "/tours")} />
 
       <main className="relative pt-24 pb-16 px-4 md:px-6">
         {/* Decorative Background Elements */}
@@ -138,38 +86,40 @@ const Tours: React.FC = () => {
             >
               <button
                 onClick={() => setViewType("grid")}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all relative z-10 font-bold text-sm cursor-pointer ${viewType === "grid"
-                  ? "text-white"
-                  : "text-gray-400 hover:text-primary"
-                  }`}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all relative z-10 font-bold text-sm cursor-pointer ${
+                  viewType === "grid" ? "text-white" : "text-gray-400 hover:text-primary"
+                }`}
               >
                 <LayoutGrid size={18} />
                 <span>Grid</span>
-                {viewType === "grid" && (
-                  <motion.div
-                    layoutId="activeToggle"
-                    className="absolute inset-0 bg-primary rounded-xl -z-10 shadow-lg shadow-primary/30"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
+                <AnimatePresence>
+                  {viewType === "grid" && (
+                    <motion.div
+                      layoutId="activeToggle"
+                      className="absolute inset-0 bg-primary rounded-xl -z-10 shadow-lg shadow-primary/30"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                </AnimatePresence>
               </button>
 
               <button
                 onClick={() => setViewType("list")}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all relative z-10 font-bold text-sm cursor-pointer ${viewType === "list"
-                  ? "text-white"
-                  : "text-gray-400 hover:text-primary"
-                  }`}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all relative z-10 font-bold text-sm cursor-pointer ${
+                  viewType === "list" ? "text-white" : "text-gray-400 hover:text-primary"
+                }`}
               >
                 <List size={18} />
                 <span>List</span>
-                {viewType === "list" && (
-                  <motion.div
-                    layoutId="activeToggle"
-                    className="absolute inset-0 bg-primary rounded-xl -z-10 shadow-lg shadow-primary/30"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
+                <AnimatePresence>
+                  {viewType === "list" && (
+                    <motion.div
+                      layoutId="activeToggle"
+                      className="absolute inset-0 bg-primary rounded-xl -z-10 shadow-lg shadow-primary/30"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                </AnimatePresence>
               </button>
             </motion.div>
           </div>
@@ -205,9 +155,7 @@ const Tours: React.FC = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 px-2 md:px-0">
               <p className="text-gray-600 font-medium text-xs md:text-sm">
                 Showing{" "}
-                <span className="text-primary font-bold">
-                  {filteredTours.length}
-                </span>{" "}
+                <span className="text-primary font-bold">{tours.length}</span>{" "}
                 tours
               </p>
 
@@ -230,7 +178,7 @@ const Tours: React.FC = () => {
               </div>
             ) : (
               <AnimatePresence mode="popLayout">
-                {filteredTours.length > 0 ? (
+                {tours.length > 0 ? (
                   <motion.div
                     key={viewType}
                     layout
@@ -240,7 +188,7 @@ const Tours: React.FC = () => {
                         : "space-y-6"
                     }
                   >
-                    {filteredTours.map((tour) => (
+                    {tours.map((tour) => (
                       <TourCard key={tour.id} tour={tour} viewType={viewType} />
                     ))}
                   </motion.div>

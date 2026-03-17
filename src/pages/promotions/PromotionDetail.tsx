@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import React from "react";
 import {
     TicketPercent,
     Calendar,
@@ -11,8 +10,6 @@ import {
     Loader2,
     Package,
     ChevronRight,
-    CreditCard,
-    Percent,
     MapPin,
     AlertCircle,
     Edit
@@ -20,87 +17,25 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "../../components/layout/Header";
 import PromotionModal from "../../components/promotions/PromotionModal";
-import { promotionService } from "./services/promotionService";
-import { PromotionResponse, PromotionUsageResponse } from "../../types/types";
+import { usePromotionDetail } from "./hooks/usePromotionDetail";
 
 const PromotionDetail: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
-    const navigate = useNavigate();
-    const location = useLocation();
-    const isAdminView = location.pathname.startsWith("/admin");
-    const [promotion, setPromotion] = useState<PromotionResponse | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [deleteResult, setDeleteResult] = useState<"DELETED" | "DEACTIVATED" | null>(null);
-    const [usages, setUsages] = useState<PromotionUsageResponse[]>([]);
-    const [loadingUsages, setLoadingUsages] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
-    useEffect(() => {
-        if (id) {
-            fetchDetail();
-        }
-    }, [id]);
-
-    const fetchDetail = async () => {
-        try {
-            setLoading(true);
-            const data = await promotionService.getPromotionById(id!);
-            setPromotion(data);
-            fetchUsage();
-        } catch (err: any) {
-            setError(err.message || "Failed to load promotion details");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchUsage = async () => {
-        try {
-            setLoadingUsages(true);
-            const data = await promotionService.getPromotionUsage(id!, isAdminView);
-            setUsages(data);
-        } catch (err: any) {
-            console.error("Failed to fetch usage:", err);
-        } finally {
-            setLoadingUsages(false);
-        }
-    };
-
-    const handleToggleStatus = async () => {
-        if (!promotion) return;
-        try {
-            await promotionService.togglePromotionStatus(promotion.id, !promotion.isActive);
-            setPromotion({ ...promotion, isActive: !promotion.isActive });
-        } catch (err: any) {
-            alert("Failed to toggle status: " + err.message);
-        }
-    };
-
-    const handleDelete = async () => {
-        if (!window.confirm("Bạn có chắc muốn xóa/tắt mã khuyến mãi này không?")) return;
-        try {
-            setIsDeleting(true);
-            let result: string;
-            if (isAdminView) {
-                result = await promotionService.deleteAdminPromotion(id!);
-            } else {
-                result = await promotionService.deleteCompanyPromotion(id!);
-            }
-            setDeleteResult(result as "DELETED" | "DEACTIVATED");
-            if (result === "DELETED") {
-                setTimeout(() => navigate(-1), 2500);
-            } else {
-                // Refresh the data to reflect the new inactive state
-                setTimeout(() => fetchDetail(), 2500);
-                setTimeout(() => setDeleteResult(null), 2500);
-            }
-        } catch (err: any) {
-            setError("Thao tác thất bại: " + (err.message || "Unknown error"));
-            setIsDeleting(false);
-        }
-    };
+    const {
+        navigate,
+        isAdminView,
+        promotion,
+        loading,
+        error,
+        isDeleting,
+        deleteResult,
+        usages,
+        loadingUsages,
+        isModalOpen,
+        setIsModalOpen,
+        handleToggleStatus,
+        handleDelete,
+        fetchDetail,
+    } = usePromotionDetail();
 
     // Delete result overlay UI
     if (deleteResult) {

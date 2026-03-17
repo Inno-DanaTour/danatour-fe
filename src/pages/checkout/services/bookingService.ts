@@ -1,61 +1,14 @@
 import { api } from "../../../configs/api";
 import { ApiResponse, PagedResponse } from "../../../types/types";
+import {
+  BookingRequest,
+  BookingResponse,
+  CompanyBookingResponse,
+  RebookInfoResponse,
+} from "../types/checkout.types";
+import { BookingHistoryResponse } from "../../my-bookings/types/my-bookings.types";
 
-export interface BookingRequest {
-  scheduleId: number;
-  adults: number;
-  children: number;
-  contactName?: string;
-  contactEmail?: string;
-  contactPhone?: string;
-  promoCode?: string;
-}
 
-export interface BookingResponse {
-  id: number;
-  bookingCode: string;
-  scheduleId: number;
-  totalAmount: number;
-  discountAmount: number;
-  finalAmount: number;
-  status: string;
-  adults: number;
-  children: number;
-  startDate: string;
-  createdAt: string;
-}
-
-export interface BookingHistoryResponse {
-  id: number;
-  bookingCode: string;
-  tourTitle: string;
-  thumbnail: string;
-  startDate: string;
-  totalAmount: number;
-  status: string;
-  hasFeedback: boolean;
-  createdAt: string;
-}
-
-export interface CompanyBookingResponse {
-  id: number;
-  bookingCode: string;
-  customerName: string;
-  customerPhone: string;
-  tourName: string;
-  startDate: string;
-  adults: number;
-  children: number;
-  totalAmount: number;
-  status: string;
-  createdAt: string;
-}
-
-export interface RebookInfoResponse {
-  tourId: number;
-  adults: number;
-  children: number;
-}
 
 export const bookingService = {
   getRebookInfo: (id: number): Promise<RebookInfoResponse> => {
@@ -124,5 +77,9 @@ export const bookingService = {
       rating,
       comment
     });
+  },
+
+  checkActiveBooking: (scheduleId: number): Promise<boolean> => {
+    return api.get<boolean>(`/bookings/check-active/${scheduleId}`);
   }
 };
