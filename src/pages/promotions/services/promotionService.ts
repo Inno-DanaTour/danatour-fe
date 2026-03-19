@@ -1,5 +1,7 @@
 import { api } from "../../../configs/api";
-import { ApiResponse, PagedResponse, PromotionRequest, PromotionResponse } from "../../../types/types";
+import { ApiResponse, PagedResponse } from "../../../types/types";
+import { PromotionRequest, PromotionResponse, PromotionUsageResponse } from "../types/promotions.types";
+
 
 export const promotionService = {
     getAdminPromotions: async (page: number = 1, size: number = 10): Promise<PagedResponse<PromotionResponse>> => {
