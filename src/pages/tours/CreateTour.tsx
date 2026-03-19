@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import Header from "../../components/layout/Header";
 import { tourService } from "./services/tourService";
-import { CategoryResponse, PlaceResponse } from "../../types/types";
+import { CategoryResponse, PlaceResponse } from "../../types/common";
 import Dropdown from "../../components/common/Dropdown";
 
 const CreateTour: React.FC = () => {

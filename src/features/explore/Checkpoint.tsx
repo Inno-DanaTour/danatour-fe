@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion, useInView, useSpring, useTransform } from "framer-motion";
-import { LocationData, ZoneType } from "../../types/types";
+import { LocationData, ZoneType } from "../../pages/home/types";
 import { COLORS } from "../../constants/constants";
 import { MapPin, ArrowRight, Star, Disc } from "lucide-react";
 import LottieAnimation from "../../components/common/LottieAnimation";

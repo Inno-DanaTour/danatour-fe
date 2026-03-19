@@ -22,11 +22,13 @@ import ManageTours from "../pages/tours/ManageTours";
 import CreateTour from "../pages/tours/CreateTour";
 import EditTour from "../pages/tours/EditTour";
 import UserProfilePage from "../pages/profile";
-import AdminLayout from "../pages/admin/AdminLayout";
-import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
-import TourCompanyManagementPage from "../pages/admin/TourCompanyManagementPage";
-import AdminTourManagementPage from "../pages/admin/components/AdminTourManagementPage";
-import AdminPromotions from "../pages/admin/AdminPromotions";
+import {
+  AdminLayout,
+  AdminDashboardPage,
+  TourCompanyManagementPage,
+  AdminTourManagementPage,
+  AdminPromotions
+} from "../pages/admin";
 import CompanyPromotions from "../pages/tours/CompanyPromotions";
 import CompanyBookings from "../pages/tours/CompanyBookings";
 import PromotionDetail from "../pages/promotions/PromotionDetail";

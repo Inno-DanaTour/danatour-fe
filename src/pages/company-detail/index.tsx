@@ -13,7 +13,8 @@ import {
 } from "lucide-react";
 import Header from "../../components/layout/Header";
 import { TOURS } from "../../constants/constants";
-import { Company, Tour } from "../../types/types";
+import { Company } from "./types";
+import { Tour } from "../tours/types";
 import { companyService } from "./services/companyService";
 import { getToken } from "../../configs/api";
 import { AlertCircle } from "lucide-react";

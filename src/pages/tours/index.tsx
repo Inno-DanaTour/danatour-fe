@@ -7,7 +7,8 @@ import TourFilter from "../../features/tours/TourFilter";
 import SearchBar from "../../components/common/SearchBar";
 import Dropdown from "../../components/common/Dropdown";
 import { tourService } from "./services/tourService";
-import { ZoneType, Tour, TourListItem } from "../../types/types";
+import { Tour, TourListItem } from "./types";
+import { ZoneType } from "../home/types";
 import { motion, AnimatePresence } from "framer-motion";
 
 const SORT_OPTIONS = [

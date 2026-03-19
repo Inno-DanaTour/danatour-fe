@@ -25,7 +25,8 @@ import { paymentMethodService } from "./services/paymentMethodService";
 import { promotionService } from "../promotions/services/promotionService";
 import { Loader2, TicketPercent, X } from "lucide-react";
 import Header from "../../components/layout/Header";
-import { Tour, PromotionResponse } from "../../types/types";
+import { Tour } from "../tours/types";
+import { PromotionResponse } from "../promotions/types";
 
 const Checkout: React.FC = () => {
   const location = useLocation();

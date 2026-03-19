@@ -20,7 +20,7 @@ import {
   bookingService,
   BookingHistoryResponse,
 } from "../checkout/services/bookingService";
-import { PagedResponse } from "../../types/types";
+import { PagedResponse } from "../../types/common";
 
 const TABS = [
   { label: "All", value: "" },

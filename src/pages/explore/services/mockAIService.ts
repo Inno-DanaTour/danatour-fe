@@ -1,17 +1,6 @@
-import { LocationData, ZoneType } from "../../../types/types";
+import { LocationData, ZoneType } from "../../home/types";
 import { LOCATIONS } from "../../../constants/constants";
-
-export interface UserPreferences {
-  travelStyle: "adventure" | "relaxation" | "culture" | "photography" | "food";
-  preferredZones: ZoneType[];
-  duration: "half-day" | "full-day" | "2-days";
-}
-
-export interface AIRecommendation {
-  locations: LocationData[];
-  explanation: string;
-  estimatedTime: string;
-}
+import { UserPreferences, AIRecommendation } from "../types";
 
 const TRAVEL_STYLE_DESCRIPTIONS: Record<string, string> = {
   adventure: "thrilling experiences and outdoor activities",

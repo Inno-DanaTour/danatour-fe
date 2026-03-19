@@ -21,7 +21,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Header from "../../components/layout/Header";
 import PromotionModal from "../../components/promotions/PromotionModal";
 import { promotionService } from "./services/promotionService";
-import { PromotionResponse, PromotionUsageResponse } from "../../types/types";
+import { PromotionResponse, PromotionUsageResponse } from "./types";
 
 const PromotionDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();

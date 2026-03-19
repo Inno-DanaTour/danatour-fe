@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Header from "../../components/layout/Header";
 import { motion } from "framer-motion";
-import { Tour } from "../../types/types";
+import { Tour } from "../tours/types";
 
 const Confirmation: React.FC = () => {
   const location = useLocation();

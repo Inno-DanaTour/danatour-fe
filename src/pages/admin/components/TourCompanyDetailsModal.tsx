@@ -8,10 +8,7 @@ import {
   FileText,
   ExternalLink,
 } from "lucide-react";
-import {
-  adminProviderService,
-  AdminProviderApplicationDetailResponse,
-} from "../services/adminProviderService";
+import { useTourCompanyDetails } from "../hooks/useTourCompanyDetails";
 
 interface ModalProps {
   companyId: number;
@@ -24,125 +21,22 @@ const TourCompanyDetailsModal: React.FC<ModalProps> = ({
   onClose,
   onStatusChanged,
 }) => {
-  const [data, setData] =
-    useState<AdminProviderApplicationDetailResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Action State
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [rejectMode, setRejectMode] = useState(false);
-  const [rejectReason, setRejectReason] = useState("");
-
-  // Preview State
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
-  // Confirmation Modal State
-  const [confirmModal, setConfirmModal] = useState<{
-    isOpen: boolean;
-    title: string;
-    message: string;
-    type: "info" | "success" | "danger";
-    onConfirm?: () => void;
-    showConfirmButton?: boolean;
-  }>({
-    isOpen: false,
-    title: "",
-    message: "",
-    type: "info",
-  });
-
-  const showMessage = (
-    title: string,
-    message: string,
-    type: "info" | "success" | "danger" = "info",
-    onConfirm?: () => void,
-    showConfirmButton: boolean = true,
-  ) => {
-    setConfirmModal({
-      isOpen: true,
-      title,
-      message,
-      type,
-      onConfirm,
-      showConfirmButton,
-    });
-  };
-
-  useEffect(() => {
-    fetchDetail();
-  }, [companyId]);
-
-  const fetchDetail = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const result =
-        await adminProviderService.getProviderApplicationDetail(companyId);
-      setData(result);
-    } catch (err: any) {
-      setError(err.message || "Failed to load application details.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleApprove = async () => {
-    showMessage(
-      "Confirm Approval",
-      "Approve this company? They will be granted Tour Company permissions.",
-      "info",
-      async () => {
-        setIsProcessing(true);
-        try {
-          await adminProviderService.approveApplication(companyId);
-          showMessage(
-            "Success",
-            "Company Application Approved Successfully.",
-            "success",
-            () => {
-              onStatusChanged();
-            },
-            false,
-          );
-        } catch (err: any) {
-          showMessage(
-            "Error",
-            err.message || "Failed to approve application.",
-            "danger",
-          );
-          setIsProcessing(false);
-        }
-      },
-    );
-  };
-
-  const handleReject = async () => {
-    if (!rejectReason.trim()) {
-      showMessage("Warning", "Please provide a rejection reason.", "danger");
-      return;
-    }
-    setIsProcessing(true);
-    try {
-      await adminProviderService.rejectApplication(companyId, rejectReason);
-      showMessage(
-        "Rejected",
-        "Company Application Rejected.",
-        "info",
-        () => {
-          onStatusChanged();
-        },
-        false,
-      );
-    } catch (err: any) {
-      showMessage(
-        "Error",
-        err.message || "Failed to reject application.",
-        "danger",
-      );
-      setIsProcessing(false);
-    }
-  };
+  const {
+    data,
+    isLoading,
+    error,
+    isProcessing,
+    rejectMode,
+    rejectReason,
+    setRejectReason,
+    previewUrl,
+    setPreviewUrl,
+    confirmModal,
+    closeMessage,
+    handleApprove,
+    handleReject,
+    toggleRejectMode,
+  } = useTourCompanyDetails({ companyId, onStatusChanged });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -325,10 +219,7 @@ const TourCompanyDetailsModal: React.FC<ModalProps> = ({
                 </div>
                 <div className="flex justify-end gap-3">
                   <button
-                    onClick={() => {
-                      setRejectMode(false);
-                      setRejectReason("");
-                    }}
+                    onClick={() => toggleRejectMode(false)}
                     disabled={isProcessing}
                     className="px-6 py-2.5 rounded-xl font-bold bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 disabled:opacity-50"
                   >
@@ -351,7 +242,7 @@ const TourCompanyDetailsModal: React.FC<ModalProps> = ({
             ) : (
               <div className="flex flex-col sm:flex-row justify-end gap-3">
                 <button
-                  onClick={() => setRejectMode(true)}
+                  onClick={() => toggleRejectMode(true)}
                   className="px-8 py-3 rounded-xl font-bold border border-red-100 text-red-500 hover:bg-red-50 transition-colors"
                 >
                   Reject Application
@@ -404,10 +295,7 @@ const TourCompanyDetailsModal: React.FC<ModalProps> = ({
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() =>
-              !isProcessing &&
-              setConfirmModal((prev) => ({ ...prev, isOpen: false }))
-            }
+            onClick={() => !isProcessing && closeMessage()}
           ></div>
           <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="flex flex-col items-center text-center">
@@ -439,9 +327,7 @@ const TourCompanyDetailsModal: React.FC<ModalProps> = ({
                 {confirmModal.showConfirmButton ? (
                   <>
                     <button
-                      onClick={() =>
-                        setConfirmModal((prev) => ({ ...prev, isOpen: false }))
-                      }
+                      onClick={() => closeMessage()}
                       className="flex-1 px-6 py-3 rounded-xl font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
                     >
                       Cancel
@@ -449,7 +335,7 @@ const TourCompanyDetailsModal: React.FC<ModalProps> = ({
                     <button
                       onClick={() => {
                         if (confirmModal.onConfirm) confirmModal.onConfirm();
-                        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+                        closeMessage();
                       }}
                       className={`flex-1 px-6 py-3 rounded-xl font-bold text-white transition-all shadow-lg ${
                         confirmModal.type === "danger"
@@ -464,7 +350,7 @@ const TourCompanyDetailsModal: React.FC<ModalProps> = ({
                   <button
                     onClick={() => {
                       if (confirmModal.onConfirm) confirmModal.onConfirm();
-                      setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+                      closeMessage();
                     }}
                     className="w-full px-6 py-3 rounded-xl font-bold bg-primary text-white hover:bg-primary-dark transition-all shadow-lg shadow-primary/20"
                   >

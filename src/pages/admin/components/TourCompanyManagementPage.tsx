@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React from "react";
 import {
   Building2,
   Search,
@@ -9,48 +8,25 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import {
-  adminProviderService,
-  TourCompanyResponse,
-  PageResponse,
-} from "./services/adminProviderService";
-import TourCompanyDetailsModal from "./components/TourCompanyDetailsModal";
+import TourCompanyDetailsModal from "./TourCompanyDetailsModal";
+
+import { useTourCompanyManagement } from "../hooks/useTourCompanyManagement";
 
 const TourCompanyManagementPage: React.FC = () => {
-  const [companiesData, setCompaniesData] =
-    useState<PageResponse<TourCompanyResponse> | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Filters & Pagination
-  const [statusFilter, setStatusFilter] = useState<string>("ALL");
-  const [page, setPage] = useState(0);
-
-  // Modal State
-  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(
-    null,
-  );
-
-  useEffect(() => {
-    fetchCompanies();
-  }, [page, statusFilter]);
-
-  const fetchCompanies = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await adminProviderService.getProviderApplications(
-        page,
-        10,
-        statusFilter,
-      );
-      setCompaniesData(data);
-    } catch (err: any) {
-      setError(err.message || "Failed to load tour companies.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const {
+    companiesData,
+    isLoading,
+    error,
+    statusFilter,
+    page,
+    selectedCompanyId,
+    handlePageChange,
+    handleStatusFilterChange,
+    handleOpenReview,
+    handleCloseReview,
+    handleStatusChanged,
+    fetchCompanies,
+  } = useTourCompanyManagement();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -109,10 +85,7 @@ const TourCompanyManagementPage: React.FC = () => {
           <Filter className="text-gray-400 w-5 h-5 hidden sm:block" />
           <select
             value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setPage(0);
-            }}
+            onChange={(e) => handleStatusFilterChange(e.target.value)}
             className="w-full sm:w-auto pl-4 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary/20 appearance-none font-bold text-gray-700 text-sm cursor-pointer"
           >
             <option value="ALL">All Statuses</option>
@@ -205,7 +178,7 @@ const TourCompanyManagementPage: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <button
-                        onClick={() => setSelectedCompanyId(company.id)}
+                        onClick={() => handleOpenReview(company.id)}
                         className="text-primary hover:text-primary-dark font-black text-sm bg-primary/5 hover:bg-primary/10 px-4 py-2 rounded-lg transition-colors inline-block"
                       >
                         Review
@@ -228,14 +201,14 @@ const TourCompanyManagementPage: React.FC = () => {
             <div className="flex gap-2">
               <button
                 disabled={companiesData.pageNumber === 0}
-                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                onClick={() => handlePageChange(Math.max(0, page - 1))}
                 className="px-4 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-50 transition-colors"
               >
                 Previous
               </button>
               <button
                 disabled={companiesData.isLast}
-                onClick={() => setPage((p) => p + 1)}
+                onClick={() => handlePageChange(page + 1)}
                 className="px-4 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-50 transition-colors"
               >
                 Next
@@ -249,11 +222,8 @@ const TourCompanyManagementPage: React.FC = () => {
       {selectedCompanyId && (
         <TourCompanyDetailsModal
           companyId={selectedCompanyId}
-          onClose={() => setSelectedCompanyId(null)}
-          onStatusChanged={() => {
-            setSelectedCompanyId(null);
-            fetchCompanies();
-          }}
+          onClose={handleCloseReview}
+          onStatusChanged={handleStatusChanged}
         />
       )}
     </div>

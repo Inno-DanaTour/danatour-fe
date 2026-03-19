@@ -19,7 +19,7 @@ import {
   Send,
   Bot,
 } from "lucide-react";
-import { ZoneType } from "../../types/types";
+import { ZoneType } from "../../pages/home/types";
 import { UserPreferences } from "../../pages/explore/services/mockAIService";
 
 interface AIInputFormProps {

@@ -21,7 +21,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "../../components/layout/Header";
 import { tourService } from "./services/tourService";
-import { TourListItem } from "../../types/types";
+import { TourListItem } from "./types";
 import { getUserIdFromToken } from "../../configs/api";
 
 import { companyService } from "../company-detail/services/companyService";

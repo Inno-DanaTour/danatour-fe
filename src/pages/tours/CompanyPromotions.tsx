@@ -18,7 +18,7 @@ import {
 import { motion } from "framer-motion";
 import Header from "../../components/layout/Header";
 import { promotionService } from "../promotions/services/promotionService";
-import { PromotionResponse } from "../../types/types";
+import { PromotionResponse } from "../promotions/types";
 import PromotionModal from "../../components/promotions/PromotionModal";
 import { companyService } from "../company-detail/services/companyService";
 

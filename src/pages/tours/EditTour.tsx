@@ -13,7 +13,8 @@ import {
 } from "lucide-react";
 import Header from "../../components/layout/Header";
 import { tourService } from "./services/tourService";
-import { CategoryResponse, PlaceResponse, TourImage } from "../../types/types";
+import { TourImage } from "./types";
+import { CategoryResponse, PlaceResponse } from "../../types/common";
 import Dropdown from "../../components/common/Dropdown";
 import { motion } from "framer-motion";
 

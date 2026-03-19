@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Star, Filter, ChevronLeft, ChevronRight, Loader2, Trash2, CheckCircle2, XCircle } from "lucide-react";
 import { tourService } from "../../pages/tours/services/tourService.ts";
-import { FeedbackResponse, PagedResponse } from "../../types/types";
+import { FeedbackResponse } from "../../pages/tours/types";
+import { PagedResponse } from "../../types/common";
 import { motion, AnimatePresence } from "framer-motion";
 import { getUserIdFromToken, parseJwt, getToken } from "../../configs/api";
 

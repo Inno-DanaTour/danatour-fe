@@ -1,59 +1,40 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React from "react";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
     Plus,
     TicketPercent,
     Search,
-    Filter,
     Calendar,
     Users,
     Tag,
     Clock,
-    MoreVertical,
-    X,
     CreditCard,
     Percent,
     ChevronRight,
     Loader2
 } from "lucide-react";
-import { promotionService } from "../promotions/services/promotionService";
-import { PromotionResponse } from "../../types/types";
-import PromotionModal from "../../components/promotions/PromotionModal";
+import PromotionModal from "../../../components/promotions/PromotionModal";
+
+import { useAdminPromotions } from "../hooks/useAdminPromotions";
 
 const AdminPromotions: React.FC = () => {
-    const [promotions, setPromotions] = useState<PromotionResponse[]>([]);
+    const {
+        loading,
+        searchQuery,
+        setSearchQuery,
+        isModalOpen,
+        editingPromo,
+        sponsorFilter,
+        setSponsorFilter,
+        filteredPromotions,
+        fetchPromotions,
+        handleOpenCreateModal,
+        handleOpenEditModal,
+        handleCloseModal,
+        promotions
+    } = useAdminPromotions();
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingPromo, setEditingPromo] = useState<PromotionResponse | null>(null);
-    const [sponsorFilter, setSponsorFilter] = useState<"ALL" | "PLATFORM" | "PROVIDER">("ALL");
-
-    useEffect(() => {
-        fetchPromotions();
-    }, []);
-
-    const fetchPromotions = async () => {
-        try {
-            setLoading(true);
-            const data = await promotionService.getAdminPromotions();
-            setPromotions(data.content);
-        } catch (error: any) {
-            console.error("Failed to fetch promotions", error);
-            const serverMsg = error.response?.data?.message || error.message;
-            alert(`Error: ${serverMsg}`);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const filteredPromotions = promotions.filter(p => {
-        const matchesSearch = p.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            p.title?.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesSponsor = sponsorFilter === "ALL" || p.sponsorType === sponsorFilter;
-        return matchesSearch && matchesSponsor;
-    });
 
     return (
         <div className="space-y-8 max-w-7xl mx-auto">
@@ -68,7 +49,7 @@ const AdminPromotions: React.FC = () => {
                     </p>
                 </div>
                 <button
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={handleOpenCreateModal}
                     className="btn-primary py-4 px-8 flex items-center gap-2 shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
                 >
                     <Plus size={20} />
@@ -79,7 +60,7 @@ const AdminPromotions: React.FC = () => {
             {/* Global Promotion Modal */}
             <PromotionModal
                 isOpen={isModalOpen}
-                onClose={() => { setIsModalOpen(false); setEditingPromo(null); }}
+                onClose={handleCloseModal}
                 onSuccess={fetchPromotions}
                 role="ADMIN"
                 mode={editingPromo ? "EDIT" : "CREATE"}
@@ -196,7 +177,7 @@ const AdminPromotions: React.FC = () => {
                             </div>
                             <div className="flex text-white font-black text-xs uppercase tracking-widest mt-0 border-t border-gray-100">
                                 <button
-                                    onClick={() => { setEditingPromo(promo); setIsModalOpen(true); }}
+                                    onClick={() => handleOpenEditModal(promo)}
                                     className="flex-[1] py-5 bg-gray-100 text-gray-900 border-r border-gray-200 flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors"
                                 >
                                     Edit

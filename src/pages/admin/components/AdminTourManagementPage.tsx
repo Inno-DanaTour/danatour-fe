@@ -19,63 +19,27 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { tourService } from "../../tours/services/tourService";
-import {
-  TourListItem,
-  PagedResponse,
-  TourStatusUpdateRequest,
-} from "../../../types/types";
+import { TourListItem, TourStatusUpdateRequest } from "../../tours/types";
+import { PagedResponse } from "../../../types/common";
 import { Link } from "react-router-dom";
 
+import { useAdminTourManagement } from "../hooks/useAdminTourManagement";
+
 const AdminTourManagementPage: React.FC = () => {
-  const [toursData, setToursData] =
-    useState<PagedResponse<TourListItem> | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Filters & Pagination
-  const [statusFilter, setStatusFilter] = useState<string>("ALL");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [page, setPage] = useState(1);
-
-  useEffect(() => {
-    fetchTours();
-  }, [page, statusFilter]);
-
-  const fetchTours = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await tourService.getTours(page, 10);
-      setToursData(data);
-    } catch (err: any) {
-      setError(err.message || "Failed to load tours.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleStatusUpdate = async (tourId: number, status: string) => {
-    try {
-      const request: TourStatusUpdateRequest = {
-        status: status,
-        lockReason: status === "LOCKED" ? "Administrative Lock" : undefined,
-      };
-      await tourService.updateTourStatus(tourId, request);
-      fetchTours();
-    } catch (err: any) {
-      alert(err.message || "Failed to update tour status.");
-    }
-  };
-
-  const stats = useMemo(() => {
-    if (!toursData) return null;
-    return {
-      total: toursData.totalElements,
-      pending: toursData.content.filter((t) => t.status === "PENDING").length,
-      active: toursData.content.filter((t) => t.status === "ACTIVE").length,
-      locked: toursData.content.filter((t) => t.status === "LOCKED").length,
-    };
-  }, [toursData]);
+  const {
+    toursData,
+    isLoading,
+    error,
+    statusFilter,
+    searchQuery,
+    setSearchQuery,
+    page,
+    stats,
+    fetchTours,
+    handleStatusUpdate,
+    handlePageChange,
+    handleStatusFilterChange,
+  } = useAdminTourManagement();
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, any> = {
@@ -244,10 +208,7 @@ const AdminTourManagementPage: React.FC = () => {
             <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
             <select
               value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setPage(1);
-              }}
+              onChange={(e) => handleStatusFilterChange(e.target.value)}
               className="w-full lg:w-auto pl-10 pr-12 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-primary/20 appearance-none font-black text-gray-600 text-[10px] uppercase tracking-widest cursor-pointer hover:bg-white transition-colors"
             >
               <option value="ALL">All Statuses</option>
@@ -467,14 +428,14 @@ const AdminTourManagementPage: React.FC = () => {
             <div className="flex gap-3">
               <button
                 disabled={toursData.first}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                onClick={() => handlePageChange(Math.max(1, page - 1))}
                 className="px-6 py-3 rounded-xl bg-white border border-gray-200 text-xs font-black uppercase tracking-widest text-gray-600 flex items-center gap-2 hover:bg-primary hover:text-white hover:border-primary disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 disabled:hover:border-gray-200 transition-all group active:scale-95"
               >
                 Prev Grid
               </button>
               <button
                 disabled={toursData.last}
-                onClick={() => setPage((p) => p + 1)}
+                onClick={() => handlePageChange(page + 1)}
                 className="px-6 py-3 rounded-xl bg-white border border-gray-200 text-xs font-black uppercase tracking-widest text-gray-600 flex items-center gap-2 hover:bg-primary hover:text-white hover:border-primary disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 disabled:hover:border-gray-200 transition-all group active:scale-95"
               >
                 Next Node

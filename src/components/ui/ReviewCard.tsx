@@ -1,5 +1,5 @@
 import React from "react";
-import { Review } from "../../types/types";
+import { Review } from "../../pages/home/types";
 import { Star } from "lucide-react";
 
 interface ReviewCardProps {

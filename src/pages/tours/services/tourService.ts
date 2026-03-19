@@ -2,11 +2,13 @@ import { api } from "../../../configs/api";
 import {
     TourDetail,
     TourListItem,
-    PagedResponse,
-    CategoryResponse,
-    PlaceResponse,
-    ApiResponse
-} from "../../../types/types";
+    TourSummaryResponse,
+    TourStatusUpdateRequest,
+    FeedbackParams,
+    FeedbackResponse,
+    TourReportRequest
+} from "../types";
+import { PagedResponse, ApiResponse, CategoryResponse, PlaceResponse } from "../../../types/common";
 
 export const tourService = {
     getTours: async (page: number = 1, size: number = 10, companyId?: number): Promise<PagedResponse<TourListItem>> => {
@@ -56,7 +58,7 @@ export const tourService = {
             maxDuration?: number;
             sort?: string;
         }
-    ): Promise<PagedResponse<import("../../../types/types").TourSummaryResponse>> => {
+    ): Promise<PagedResponse<TourSummaryResponse>> => {
         let url = `/tours/search?page=${page - 1}&size=${size}`;
         if (filters?.keyword) url += `&keyword=${encodeURIComponent(filters.keyword)}`;
         if (filters?.minPrice) url += `&minPrice=${filters.minPrice}`;
@@ -67,31 +69,31 @@ export const tourService = {
         if (filters?.maxDuration !== undefined) url += `&maxDuration=${filters.maxDuration}`;
         if (filters?.sort) url += `&sort=${filters.sort}`;
 
-        const response = await api.get<ApiResponse<PagedResponse<import("../../../types/types").TourSummaryResponse>>>(url);
+        const response = await api.get<ApiResponse<PagedResponse<TourSummaryResponse>>>(url);
         return response.data;
     },
 
     updateTourStatus: async (
         id: number | string,
-        data: import("../../../types/types").TourStatusUpdateRequest
+        data: TourStatusUpdateRequest
     ): Promise<TourDetail> => {
         const response = await api.patch<ApiResponse<TourDetail>>(`/tours/${id}/status`, data);
         return response.data;
     },
 
-    getTourFeedbacks: async (tourId: number | string, params?: import("../../../types/types").FeedbackParams): Promise<PagedResponse<import("../../../types/types").FeedbackResponse>> => {
+    getTourFeedbacks: async (tourId: number | string, params?: FeedbackParams): Promise<PagedResponse<FeedbackResponse>> => {
         let url = `/tours/${tourId}/feedbacks?page=${(params?.page || 1) - 1}&size=${params?.size || 10}`;
         if (params?.rating) url += `&rating=${params.rating}`;
         if (params?.sort) url += `&sort=${params.sort}`;
 
-        const response = await api.get<ApiResponse<PagedResponse<import("../../../types/types").FeedbackResponse>>>(url);
+        const response = await api.get<ApiResponse<PagedResponse<FeedbackResponse>>>(url);
         return response.data;
     },
 
     deleteFeedback: async (feedbackId: number): Promise<void> => {
         await api.delete(`/feedbacks/${feedbackId}`);
     },
-    reportTour: async (tourId: number | string, data: import("../../../types/types").TourReportRequest): Promise<void> => {
+    reportTour: async (tourId: number | string, data: TourReportRequest): Promise<void> => {
         await api.post(`/tours/${tourId}/reports`, data);
     }
 };

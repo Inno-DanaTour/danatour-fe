@@ -1,5 +1,5 @@
 import React from "react";
-import { Tour } from "../../types/types";
+import { Tour } from "../../pages/tours/types";
 import { MapPin, Clock, Star } from "lucide-react";
 import { motion } from "framer-motion";
 

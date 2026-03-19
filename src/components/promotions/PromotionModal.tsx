@@ -16,7 +16,8 @@ import {
 } from "lucide-react";
 import { tourService } from "../../pages/tours/services/tourService";
 import { promotionService } from "../../pages/promotions/services/promotionService";
-import { TourListItem, PromotionRequest, PromotionResponse } from "../../types/types";
+import { TourListItem } from "../../pages/tours/types";
+import { PromotionRequest, PromotionResponse } from "../../pages/promotions/types";
 
 interface PromotionModalProps {
     isOpen: boolean;

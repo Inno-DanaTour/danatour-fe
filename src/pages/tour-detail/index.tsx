@@ -9,7 +9,9 @@ import BookingSidebar from "../../features/tours/BookingSidebar";
 import FeedbackList from "../../features/tours/FeedbackList";
 import ReviewCard from "../../components/ui/ReviewCard";
 import { tourService } from "../tours/services/tourService";
-import { Tour, ItineraryItem, Company, TourReportRequest } from "../../types/types";
+import { Tour, TourReportRequest } from "../tours/types";
+import { ItineraryItem } from "../home/types";
+import { Company } from "../company-detail/types";
 import { companyService } from "../company-detail/services/companyService";
 import { getToken } from "../../configs/api";
 

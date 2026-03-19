@@ -1,6 +1,7 @@
 import { api } from "../../../../configs/api";
 import { API_ENDPOINT } from "../constants/api";
-import { LoginRequest, AuthResponse, ApiResponse } from "../types";
+import { ApiResponse } from "../../../../types/common";
+import { LoginRequest, AuthResponse } from "../../types";
 
 export const login = async (
   data: LoginRequest,

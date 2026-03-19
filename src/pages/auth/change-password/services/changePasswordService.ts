@@ -1,14 +1,6 @@
 import { api } from "../../../../configs/api";
-import { API_ENDPOINT } from "../../login/constants/api"; // Let's check where the API constants are
-import { ApiResponse } from "../../login/types";
-
-// Note: Ensure the API endpoint exists in your constants, or use a hardcoded string if needed.
-// According to UserController.java, the endpoint is POST /api/v1/users/password
-
-export interface ChangePasswordRequest {
-  password: string;
-  confirmPassword: string;
-}
+import { ApiResponse } from "../../../../types/common";
+import { ChangePasswordRequest } from "../../types";
 
 export const changePassword = async (
   data: ChangePasswordRequest,
