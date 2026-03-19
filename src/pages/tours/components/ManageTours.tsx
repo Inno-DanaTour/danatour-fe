@@ -17,13 +17,13 @@ import {
   Trash2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Header from "../../components/layout/Header";
-import { tourService } from "./services/tourService";
-import { TourListItem } from "./types";
-import { getUserIdFromToken } from "../../configs/api";
+import Header from "../../../components/layout/Header";
+import { tourService } from "../services/tourService";
+import { TourListItem } from "../types";
+import { getUserIdFromToken } from "../../../configs/api";
 
-import { companyService } from "../company-detail/services/companyService";
-import { useManageTours } from "./hooks/useManageTours";
+import { companyService } from "../../company-detail/services/companyService";
+import { useManageTours } from "../hooks/useManageTours";
 
 const ManageTours: React.FC = () => {
   const {

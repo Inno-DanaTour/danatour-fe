@@ -1,6 +1,12 @@
 import { api } from "../../../configs/api";
 import { ApiResponse } from "../../../types/common";
-import { UserProfileResponse, ChangePasswordRequest, ProfileUpdateRequest } from "../types";
+import {
+  UserProfileResponse,
+  ChangePasswordRequest,
+  ProfileUpdateRequest,
+} from "../types";
+
+export type { UserProfileResponse, ChangePasswordRequest, ProfileUpdateRequest };
 
 export const profileService = {
   getMyInfo: async (): Promise<any> => {

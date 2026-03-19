@@ -1,6 +1,6 @@
 import React from "react";
 import { Tour } from "../../pages/tours/types";
-import { MapPin, Clock, Star } from "lucide-react";
+import { MapPin, Clock, Star, LayoutGrid } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface TourCardProps {

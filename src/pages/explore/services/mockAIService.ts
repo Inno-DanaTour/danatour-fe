@@ -1,6 +1,7 @@
 import { LocationData, ZoneType } from "../../home/types";
 import { LOCATIONS } from "../../../constants/constants";
 import { UserPreferences, AIRecommendation } from "../types";
+export type { UserPreferences, AIRecommendation };
 
 const TRAVEL_STYLE_DESCRIPTIONS: Record<string, string> = {
   adventure: "thrilling experiences and outdoor activities",

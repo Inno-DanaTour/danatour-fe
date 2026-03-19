@@ -19,14 +19,15 @@ import {
   X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { tourService } from "../../tours/services/tourService";
-import { TourListItem, TourStatusUpdateRequest } from "../../tours/types";
-import { PagedResponse } from "../../../types/common";
 import { Link } from "react-router-dom";
 
 import { useAdminTourManagement } from "../hooks/useAdminTourManagement";
+import AdminTourDetailModal from "./AdminTourDetailModal";
 
 const AdminTourManagementPage: React.FC = () => {
+  const [selectedTourId, setSelectedTourId] = useState<number | string | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
   const {
     toursData,
     isLoading,
@@ -401,13 +402,16 @@ const AdminTourManagementPage: React.FC = () => {
                       </td>
                       <td className="px-8 py-6 text-right">
                         <div className="flex items-center justify-end gap-2 transition-all duration-300">
-                          <Link
-                            to={`/tours/${tour.id}`}
+                          <button
+                            onClick={() => {
+                              setSelectedTourId(tour.id);
+                              setIsDetailModalOpen(true);
+                            }}
                             className="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center hover:bg-white hover:text-primary hover:shadow-xl hover:shadow-primary/10 transition-all active:scale-90"
                             title="Visual Scan"
                           >
                             <Eye size={18} strokeWidth={2.5} />
-                          </Link>
+                          </button>
 
                           {(tour.status === "PENDING" ||
                             tour.status === "LOCKED" ||
@@ -576,6 +580,14 @@ const AdminTourManagementPage: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      <AdminTourDetailModal
+        tourId={selectedTourId}
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false);
+          setSelectedTourId(null);
+        }}
+      />
     </motion.div>
   );
 };

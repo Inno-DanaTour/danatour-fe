@@ -1,18 +1,18 @@
 import { useState, useEffect, useMemo } from "react";
-import { tourService } from "../../tours/services/tourService";
-import { TourListItem, TourStatusUpdateRequest } from "../../tours/types";
-import { PagedResponse } from "../../../types/common";
+import { adminTourService } from "../services/adminTourService";
+import { TourListItem } from "../../tours/types";
+import { PageResponse } from "../types";
 
 export const useAdminTourManagement = () => {
   const [toursData, setToursData] =
-    useState<PagedResponse<TourListItem> | null>(null);
+    useState<PageResponse<TourListItem> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Filters & Pagination
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0); // Backend uses 0-based page
 
   // Rejection Modal State
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
@@ -28,7 +28,7 @@ export const useAdminTourManagement = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await tourService.getTours(page, 10);
+      const data = await adminTourService.getTours(page, 10, statusFilter);
       setToursData(data);
     } catch (err: any) {
       setError(err.message || "Failed to load tours.");
@@ -45,11 +45,10 @@ export const useAdminTourManagement = () => {
     }
 
     try {
-      const request: TourStatusUpdateRequest = {
-        status: status,
-        lockReason: status === "LOCKED" ? "Administrative Lock" : undefined,
-      };
-      await tourService.updateTourStatus(tourId, request);
+      if (status === "ACTIVE") {
+        await adminTourService.approveTour(tourId);
+      }
+      // If there's a LOCK operation needed, it should be added to adminTourService
       fetchTours();
     } catch (err: any) {
       alert(err.message || "Failed to update tour status.");
@@ -61,11 +60,7 @@ export const useAdminTourManagement = () => {
 
     setIsSubmitting(true);
     try {
-      const request: TourStatusUpdateRequest = {
-        status: "REJECTED",
-        rejectReason: rejectionReason,
-      };
-      await tourService.updateTourStatus(selectedTourId, request);
+      await adminTourService.rejectTour(selectedTourId, rejectionReason);
       setIsRejectModalOpen(false);
       setRejectionReason("");
       setSelectedTourId(null);
@@ -78,12 +73,12 @@ export const useAdminTourManagement = () => {
   };
 
   const handlePageChange = (newPage: number) => {
-    setPage(newPage);
+    setPage(newPage - 1); // Component uses 1-based but hook handles conversion if needed
   };
 
   const handleStatusFilterChange = (newStatus: string) => {
     setStatusFilter(newStatus);
-    setPage(1);
+    setPage(0);
   };
 
   const stats = useMemo(() => {
@@ -104,7 +99,7 @@ export const useAdminTourManagement = () => {
     statusFilter,
     searchQuery,
     setSearchQuery,
-    page,
+    page: page + 1, // Expose 1-based page for UI
     stats,
     fetchTours,
     handleStatusUpdate,

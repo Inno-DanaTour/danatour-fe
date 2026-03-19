@@ -4,6 +4,7 @@ import TourCompanyManagementPage from "./components/TourCompanyManagementPage";
 import AdminTourManagementPage from "./components/AdminTourManagementPage";
 import AdminPromotions from "./components/AdminPromotions";
 import AdminUserManagementPage from "./components/AdminUserManagementPage";
+import AdminReportManagementPage from "./components/AdminReportManagementPage";
 
 export {
   AdminLayout,
@@ -12,4 +13,5 @@ export {
   AdminTourManagementPage,
   AdminPromotions,
   AdminUserManagementPage,
+  AdminReportManagementPage,
 };
