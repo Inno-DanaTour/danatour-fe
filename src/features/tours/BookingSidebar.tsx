@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { Tour } from "../../pages/tours/types";
 import { Users, User, Calendar, ShieldCheck, Minus, Plus } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { bookingService } from "../../pages/checkout/services/bookingService";
+import { getToken } from "../../configs/api";
+import ActiveBookingModal from "./ActiveBookingModal";
 
 interface BookingSidebarProps {
   tour: Tour;
@@ -20,12 +23,30 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ tour }) => {
   const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(
     tour.schedules && tour.schedules.length > 0 ? tour.schedules[0].id : null,
   );
+  const [isChecking, setIsChecking] = useState(false);
+  const [showActiveBookingModal, setShowActiveBookingModal] = useState(false);
 
-  const handleBookNow = () => {
+  const handleBookNow = async () => {
     if (!selectedScheduleId) {
       alert("Please select a date first.");
       return;
     }
+
+    if (getToken()) {
+      try {
+        setIsChecking(true);
+        const hasActive = await bookingService.checkActiveBooking(selectedScheduleId);
+        if (hasActive) {
+          setShowActiveBookingModal(true);
+          return;
+        }
+      } catch (error) {
+        console.error("Check active booking failed:", error);
+      } finally {
+        setIsChecking(false);
+      }
+    }
+
     navigate("/checkout", {
       state: {
         tour,
@@ -38,7 +59,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ tour }) => {
 
   return (
     <>
-      <div className="card space-y-6 sticky top-24 border-2 border-primary/10">
+      <div id="booking-sidebar" className="card space-y-6 sticky top-24 border-2 border-primary/10">
         <div className="flex justify-between items-end">
           <div>
             <span className="text-xs text-gray-500 block uppercase font-bold tracking-wider">
@@ -103,7 +124,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ tour }) => {
                         month: "short",
                         year: "numeric",
                       })}{" "}
-                      ({s.availableSlots} left)
+                      ({s.availableSlots} / {s.capacity} left)
                     </option>
                   ))
                 ) : (
@@ -165,9 +186,17 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ tour }) => {
 
           <button
             onClick={handleBookNow}
-            className="btn-primary w-full py-4 text-lg shadow-lg shadow-cta/20 rounded-2xl"
+            disabled={isChecking}
+            className="btn-primary w-full py-4 text-lg shadow-lg shadow-cta/20 rounded-2xl flex items-center justify-center gap-2"
           >
-            Book Now
+            {isChecking ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Checking...
+              </span>
+            ) : (
+              "Book Now"
+            )}
           </button>
         </div>
 
@@ -180,6 +209,11 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ tour }) => {
           <span>Secure & Safe Booking Guarantee</span>
         </div>
       </div>
+
+      <ActiveBookingModal
+        isOpen={showActiveBookingModal}
+        onClose={() => setShowActiveBookingModal(false)}
+      />
     </>
   );
 };

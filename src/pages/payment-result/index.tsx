@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import React from "react";
 import { motion } from "framer-motion";
 import {
   CheckCircle,
@@ -10,28 +9,14 @@ import {
   House,
 } from "lucide-react";
 import Header from "../../components/layout/Header";
+import { usePaymentResult } from "./hooks/usePaymentResult";
 
 const PaymentResult: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const [status, setStatus] = useState<"loading" | "success" | "failed">("loading");
-  
-  const paymentStatus = searchParams.get("status");
-
-  useEffect(() => {
-    if (paymentStatus === "SUCCESS") {
-      setStatus("success");
-    } else if (paymentStatus === "FAILED") {
-      setStatus("failed");
-    } else {
-      // In case of unknown status, we could check with backend here if needed
-      setStatus("failed");
-    }
-  }, [paymentStatus]);
+  const { status, handleGoToMyBookings, handleGoHome, handleTryAgain } = usePaymentResult();
 
   return (
     <div className="min-h-screen bg-background pb-20 overflow-hidden">
-      <Header onBookClick={() => navigate("/tours")} />
+      <Header onBookClick={handleTryAgain} />
 
       <main className="pt-28 md:pt-36 px-4 md:px-6 max-w-3xl mx-auto text-center relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-primary/10 rounded-full blur-3xl -z-10" />
@@ -68,7 +53,7 @@ const PaymentResult: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full pt-4">
                 <button
-                  onClick={() => navigate("/my-bookings")}
+                  onClick={handleGoToMyBookings}
                   className="btn-primary py-4 text-base flex items-center justify-center gap-2 group"
                 >
                   <ShoppingBag size={20} />
@@ -76,7 +61,7 @@ const PaymentResult: React.FC = () => {
                   <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </button>
                 <button
-                  onClick={() => navigate("/")}
+                  onClick={handleGoHome}
                   className="btn-secondary py-4 text-base flex items-center justify-center gap-2"
                 >
                   <House size={20} />
@@ -107,13 +92,13 @@ const PaymentResult: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full pt-4">
                 <button
-                  onClick={() => navigate("/tours")}
+                  onClick={handleTryAgain}
                   className="btn-primary py-4 text-base flex items-center justify-center gap-2"
                 >
                   Try Again
                 </button>
                 <button
-                  onClick={() => navigate("/")}
+                  onClick={handleGoHome}
                   className="btn-secondary py-4 text-base flex items-center justify-center gap-2"
                 >
                   <House size={20} />

@@ -202,12 +202,14 @@ const TourCompanyManagementPage: React.FC = () => {
               <button
                 disabled={companiesData.pageNumber === 0}
                 onClick={() => handlePageChange(Math.max(0, page - 1))}
+                onClick={() => handlePageChange(Math.max(0, page - 1))}
                 className="px-4 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-50 transition-colors"
               >
                 Previous
               </button>
               <button
                 disabled={companiesData.isLast}
+                onClick={() => handlePageChange(page + 1)}
                 onClick={() => handlePageChange(page + 1)}
                 className="px-4 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-50 transition-colors"
               >

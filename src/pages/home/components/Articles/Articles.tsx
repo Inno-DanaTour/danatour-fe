@@ -1,71 +1,9 @@
 import React, { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
+import { Article } from "../../types/home.types";
+import { ARTICLES } from "../../constants/home.constants";
 
-interface Article {
-  id: string;
-  title: string;
-  category: string;
-  image: string;
-  gridClass: string;
-  description: string;
-  speed: number;
-}
-
-const ARTICLES: Article[] = [
-  {
-    id: "1",
-    title: "The Silent Stones of Marble Mountains",
-    category: "History",
-    image:
-      "https://media.istockphoto.com/id/1146072386/photo/marble-mountain-pagoda-at-danang-city-vietnam.jpg?s=612x612&w=0&k=20&c=UwVv8eYAEsFMmq4zuDtC7dWP4hy_t020Tkzyc-q3gdM=",
-    gridClass: "md:col-span-4 md:row-span-3",
-    description:
-      "Centuries of spiritual history carved into the heart of Da Nang's most iconic peaks.",
-    speed: 0.1,
-  },
-  {
-    id: "2",
-    title: "Midnight Street Food Guide",
-    category: "Cuisine",
-    image:
-      "https://booking.muongthanh.com/upload_images/images/mi-quang-da-nang-2.jpg",
-    gridClass: "md:col-span-3 md:col-start-5 md:row-span-2",
-    description:
-      "Where the locals eat when the city lights reflect on Han River.",
-    speed: 0.2,
-  },
-  {
-    id: "3",
-    title: "The Secret Beach of Son Tra",
-    category: "Nature",
-    image:
-      "https://cdn.nhandan.vn/images/1ef398c4e2fb4bf07980a2ded785b3efab4e898d9f237859c4d9d0452b6dd6779ec197c71d0477bd1cfc64d269b9b777fc6c3b8eeb204aaeef0a7f5eed967fcc/img-1438-5187.jpg",
-    gridClass: "md:col-span-3 md:row-span-3 md:col-start-2",
-    description: "A hidden cove where the jungle meets the emerald sea.",
-    speed: 0.15,
-  },
-  {
-    id: "4",
-    title: "Central Vietnam's Rainy Allure",
-    category: "Travel",
-    image:
-      "https://asialegend.travel/wp-content/uploads/2024/02/Vietnam-rainy-season-in-Central-is-from-September-to-December-brings-occasional-downpours-and-beach-friendly-weather.jpg",
-    gridClass: "md:col-span-2 md:col-start-6 md:row-span-2",
-    description: "Finding beauty in the misty seasons of the coast.",
-    speed: 0.25,
-  },
-  {
-    id: "5",
-    title: "Evolution of the Dragon Bridge",
-    category: "Architecture",
-    image:
-      "https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/cau_rong_phun_lua_may_gio_thumb_21f6fc8dae.jpg",
-    gridClass: "md:col-span-3 md:col-start-4 md:row-span-2",
-    description: "How a bridge became the living soul of a modern city.",
-    speed: 0.12,
-  },
-];
 
 const ArticleCard: React.FC<{ article: Article; index: number }> = ({
   article,

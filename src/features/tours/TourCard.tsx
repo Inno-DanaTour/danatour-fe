@@ -43,7 +43,9 @@ const TourCard: React.FC<TourCardProps> = ({ tour, viewType }) => {
             <div className="flex items-center gap-1 text-yellow-500 font-bold text-sm">
               <Star size={14} fill="currentColor" />
               <span>{tour.rating > 0 ? tour.rating.toFixed(1) : "0.0"}</span>
-              <span className="text-gray-400 font-normal text-xs ml-0.5">({tour.reviewCount})</span>
+              <span className="text-gray-400 font-normal text-xs ml-0.5">
+                ({tour.reviewCount})
+              </span>
             </div>
           </div>
 
@@ -58,8 +60,16 @@ const TourCard: React.FC<TourCardProps> = ({ tour, viewType }) => {
             </div>
             <div className="flex items-center gap-1">
               <MapPin size={14} />
-              <span>Da Nang</span>
+              <span>{tour.zone}</span>
             </div>
+            {tour.capacity !== undefined && (
+              <div className="flex items-center gap-1 text-primary font-bold">
+                <LayoutGrid size={14} />
+                <span>
+                  {tour.availableSlots}/{tour.capacity} left
+                </span>
+              </div>
+            )}
           </div>
         </div>
 

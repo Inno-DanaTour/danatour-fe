@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -19,11 +19,7 @@ import {
   Copy,
   ExternalLink,
 } from "lucide-react";
-import { bookingService, BookingRequest } from "./services/bookingService";
-import { paymentService } from "./services/paymentService";
-import { paymentMethodService } from "./services/paymentMethodService";
-import { promotionService } from "../promotions/services/promotionService";
-import { Loader2, TicketPercent, X } from "lucide-react";
+import { Loader2, TicketPercent, X, Clock } from "lucide-react";
 import Header from "../../components/layout/Header";
 import { Tour } from "../tours/types";
 import { PromotionResponse } from "../promotions/types";
@@ -35,108 +31,47 @@ const Checkout: React.FC = () => {
   const adults = location.state?.adults || 1;
   const children = location.state?.children || 0;
   const scheduleId = location.state?.scheduleId;
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "wallet" | "vietqr">("card");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [bankInfo, setBankInfo] = useState<any>(null);
-  const [showVietQR, setShowVietQR] = useState(false);
+  const isResuming = location.state?.isResuming || false;
+  const existingBookingId = location.state?.existingBookingId || null;
 
-  const [contactInfo, setContactInfo] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    nationality: "",
-  });
+  const {
+    paymentMethod,
+    setPaymentMethod,
+    isSubmitting,
+    showSuccess,
+    error,
+    bankInfo,
+    showVietQR,
+    setShowVietQR,
+    contactInfo,
+    setContactInfo,
+    promoCode,
+    setPromoCode,
+    appliedPromo,
+    isApplyingPromo,
+    promoError,
+    handleApplyPromo,
+    removePromo,
+    calculateDiscount,
+    handleSubmit,
+    bookingResponse,
+  } = useCheckout(
+    tour,
+    scheduleId,
+    adults,
+    children,
+    isResuming,
+    existingBookingId,
+  );
 
-  const [promoCode, setPromoCode] = useState("");
-  const [appliedPromo, setAppliedPromo] = useState<PromotionResponse | null>(null);
-  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
-  const [promoError, setPromoError] = useState<string | null>(null);
-
-  if (!tour || !scheduleId) {
+  if (!isResuming && (!tour || !scheduleId)) {
     navigate("/tours");
     return null;
   }
 
-  const handleApplyPromo = async () => {
-    if (!promoCode.trim()) return;
-    setIsApplyingPromo(true);
-    setPromoError(null);
-    try {
-      const promo = await promotionService.validatePromoCode(promoCode, Number(tour.id));
-      setAppliedPromo(promo);
-      setPromoCode("");
-    } catch (err: any) {
-      setPromoError(err.message || "Invalid promo code");
-    } finally {
-      setIsApplyingPromo(false);
-    }
-  };
-
-  const removePromo = () => {
-    setAppliedPromo(null);
-    setPromoError(null);
-  };
-
-  const calculateDiscount = () => {
-    if (!appliedPromo) return 0;
-    const subtotal = tour.adultPrice * adults + tour.childrenPrice * children;
-    if (appliedPromo.discountType === "PERCENTAGE") {
-      const discount = (subtotal * appliedPromo.discountValue) / 100;
-      return appliedPromo.maxDiscountAmount
-        ? Math.min(discount, appliedPromo.maxDiscountAmount)
-        : discount;
-    } else {
-      return appliedPromo.discountValue;
-    }
-  };
-
   const discountAmount = calculateDiscount();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
-
-    try {
-      const bookingData: BookingRequest = {
-        scheduleId,
-        adults: adults,
-        children: children,
-        contactName: contactInfo.fullName,
-        contactEmail: contactInfo.email,
-        contactPhone: contactInfo.phone,
-        promoCode: appliedPromo?.code,
-      };
-
-      const response = await bookingService.createBooking(bookingData);
-
-      if (paymentMethod === "vietqr") {
-        try {
-          const info = await paymentMethodService.getForBooking(response.id);
-          setBankInfo(info);
-          setShowVietQR(true);
-        } catch (err: any) {
-          console.error("Failed to fetch bank info:", err);
-          setError("Booking created, but failed to fetch payment info. Please contact support.");
-        }
-      } else {
-        // Get payment URL and redirect
-        const paymentUrl = await paymentService.createPaymentUrl(response.id);
-        window.location.href = paymentUrl;
-      }
-    } catch (err: any) {
-      console.error("Booking failed:", err);
-      setError(err.message || "Failed to create booking. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const bookingFee = 10000;
   const subtotal = tour.adultPrice * adults + tour.childrenPrice * children;
-  const totalAmount = Math.max(0, subtotal - discountAmount) + bookingFee;
+  const totalAmount = Math.max(0, subtotal - discountAmount);
 
   return (
     <div className="min-h-screen bg-background">
@@ -224,8 +159,20 @@ const Checkout: React.FC = () => {
               className="bg-white rounded-[2.5rem] p-8 md:p-12 max-w-lg w-full shadow-2xl space-y-8 relative overflow-hidden"
             >
               <div className="text-center space-y-2">
-                <h2 className="text-3xl font-black text-gray-900">Transfer Details</h2>
-                <p className="text-gray-500 font-medium">Please scan or transfer to the account below</p>
+                <div className="flex justify-center mb-4">
+                  {bookingResponse && (
+                    <PaymentTimer
+                      createdAt={bookingResponse.createdAt}
+                      className="shadow-sm"
+                    />
+                  )}
+                </div>
+                <h2 className="text-3xl font-black text-gray-900">
+                  Transfer Details
+                </h2>
+                <p className="text-gray-500 font-medium">
+                  Please scan or transfer to the account below
+                </p>
               </div>
 
               {/* QR Code Section */}
@@ -247,15 +194,23 @@ const Checkout: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl border border-gray-100">
                   <div>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Bank Name</p>
-                    <p className="font-black text-gray-900">{bankInfo.bankShortName}</p>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                      Bank Name
+                    </p>
+                    <p className="font-black text-gray-900">
+                      {bankInfo.bankShortName}
+                    </p>
                   </div>
                   <Banknote className="text-gray-300" />
                 </div>
                 <div className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl border border-gray-100">
                   <div className="flex-1">
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Account Number</p>
-                    <p className="font-black text-gray-900 text-lg tracking-wider">{bankInfo.bankAccountNumber}</p>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                      Account Number
+                    </p>
+                    <p className="font-black text-gray-900 text-lg tracking-wider">
+                      {bankInfo.bankAccountNumber}
+                    </p>
                   </div>
                   <button
                     onClick={() => {
@@ -269,8 +224,12 @@ const Checkout: React.FC = () => {
                 </div>
                 <div className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl border border-gray-100">
                   <div>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Account Holder</p>
-                    <p className="font-black text-gray-900 uppercase">{bankInfo.bankAccountName}</p>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                      Account Holder
+                    </p>
+                    <p className="font-black text-gray-900 uppercase">
+                      {bankInfo.bankAccountName}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -310,7 +269,10 @@ const Checkout: React.FC = () => {
           animate={{ opacity: 1 }}
           className="text-3xl md:text-4xl font-black mb-8 md:mb-12 leading-tight"
         >
-          Complete Your <span className="text-primary">Booking</span>
+          {isResuming ? "Complete Your " : "Process "}{" "}
+          <span className="text-primary">
+            {isResuming ? "Payment" : "Booking"}
+          </span>
         </motion.h1>
 
         {error && (
@@ -428,10 +390,11 @@ const Checkout: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("card")}
-                  className={`p-5 md:p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group ${paymentMethod === "card"
-                    ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
-                    : "border-gray-100 bg-white hover:border-gray-200"
-                    }`}
+                  className={`p-5 md:p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group ${
+                    paymentMethod === "card"
+                      ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
+                      : "border-gray-100 bg-white hover:border-gray-200"
+                  }`}
                 >
                   <div
                     className={`p-3 rounded-full transition-colors ${paymentMethod === "card" ? "bg-primary text-white" : "bg-gray-50 text-gray-400 group-hover:bg-gray-100"}`}
@@ -451,10 +414,11 @@ const Checkout: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("wallet")}
-                  className={`p-5 md:p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group ${paymentMethod === "wallet"
-                    ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
-                    : "border-gray-100 bg-white hover:border-gray-200"
-                    }`}
+                  className={`p-5 md:p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group ${
+                    paymentMethod === "wallet"
+                      ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
+                      : "border-gray-100 bg-white hover:border-gray-200"
+                  }`}
                 >
                   <div
                     className={`p-3 rounded-full transition-colors ${paymentMethod === "wallet" ? "bg-primary text-white" : "bg-gray-50 text-gray-400 group-hover:bg-gray-100"}`}
@@ -474,10 +438,11 @@ const Checkout: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("vietqr" as any)}
-                  className={`p-5 md:p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group ${paymentMethod === ("vietqr" as any)
-                    ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
-                    : "border-gray-100 bg-white hover:border-gray-200"
-                    }`}
+                  className={`p-5 md:p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group ${
+                    paymentMethod === ("vietqr" as any)
+                      ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
+                      : "border-gray-100 bg-white hover:border-gray-200"
+                  }`}
                 >
                   <div
                     className={`p-3 rounded-full transition-colors ${paymentMethod === ("vietqr" as any) ? "bg-primary text-white" : "bg-gray-50 text-gray-400 group-hover:bg-gray-100"}`}
@@ -575,9 +540,9 @@ const Checkout: React.FC = () => {
                     Date:{" "}
                     {tour.schedules?.find((s) => s.id === scheduleId)?.startDate
                       ? new Date(
-                        tour.schedules.find((s) => s.id === scheduleId)!
-                          .startDate,
-                      ).toLocaleDateString()
+                          tour.schedules.find((s) => s.id === scheduleId)!
+                            .startDate,
+                        ).toLocaleDateString()
                       : "N/A"}
                   </p>
                 </div>
@@ -604,26 +569,27 @@ const Checkout: React.FC = () => {
                     </span>
                   </div>
                 )}
-                <div className="flex justify-between items-center text-gray-500">
-                  <span className="font-medium">Booking fee</span>
-                  <span className="font-black text-gray-900">
-                    {new Intl.NumberFormat("vi-VN").format(bookingFee)} VNĐ
-                  </span>
-                </div>
 
                 {/* Promo Code Section */}
                 <div className="pt-4 border-t border-gray-50 space-y-3">
                   {!appliedPromo ? (
                     <div className="space-y-2">
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Have a promo code?</p>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">
+                        Have a promo code?
+                      </p>
                       <div className="flex gap-2">
                         <div className="relative flex-1">
-                          <TicketPercent className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                          <TicketPercent
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                            size={18}
+                          />
                           <input
                             type="text"
                             placeholder="COUPON123"
                             value={promoCode}
-                            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                            onChange={(e) =>
+                              setPromoCode(e.target.value.toUpperCase())
+                            }
                             className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all uppercase"
                           />
                         </div>
@@ -633,11 +599,17 @@ const Checkout: React.FC = () => {
                           disabled={isApplyingPromo || !promoCode.trim()}
                           className="px-4 py-2 bg-primary text-white text-xs font-black rounded-xl hover:bg-primary-dark transition-all disabled:opacity-50"
                         >
-                          {isApplyingPromo ? <Loader2 size={16} className="animate-spin" /> : "APPLY"}
+                          {isApplyingPromo ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : (
+                            "APPLY"
+                          )}
                         </button>
                       </div>
                       {promoError && (
-                        <p className="text-[10px] text-red-500 font-bold ml-1">{promoError}</p>
+                        <p className="text-[10px] text-red-500 font-bold ml-1">
+                          {promoError}
+                        </p>
                       )}
                     </div>
                   ) : (
@@ -647,8 +619,12 @@ const Checkout: React.FC = () => {
                           <TicketPercent size={16} />
                         </div>
                         <div>
-                          <p className="text-[10px] font-bold text-green-600 uppercase tracking-widest">Code Applied</p>
-                          <p className="text-sm font-black text-green-700">{appliedPromo.code}</p>
+                          <p className="text-[10px] font-bold text-green-600 uppercase tracking-widest">
+                            Code Applied
+                          </p>
+                          <p className="text-sm font-black text-green-700">
+                            {appliedPromo.code}
+                          </p>
                         </div>
                       </div>
                       <button
@@ -666,7 +642,8 @@ const Checkout: React.FC = () => {
                   <div className="flex justify-between items-center text-green-600 animate-in fade-in slide-in-from-top-2">
                     <span className="font-medium">Discount</span>
                     <span className="font-black">
-                      -{new Intl.NumberFormat("vi-VN").format(discountAmount)} VNĐ
+                      -{new Intl.NumberFormat("vi-VN").format(discountAmount)}{" "}
+                      VNĐ
                     </span>
                   </div>
                 )}

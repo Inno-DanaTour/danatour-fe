@@ -2,133 +2,15 @@ import React from "react";
 import { motion } from "framer-motion";
 import Lottie from "lottie-react";
 import { Sparkles, MapPin, Users, Headphones } from "lucide-react";
+import { FeatureType } from "../../types/home.types";
+import { FEATURES, travelAnimationData } from "../../constants/home.constants";
 
-// Lottie animation data for a simple travel/explore animation
-const travelAnimationData = {
-  v: "5.5.7",
-  fr: 30,
-  ip: 0,
-  op: 60,
-  w: 200,
-  h: 200,
-  nm: "travel",
-  ddd: 0,
-  assets: [],
-  layers: [
-    {
-      ddd: 0,
-      ind: 1,
-      ty: 4,
-      nm: "plane",
-      sr: 1,
-      ks: {
-        o: { a: 0, k: 100 },
-        r: {
-          a: 1,
-          k: [
-            { t: 0, s: [-10], h: 0, o: { x: 0.5, y: 0 }, i: { x: 0.5, y: 1 } },
-            { t: 30, s: [10], h: 0, o: { x: 0.5, y: 0 }, i: { x: 0.5, y: 1 } },
-            { t: 60, s: [-10] },
-          ],
-        },
-        p: {
-          a: 1,
-          k: [
-            {
-              t: 0,
-              s: [80, 120, 0],
-              h: 0,
-              o: { x: 0.5, y: 0 },
-              i: { x: 0.5, y: 1 },
-            },
-            {
-              t: 30,
-              s: [120, 80, 0],
-              h: 0,
-              o: { x: 0.5, y: 0 },
-              i: { x: 0.5, y: 1 },
-            },
-            { t: 60, s: [80, 120, 0] },
-          ],
-        },
-        a: { a: 0, k: [0, 0, 0] },
-        s: { a: 0, k: [100, 100, 100] },
-      },
-      shapes: [
-        {
-          ty: "gr",
-          it: [
-            {
-              ty: "sr",
-              sy: 1,
-              d: 1,
-              pt: { a: 0, k: 3 },
-              p: { a: 0, k: [0, 0] },
-              r: { a: 0, k: 0 },
-              ir: { a: 0, k: 10 },
-              is: { a: 0, k: 0 },
-              or: { a: 0, k: 25 },
-              os: { a: 0, k: 0 },
-            },
-            {
-              ty: "fl",
-              c: { a: 0, k: [0.04, 0.65, 0.91, 1] },
-              o: { a: 0, k: 100 },
-            },
-            {
-              ty: "tr",
-              p: { a: 0, k: [0, 0] },
-              a: { a: 0, k: [0, 0] },
-              s: { a: 0, k: [100, 100] },
-              r: { a: 0, k: 0 },
-              o: { a: 0, k: 100 },
-            },
-          ],
-        },
-      ],
-    },
-  ],
-};
 
-interface Feature {
-  title: string;
-  description: string;
-  image: string;
-  delay: number;
-  gradient: string;
-}
 
-const FEATURES: Feature[] = [
-  {
-    title: "Expert Local Guides",
-    description:
-      "Our guides are born and raised in Da Nang, offering insights you won't find in any guidebook.",
-    image:
-      "https://images.unsplash.com/photo-1595860293946-d3e5e6c3fe37?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGhvaSUyMGFuJTIwdmlldG5hbXxlbnwwfHwwfHx8MA%3D%3D",
-    delay: 0.1,
-    gradient: "from-sky-400 to-emerald-400",
-  },
-  {
-    title: "Premium Comfort",
-    description:
-      "Travel in style with our fleet of modern, air-conditioned luxury vehicles equipped with amenities.",
-    image:
-      "https://images.unsplash.com/photo-1505018620898-92616e1849cc?q=80&w=1176&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    delay: 0.2,
-    gradient: "from-purple-400 to-pink-400",
-  },
-  {
-    title: "Unique Experiences",
-    description:
-      "From secret caves to midnight street food, we curate tours that go beyond the ordinary.",
-    image:
-      "https://images.unsplash.com/photo-1574736048210-5cd4c2689079?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    delay: 0.3,
-    gradient: "from-amber-400 to-orange-400",
-  },
-];
 
-const FeatureCard: React.FC<{ feature: Feature }> = ({ feature }) => {
+
+
+const FeatureCard: React.FC<{ feature: FeatureType }> = ({ feature }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

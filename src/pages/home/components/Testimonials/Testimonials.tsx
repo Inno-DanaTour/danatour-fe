@@ -1,63 +1,9 @@
 import React, { useRef } from "react";
 import { motion } from "framer-motion";
 import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
+import { Testimonial } from "../../types/home.types";
+import { TESTIMONIALS } from "../../constants/home.constants";
 
-interface Testimonial {
-  id: string;
-  name: string;
-  role: string;
-  avatar: string;
-  content: string;
-  rating: number;
-  location: string;
-}
-
-const TESTIMONIALS: Testimonial[] = [
-  {
-    id: "1",
-    name: "Sarah Chen",
-    role: "Travel Blogger",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
-    content:
-      "DanaTour completely transformed how I experience Vietnam. The AI-powered recommendations led me to hidden gems I would never have found on my own. Absolutely magical!",
-    rating: 5,
-    location: "Singapore",
-  },
-  {
-    id: "2",
-    name: "Marcus Weber",
-    role: "Photographer",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
-    content:
-      "As a professional photographer, I need unique locations. DanaTour's curated paths took me to breathtaking spots at the perfect times. The Marble Mountains at dawn was unforgettable.",
-    rating: 5,
-    location: "Germany",
-  },
-  {
-    id: "3",
-    name: "Yuki Tanaka",
-    role: "Digital Nomad",
-    avatar:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150",
-    content:
-      "I've used many travel apps, but nothing compares to DanaTour. The personalized itineraries feel like having a local friend show you around. The seafood tour was incredible!",
-    rating: 5,
-    location: "Japan",
-  },
-  {
-    id: "4",
-    name: "David Kim",
-    role: "Adventure Seeker",
-    avatar:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150",
-    content:
-      "From Son Tra Peninsula hikes to midnight street food runs - DanaTour planned the perfect adventure. Their local guides are knowledgeable and passionate.",
-    rating: 5,
-    location: "USA",
-  },
-];
 
 const TestimonialCard: React.FC<{
   testimonial: Testimonial;

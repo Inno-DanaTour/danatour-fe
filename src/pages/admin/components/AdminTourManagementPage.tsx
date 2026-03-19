@@ -16,6 +16,7 @@ import {
   ShieldAlert,
   ChevronRight,
   MoreVertical,
+  X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { tourService } from "../../tours/services/tourService";
@@ -60,6 +61,12 @@ const AdminTourManagementPage: React.FC = () => {
         text: "text-rose-600",
         icon: ShieldAlert,
         label: "Locked",
+      },
+      REJECTED: {
+        bg: "bg-red-500/10",
+        text: "text-red-700",
+        icon: XCircle,
+        label: "Rejected",
       },
     };
 
@@ -165,6 +172,14 @@ const AdminTourManagementPage: React.FC = () => {
             bg: "bg-rose-500/10",
             glow: "shadow-rose-500/20",
           },
+          {
+            label: "Rejected",
+            value: stats?.rejected || 0,
+            icon: XCircle,
+            color: "text-red-600",
+            bg: "bg-red-500/10",
+            glow: "shadow-red-500/20",
+          },
         ].map((stat, idx) => (
           <div
             key={idx}
@@ -215,6 +230,7 @@ const AdminTourManagementPage: React.FC = () => {
               <option value="PENDING">Pending Approval</option>
               <option value="ACTIVE">System Active</option>
               <option value="LOCKED">Administratively Locked</option>
+              <option value="REJECTED">Rejected Tours</option>
             </select>
           </div>
         </div>
@@ -315,9 +331,9 @@ const AdminTourManagementPage: React.FC = () => {
                         <div className="flex items-center gap-5">
                           <div className="relative group/img">
                             <div className="w-16 h-16 rounded-[1.25rem] bg-gray-100 flex items-center justify-center shrink-0 overflow-hidden border-2 border-white shadow-xl group-hover/img:scale-110 transition-transform duration-500">
-                              {tour.thumbnailUrl ? (
+                              {tour.thumbnail ? (
                                 <img
-                                  src={tour.thumbnailUrl}
+                                  src={tour.thumbnail}
                                   alt={tour.title}
                                   className="w-full h-full object-cover"
                                 />
@@ -330,10 +346,31 @@ const AdminTourManagementPage: React.FC = () => {
                             <p className="font-black text-gray-900 group-hover:text-primary transition-colors text-lg tracking-tight">
                               {tour.title}
                             </p>
-                            <div className="flex items-center gap-2 mt-1">
+                            <div className="flex flex-col gap-1 mt-1">
                               <span className="text-[10px] font-black bg-gray-100 text-gray-500 px-2 py-0.5 rounded-md uppercase tracking-wider border border-gray-200">
                                 UUID: {tour.id}
                               </span>
+                              {tour.status === "REJECTED" &&
+                                tour.rejectReason && (
+                                  <span className="text-[10px] font-bold text-red-500 italic">
+                                    Reason: {tour.rejectReason}
+                                  </span>
+                                )}
+                              <div className="flex items-center gap-3 mt-1 text-[10px] font-bold">
+                                <span className="text-gray-400 uppercase tracking-widest">
+                                  Inventory:
+                                </span>
+                                <span
+                                  className={
+                                    tour.availableSlots === 0
+                                      ? "text-red-500"
+                                      : "text-primary"
+                                  }
+                                >
+                                  {tour.availableSlots || 0} /{" "}
+                                  {tour.capacity || 0} slots
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -357,7 +394,7 @@ const AdminTourManagementPage: React.FC = () => {
                         {getStatusBadge(tour.status)}
                       </td>
                       <td className="px-8 py-6 text-right">
-                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-300">
+                        <div className="flex items-center justify-end gap-2 transition-all duration-300">
                           <Link
                             to={`/tours/${tour.id}`}
                             className="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center hover:bg-white hover:text-primary hover:shadow-xl hover:shadow-primary/10 transition-all active:scale-90"
@@ -366,15 +403,33 @@ const AdminTourManagementPage: React.FC = () => {
                             <Eye size={18} strokeWidth={2.5} />
                           </Link>
 
-                          {tour.status === "PENDING" && (
+                          {(tour.status === "PENDING" ||
+                            tour.status === "LOCKED" ||
+                            tour.status === "REJECTED") && (
                             <button
                               onClick={() =>
                                 handleStatusUpdate(tour.id, "ACTIVE")
                               }
                               className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-500 hover:text-white hover:shadow-xl hover:shadow-emerald-500/30 transition-all active:scale-90"
-                              title="Authorize Entry"
+                              title={
+                                tour.status === "LOCKED"
+                                  ? "Restore Access"
+                                  : "Authorize Entry"
+                              }
                             >
                               <CheckCircle size={18} strokeWidth={2.5} />
+                            </button>
+                          )}
+
+                          {tour.status === "PENDING" && (
+                            <button
+                              onClick={() =>
+                                handleStatusUpdate(tour.id, "REJECTED")
+                              }
+                              className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-500 hover:text-white hover:shadow-xl hover:shadow-red-500/30 transition-all active:scale-90"
+                              title="Reject Tour"
+                            >
+                              <XCircle size={18} strokeWidth={2.5} />
                             </button>
                           )}
 
@@ -390,20 +445,8 @@ const AdminTourManagementPage: React.FC = () => {
                             </button>
                           )}
 
-                          {tour.status === "LOCKED" && (
-                            <button
-                              onClick={() =>
-                                handleStatusUpdate(tour.id, "ACTIVE")
-                              }
-                              className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center hover:bg-indigo-500 hover:text-white hover:shadow-xl hover:shadow-indigo-500/30 transition-all active:scale-90"
-                              title="Re-activate Node"
-                            >
-                              <Unlock size={18} strokeWidth={2.5} />
-                            </button>
-                          )}
-                          
                           <button className="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-gray-100 transition-all active:scale-90">
-                             <MoreVertical size={18} />
+                            <MoreVertical size={18} />
                           </button>
                         </div>
                       </td>
@@ -419,12 +462,12 @@ const AdminTourManagementPage: React.FC = () => {
         {toursData && toursData.totalPages > 1 && (
           <div className="px-8 py-6 border-t border-gray-100 flex items-center justify-between bg-gray-50/30 relative z-10">
             <div className="flex items-center gap-4">
-               <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
-               <p className="text-xs font-black text-gray-400 uppercase tracking-[0.15em]">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+              <p className="text-xs font-black text-gray-400 uppercase tracking-[0.15em]">
                 Page {toursData.page} of {toursData.totalPages}
               </p>
             </div>
-            
+
             <div className="flex gap-3">
               <button
                 disabled={toursData.first}
@@ -439,12 +482,94 @@ const AdminTourManagementPage: React.FC = () => {
                 className="px-6 py-3 rounded-xl bg-white border border-gray-200 text-xs font-black uppercase tracking-widest text-gray-600 flex items-center gap-2 hover:bg-primary hover:text-white hover:border-primary disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-600 disabled:hover:border-gray-200 transition-all group active:scale-95"
               >
                 Next Node
-                <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" strokeWidth={3} />
+                <ChevronRight
+                  size={14}
+                  className="group-hover:translate-x-1 transition-transform"
+                  strokeWidth={3}
+                />
               </button>
             </div>
           </div>
         )}
       </motion.div>
+
+      {/* Rejection Modal */}
+      <AnimatePresence>
+        {isRejectModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-white rounded-[2.5rem] p-8 max-w-lg w-full shadow-2xl relative border border-gray-100"
+            >
+              <button
+                onClick={() => {
+                  setIsRejectModalOpen(false);
+                  setRejectionReason("");
+                }}
+                className="absolute top-8 right-8 text-gray-400 hover:text-gray-900 transition-colors p-2 hover:bg-gray-50 rounded-xl"
+              >
+                <X size={24} />
+              </button>
+
+              <div className="w-20 h-20 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mb-8 shadow-xl shadow-red-500/10">
+                <XCircle size={40} strokeWidth={2.5} />
+              </div>
+
+              <h2 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">
+                Deny Entry
+              </h2>
+              <p className="text-gray-500 font-bold mb-8">
+                Identify the specific violations or requirement gaps for this
+                tour submission.
+              </p>
+
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-rose-500 rounded-2xl blur opacity-10 group-focus-within:opacity-20 transition duration-500"></div>
+                <textarea
+                  autoFocus
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  placeholder="Summarize the rejection grounds (e.g., Image quality insufficient, itinerary contains invalid nodes...)"
+                  className="relative w-full bg-white border border-gray-100 rounded-2xl p-5 font-bold min-h-[160px] outline-none focus:ring-4 focus:ring-red-500/10 focus:border-red-500 transition-all resize-none text-gray-700 placeholder:text-gray-300"
+                />
+              </div>
+
+              <div className="flex gap-4 mt-8">
+                <button
+                  onClick={() => {
+                    setIsRejectModalOpen(false);
+                    setRejectionReason("");
+                  }}
+                  className="flex-1 py-5 px-6 rounded-2xl font-black text-xs uppercase tracking-widest bg-gray-50 text-gray-500 hover:bg-gray-100 transition-all active:scale-95"
+                >
+                  Recall Action
+                </button>
+                <button
+                  onClick={handleConfirmReject}
+                  disabled={!rejectionReason.trim() || isSubmitting}
+                  className="flex-1 py-5 px-6 rounded-2xl font-black text-xs uppercase tracking-widest bg-red-500 text-white shadow-xl shadow-red-500/30 hover:scale-[1.02] hover:shadow-red-500/40 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 transition-all flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>Confirm Rejection</>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

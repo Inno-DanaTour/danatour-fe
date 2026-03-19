@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus, ArrowRight } from "lucide-react";
+import { FAQS } from "../../constants/home.constants";
+
 
 interface FAQItemProps {
   question: string;
@@ -88,34 +90,6 @@ const FAQItem: React.FC<FAQItemProps> = ({
 const FAQ: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
-  const faqs = [
-    {
-      question: "What's the best time to visit Da Nang?",
-      answer:
-        "The best time is usually from February to May. The weather is warm and dry, perfect for beach activities and exploring the mountains without heavy rain.",
-    },
-    {
-      question: "Are your tours suitable for families with children?",
-      answer:
-        "Absolutely! We offer many family-friendly options like the Ba Na Hills tour and Monkey Mountain exploration. We also provide child seats and specialized guides.",
-    },
-    {
-      question: "Do you offer private, customized itineraries?",
-      answer:
-        "Yes, we specialize in tailor-made experiences. Whether you want a private romantic sunset dinner or a rugged mountain trek, our experts can design it just for you.",
-    },
-    {
-      question: "What's your cancellation policy?",
-      answer:
-        "We offer a flexible cancellation policy. Most tours can be cancelled up to 48 hours in advance for a full refund. Specific details are provided at the time of booking.",
-    },
-    {
-      question: "How does the AI personalization work?",
-      answer:
-        "Our AI analyzes your preferences—like travel style, interests, and time available—to create a unique itinerary. You can chat naturally or use our form, and the system will suggest the perfect route for you.",
-    },
-  ];
-
   return (
     <section className="bg-transparent py-24 md:py-32 relative overflow-hidden">
       {/* Background glow */}
@@ -161,7 +135,7 @@ const FAQ: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              {faqs.map((faq, index) => (
+              {FAQS.map((faq, index) => (
                 <FAQItem
                   key={index}
                   question={faq.question}

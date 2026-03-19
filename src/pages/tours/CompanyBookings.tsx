@@ -10,10 +10,8 @@ import {
   Download,
   AlertCircle,
 } from "lucide-react";
-import {
-  bookingService,
-  CompanyBookingResponse,
-} from "../checkout/services/bookingService";
+import { bookingService } from "../checkout/services/bookingService";
+import { CompanyBookingResponse } from "../checkout/types/checkout.types";
 import Header from "../../components/layout/Header";
 import { useNavigate } from "react-router-dom";
 

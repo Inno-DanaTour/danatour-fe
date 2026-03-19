@@ -69,5 +69,9 @@ export const bookingService = {
       rating,
       comment
     });
+  },
+
+  checkActiveBooking: (scheduleId: number): Promise<boolean> => {
+    return api.get<boolean>(`/bookings/check-active/${scheduleId}`);
   }
 };
