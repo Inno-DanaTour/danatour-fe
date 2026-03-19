@@ -23,6 +23,7 @@ import { TourListItem } from "./types";
 import { getUserIdFromToken } from "../../configs/api";
 
 import { companyService } from "../company-detail/services/companyService";
+import { useManageTours } from "./hooks/useManageTours";
 
 const ManageTours: React.FC = () => {
   const {

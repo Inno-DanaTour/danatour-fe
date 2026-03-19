@@ -4,10 +4,10 @@ import { bookingService } from "../services/bookingService";
 import { paymentService } from "../services/paymentService";
 import { paymentMethodService } from "../services/paymentMethodService";
 import { promotionService } from "../../promotions/services/promotionService";
-import { Tour } from "../../../types/types";
+import { Tour } from "../../tours/types";
 import { PromotionResponse } from "../../promotions/types/promotions.types";
 
-import { BookingRequest, BookingResponse } from "../types/checkout.types";
+import { BookingRequest, BookingResponse } from "../types";
 
 export const useCheckout = (
   tour: Tour | null,

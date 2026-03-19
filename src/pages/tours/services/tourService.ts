@@ -108,6 +108,9 @@ export const tourService = {
     deleteFeedback: async (feedbackId: number): Promise<void> => {
         await api.delete(`/feedbacks/${feedbackId}`);
     },
+    deleteTour: async (id: number | string): Promise<void> => {
+        await api.delete(`/tours/${id}`);
+    },
     reportTour: async (tourId: number | string, data: TourReportRequest): Promise<void> => {
         await api.post(`/tours/${tourId}/reports`, data);
     }

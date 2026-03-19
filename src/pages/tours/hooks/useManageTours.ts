@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { tourService } from "../services/tourService";
 import { companyService } from "../../company-detail/services/companyService";
-import { TourListItem } from "../../../types/types";
+import { TourListItem } from "../types";
 
 export const useManageTours = () => {
   const navigate = useNavigate();

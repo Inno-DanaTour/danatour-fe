@@ -18,7 +18,7 @@ import { Company } from "./types";
 import { Tour } from "../tours/types";
 import { companyService } from "./services/companyService";
 import { getToken } from "../../configs/api";
-import { AlertCircle } from "lucide-react";
+import { useCompanyDetail } from "./hooks/useCompanyDetail";
 
 // Mock Company Data removed
 

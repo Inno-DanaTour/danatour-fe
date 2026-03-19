@@ -27,7 +27,8 @@ import {
   AdminDashboardPage,
   TourCompanyManagementPage,
   AdminTourManagementPage,
-  AdminPromotions
+  AdminPromotions,
+  AdminUserManagementPage
 } from "../pages/admin";
 import CompanyPromotions from "../pages/tours/CompanyPromotions";
 import CompanyBookings from "../pages/tours/CompanyBookings";
@@ -230,6 +231,7 @@ export const AnimatedRoutes = () => {
         { path: "companies", element: <TourCompanyManagementPage /> },
         { path: "promotions", element: <AdminPromotions /> },
         { path: "promotions/:id", element: <PromotionDetail /> },
+        { path: "users", element: <AdminUserManagementPage /> },
       ],
     },
     {

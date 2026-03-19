@@ -1,4 +1,4 @@
-import { ZoneType } from "../../../types/types";
+import { ZoneType } from "../../home/types";
 
 export type ViewType = "grid" | "list";
 

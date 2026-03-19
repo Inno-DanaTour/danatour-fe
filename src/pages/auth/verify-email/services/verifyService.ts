@@ -1,6 +1,6 @@
 import { api } from "../../../../configs/api";
 import { API_ENDPOINT } from "../constants/api";
-import { ApiResponse } from "../types";
+import { ApiResponse } from "../../../../types/common";
 
 export const verifyEmail = async (token: string): Promise<ApiResponse<any>> => {
   try {

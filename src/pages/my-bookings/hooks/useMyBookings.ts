@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { bookingService } from "../../checkout/services/bookingService";
 import { tourService } from "../../tours/services/tourService";
 import { BookingHistoryResponse } from "../types/my-bookings.types";
-import { PagedResponse } from "../../../types/types";
-import { BookingResponse } from "../../checkout/types/checkout.types";
+import { PagedResponse } from "../../../types/common";
+import { BookingResponse } from "../../checkout/types";
 
 export const useMyBookings = () => {
   const navigate = useNavigate();

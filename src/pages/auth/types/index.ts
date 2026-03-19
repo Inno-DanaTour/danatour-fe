@@ -79,3 +79,11 @@ export interface MyProviderApplicationResponse {
   company: TourCompanyResponse | null;
   documents: ProviderApplicationResponse[];
 }
+
+export interface VerifyEmailRequest {
+  token: string;
+}
+
+export interface ResendVerificationRequest {
+  email: string;
+}

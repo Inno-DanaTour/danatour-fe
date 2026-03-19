@@ -26,6 +26,7 @@ export interface VietQRBank {
   code: string;
   bin: string;
   shortName: string;
+  binCode?: string;
   logo: string;
   transferSupported: number;
   lookupSupported: number;

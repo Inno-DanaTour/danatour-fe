@@ -14,6 +14,12 @@ export const useAdminTourManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
 
+  // Rejection Modal State
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [selectedTourId, setSelectedTourId] = useState<number | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
     fetchTours();
   }, [page, statusFilter]);
@@ -32,6 +38,12 @@ export const useAdminTourManagement = () => {
   };
 
   const handleStatusUpdate = async (tourId: number, status: string) => {
+    if (status === "REJECTED") {
+      setSelectedTourId(tourId);
+      setIsRejectModalOpen(true);
+      return;
+    }
+
     try {
       const request: TourStatusUpdateRequest = {
         status: status,
@@ -41,6 +53,27 @@ export const useAdminTourManagement = () => {
       fetchTours();
     } catch (err: any) {
       alert(err.message || "Failed to update tour status.");
+    }
+  };
+
+  const handleConfirmReject = async () => {
+    if (!selectedTourId || !rejectionReason.trim()) return;
+
+    setIsSubmitting(true);
+    try {
+      const request: TourStatusUpdateRequest = {
+        status: "REJECTED",
+        rejectReason: rejectionReason,
+      };
+      await tourService.updateTourStatus(selectedTourId, request);
+      setIsRejectModalOpen(false);
+      setRejectionReason("");
+      setSelectedTourId(null);
+      fetchTours();
+    } catch (err: any) {
+      alert(err.message || "Failed to reject tour.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -60,6 +93,7 @@ export const useAdminTourManagement = () => {
       pending: toursData.content.filter((t) => t.status === "PENDING").length,
       active: toursData.content.filter((t) => t.status === "ACTIVE").length,
       locked: toursData.content.filter((t) => t.status === "LOCKED").length,
+      rejected: toursData.content.filter((t) => t.status === "REJECTED").length,
     };
   }, [toursData]);
 
@@ -76,5 +110,11 @@ export const useAdminTourManagement = () => {
     handleStatusUpdate,
     handlePageChange,
     handleStatusFilterChange,
+    isRejectModalOpen,
+    setIsRejectModalOpen,
+    rejectionReason,
+    setRejectionReason,
+    handleConfirmReject,
+    isSubmitting,
   };
 };

@@ -1,5 +1,5 @@
 import { api } from "../../../configs/api";
-import { ApiResponse, PagedResponse } from "../../../types/types";
+import { ApiResponse, PagedResponse } from "../../../types/common";
 import { PromotionRequest, PromotionResponse, PromotionUsageResponse } from "../types/promotions.types";
 
 

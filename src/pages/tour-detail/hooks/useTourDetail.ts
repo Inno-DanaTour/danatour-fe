@@ -4,7 +4,9 @@ import { useScroll, useSpring } from "framer-motion";
 import { tourService } from "../../tours/services/tourService";
 import { companyService } from "../../company-detail/services/companyService";
 
-import { Tour, ItineraryItem, Company, TourReportRequest } from "../../../types/types";
+import { Tour, TourReportRequest } from "../../tours/types";
+import { ItineraryItem } from "../../home/types";
+import { Company } from "../../company-detail/types";
 import { DetailTab, Toast, ToastType } from "../types/tour-detail.types";
 
 export const useTourDetail = () => {

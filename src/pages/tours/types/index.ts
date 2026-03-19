@@ -25,14 +25,18 @@ export interface TourListItem {
   title: string;
   adultPrice: number;
   childrenPrice: number;
-  thumbnailUrl: string;
+  thumbnail: string;
+  thumbnailUrl?: string; // Keep for backward compatibility if any
   placeName: string;
   rating?: number;
   durationDays: number;
   durationNights: number;
   status: string;
   lockReason?: string;
+  rejectReason?: string;
   lockedBy?: string;
+  capacity?: number;
+  availableSlots?: number;
 }
 
 export interface TourDetail {
@@ -71,11 +75,15 @@ export interface TourSummaryResponse {
   lockedBy?: string;
   averageRating: number;
   reviewCount: number;
+  capacity?: number;
+  availableSlots?: number;
+  rejectReason?: string;
 }
 
 export interface TourStatusUpdateRequest {
   status: string;
   lockReason?: string;
+  rejectReason?: string;
 }
 
 export interface TourImage {

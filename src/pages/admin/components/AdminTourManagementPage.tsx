@@ -40,6 +40,12 @@ const AdminTourManagementPage: React.FC = () => {
     handleStatusUpdate,
     handlePageChange,
     handleStatusFilterChange,
+    isRejectModalOpen,
+    setIsRejectModalOpen,
+    rejectionReason,
+    setRejectionReason,
+    handleConfirmReject,
+    isSubmitting,
   } = useAdminTourManagement();
 
   const getStatusBadge = (status: string) => {
