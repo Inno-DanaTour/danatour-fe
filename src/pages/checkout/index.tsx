@@ -34,7 +34,7 @@ const Checkout: React.FC = () => {
   const adults = location.state?.adults || 1;
   const children = location.state?.children || 0;
   const scheduleId = location.state?.scheduleId;
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "wallet" | "vietqr">("card");
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "wallet" | "vietqr" | "payos">("card");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -120,8 +120,11 @@ const Checkout: React.FC = () => {
           console.error("Failed to fetch bank info:", err);
           setError("Booking created, but failed to fetch payment info. Please contact support.");
         }
+      } else if (paymentMethod === "payos") {
+        const checkoutUrl = await paymentService.createPayOSPaymentLink(response.id);
+        window.location.href = checkoutUrl;
       } else {
-        // Get payment URL and redirect
+        // Get payment URL and redirect (VNPay)
         const paymentUrl = await paymentService.createPaymentUrl(response.id);
         window.location.href = paymentUrl;
       }
@@ -489,6 +492,29 @@ const Checkout: React.FC = () => {
                     </p>
                     <p className="text-[10px] md:text-xs text-gray-400 uppercase tracking-wider font-bold">
                       VietQR / Bank App
+                    </p>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("payos")}
+                  className={`p-5 md:p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group ${paymentMethod === "payos"
+                    ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
+                    : "border-gray-100 bg-white hover:border-gray-200"
+                    }`}
+                >
+                  <div
+                    className={`p-3 rounded-full transition-colors ${paymentMethod === "payos" ? "bg-primary text-white" : "bg-gray-50 text-gray-400 group-hover:bg-gray-100"}`}
+                  >
+                    <ShieldCheck size={22} />
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm md:text-base">
+                      PayOS
+                    </p>
+                    <p className="text-[10px] md:text-xs text-gray-400 uppercase tracking-wider font-bold">
+                      QR Banking / PayOS
                     </p>
                   </div>
                 </button>

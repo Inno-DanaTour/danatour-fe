@@ -15,4 +15,12 @@ export const paymentService = {
     );
     return response.status;
   },
+
+  createPayOSPaymentLink: async (bookingId: number): Promise<string> => {
+    const response = await api.post<{ checkoutUrl: string }>(
+      `/payments/payos-create?bookingId=${bookingId}`,
+      {},
+    );
+    return response.checkoutUrl;
+  },
 };
