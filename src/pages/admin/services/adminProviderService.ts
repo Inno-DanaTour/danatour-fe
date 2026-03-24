@@ -1,11 +1,6 @@
 import { api } from "../../../configs/api";
-import {
-  ApiResponse,
-  PageResponse,
-  TourCompanyResponse,
-  AdminProviderApplicationDetailResponse,
-} from "../types/admin.types";
-
+import { ApiResponse } from "../../../types/common";
+import { PageResponse, TourCompanyResponse, AdminProviderApplicationDetailResponse } from "../types";
 
 export const adminProviderService = {
   getProviderApplications: async (

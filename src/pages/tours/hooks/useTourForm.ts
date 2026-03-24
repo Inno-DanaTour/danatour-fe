@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { tourService } from "../services/tourService";
-import {
-  CategoryResponse,
-  PlaceResponse,
-  TourImage,
-} from "../../../types/types";
+import { TourImage } from "../types";
+import { CategoryResponse, PlaceResponse } from "../../../types/common";
 
 export const useTourForm = (mode: "create" | "edit") => {
   const { id } = useParams<{ id: string }>();

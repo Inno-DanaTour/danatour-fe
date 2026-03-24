@@ -21,9 +21,8 @@ import {
 } from "lucide-react";
 import { Loader2, TicketPercent, X, Clock } from "lucide-react";
 import Header from "../../components/layout/Header";
-import PaymentTimer from "../../components/common/PaymentTimer";
-import { Tour } from "../../types/types";
-import { useCheckout } from "./hooks/useCheckout";
+import { Tour } from "../tours/types";
+import { PromotionResponse } from "../promotions/types";
 
 const Checkout: React.FC = () => {
   const location = useLocation();
@@ -56,7 +55,14 @@ const Checkout: React.FC = () => {
     calculateDiscount,
     handleSubmit,
     bookingResponse,
-  } = useCheckout(tour, scheduleId, adults, children, isResuming, existingBookingId);
+  } = useCheckout(
+    tour,
+    scheduleId,
+    adults,
+    children,
+    isResuming,
+    existingBookingId,
+  );
 
   if (!isResuming && (!tour || !scheduleId)) {
     navigate("/tours");
@@ -263,7 +269,10 @@ const Checkout: React.FC = () => {
           animate={{ opacity: 1 }}
           className="text-3xl md:text-4xl font-black mb-8 md:mb-12 leading-tight"
         >
-          {isResuming ? "Complete Your " : "Process "} <span className="text-primary">{isResuming ? "Payment" : "Booking"}</span>
+          {isResuming ? "Complete Your " : "Process "}{" "}
+          <span className="text-primary">
+            {isResuming ? "Payment" : "Booking"}
+          </span>
         </motion.h1>
 
         {error && (

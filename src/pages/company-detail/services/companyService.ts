@@ -1,7 +1,5 @@
 import { api } from "../../../configs/api";
-import { Company } from "../../../types/types";
-import { ToggleFollowResponse, UserProviderResponse } from "../types/company.types";
-
+import { Company, ToggleFollowResponse, UserProviderResponse } from "../types";
 
 export const companyService = {
   getCompanyById: (id: string | number): Promise<Company> => {

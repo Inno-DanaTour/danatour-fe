@@ -17,8 +17,13 @@ import {
   Trash2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Header from "../../components/layout/Header";
-import { useManageTours } from "./hooks/useManageTours";
+import Header from "../../../components/layout/Header";
+import { tourService } from "../services/tourService";
+import { TourListItem } from "../types";
+import { getUserIdFromToken } from "../../../configs/api";
+
+import { companyService } from "../../company-detail/services/companyService";
+import { useManageTours } from "../hooks/useManageTours";
 
 const ManageTours: React.FC = () => {
   const {
@@ -359,15 +364,15 @@ const ManageTours: React.FC = () => {
                               )}
                             </button>
                             <button
-                                onClick={() => {
-                                  setSelectedTourId(tour.id);
-                                  setIsDeleteModalOpen(true);
-                                }}
-                                className="p-3 bg-gray-100 hover:bg-rose-600 hover:text-white rounded-xl transition-all shadow-sm"
-                                title="Delete Tour (Lock)"
-                              >
-                                <Trash2 size={18} />
-                              </button>
+                              onClick={() => {
+                                setSelectedTourId(tour.id);
+                                setIsDeleteModalOpen(true);
+                              }}
+                              className="p-3 bg-gray-100 hover:bg-rose-600 hover:text-white rounded-xl transition-all shadow-sm"
+                              title="Delete Tour (Lock)"
+                            >
+                              <Trash2 size={18} />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -533,8 +538,10 @@ const ManageTours: React.FC = () => {
               </div>
               <h2 className="text-3xl font-black mb-4">Delete Tour?</h2>
               <p className="text-gray-500 mb-8 font-medium">
-                Deleting this tour will mark it as <span className="text-rose-600 font-black">LOCKED</span>. 
-                It will no longer be visible to customers, but records will be kept for history.
+                Deleting this tour will mark it as{" "}
+                <span className="text-rose-600 font-black">LOCKED</span>. It
+                will no longer be visible to customers, but records will be kept
+                for history.
               </p>
               <div className="flex gap-4">
                 <button

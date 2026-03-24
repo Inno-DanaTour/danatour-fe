@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { tourService } from "../services/tourService";
-import { Tour, ZoneType } from "../../../types/types";
+import { Tour } from "../types";
+import { ZoneType } from "../../home/types";
 import { ViewType } from "../types/tours.types";
 
 export const useTours = () => {

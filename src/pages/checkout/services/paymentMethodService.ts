@@ -1,10 +1,5 @@
 import { api } from "../../../configs/api";
-import {
-  PaymentMethod,
-  PaymentMethodRequest,
-  VietQRBank,
-} from "../types/checkout.types";
-
+import { PaymentMethod, PaymentMethodRequest, VietQRBank } from "../types";
 
 export const paymentMethodService = {
   getAll: async (): Promise<PaymentMethod[]> => {

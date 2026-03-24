@@ -1,5 +1,5 @@
 import React from "react";
-import { ItineraryItem } from "../../types/types";
+import { ItineraryItem } from "../../pages/home/types";
 import { motion } from "framer-motion";
 
 interface ItineraryTimelineProps {

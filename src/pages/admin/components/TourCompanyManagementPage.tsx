@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Building2,
   Search,
@@ -8,28 +8,26 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import TourCompanyDetailsModal from "./components/TourCompanyDetailsModal";
-import { useTourCompanies } from "./hooks/useTourCompanies";
+import TourCompanyDetailsModal from "./TourCompanyDetailsModal";
+import { useTourCompanyManagement } from "../hooks/useTourCompanyManagement";
 
 const TourCompanyManagementPage: React.FC = () => {
   const {
     companiesData,
     isLoading,
     error,
-    page,
     statusFilter,
-    fetchCompanies,
+    page,
+    selectedCompanyId,
     handlePageChange,
     handleStatusFilterChange,
-  } = useTourCompanies();
-
-  // Modal State
-  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(
-    null,
-  );
+    handleOpenReview,
+    handleCloseReview,
+    handleStatusChanged,
+    fetchCompanies,
+  } = useTourCompanyManagement();
 
   const getStatusBadge = (status: string) => {
-
     switch (status) {
       case "PENDING_VERIFICATION":
         return (
@@ -86,9 +84,7 @@ const TourCompanyManagementPage: React.FC = () => {
           <Filter className="text-gray-400 w-5 h-5 hidden sm:block" />
           <select
             value={statusFilter}
-            onChange={(e) => {
-              handleStatusFilterChange(e.target.value);
-            }}
+            onChange={(e) => handleStatusFilterChange(e.target.value)}
             className="w-full sm:w-auto pl-4 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary/20 appearance-none font-bold text-gray-700 text-sm cursor-pointer"
           >
             <option value="ALL">All Statuses</option>
@@ -181,7 +177,7 @@ const TourCompanyManagementPage: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <button
-                        onClick={() => setSelectedCompanyId(company.id)}
+                        onClick={() => handleOpenReview(company.id)}
                         className="text-primary hover:text-primary-dark font-black text-sm bg-primary/5 hover:bg-primary/10 px-4 py-2 rounded-lg transition-colors inline-block"
                       >
                         Review
@@ -225,11 +221,8 @@ const TourCompanyManagementPage: React.FC = () => {
       {selectedCompanyId && (
         <TourCompanyDetailsModal
           companyId={selectedCompanyId}
-          onClose={() => setSelectedCompanyId(null)}
-          onStatusChanged={() => {
-            setSelectedCompanyId(null);
-            fetchCompanies();
-          }}
+          onClose={handleCloseReview}
+          onStatusChanged={handleStatusChanged}
         />
       )}
     </div>

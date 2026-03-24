@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ZoneType } from "../../types/types";
+import { ZoneType } from "../../pages/home/types";
 import { COLORS } from "../../constants/constants";
 
 interface BackgroundProps {

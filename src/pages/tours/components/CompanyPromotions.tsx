@@ -16,12 +16,12 @@ import {
   MapPin,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import Header from "../../components/layout/Header";
-import { promotionService } from "../promotions/services/promotionService";
-import { PromotionResponse } from "../promotions/types/promotions.types";
+import Header from "../../../components/layout/Header";
+import { promotionService } from "../../promotions/services/promotionService";
+import { PromotionResponse } from "../../promotions/types/promotions.types";
 
-import PromotionModal from "../../components/promotions/PromotionModal";
-import { companyService } from "../company-detail/services/companyService";
+import PromotionModal from "../../../components/promotions/PromotionModal";
+import { companyService } from "../../company-detail/services/companyService";
 
 const CompanyPromotions: React.FC = () => {
   const navigate = useNavigate();

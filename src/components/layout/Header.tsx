@@ -1,15 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Menu,
-  X,
-  MapPin,
-  User,
-  LogOut,
-  Package,
-  PlusCircle,
-} from "lucide-react";
+import { Menu, X, User, LogOut, Package } from "lucide-react";
 import { parseJwt, getToken } from "../../configs/api";
 import {
   profileService,
@@ -34,11 +26,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Become a Partner", href: "/provider/apply" },
 ];
 
-const PROVIDER_NAV_ITEMS: NavItem[] = [
-  { label: "Tour Management", href: "/tours/manage" },
-  { label: "Promotions", href: "/tours/promotions" },
-  { label: "Booking Management", href: "/tours/bookings" },
-];
 
 const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
   const navigate = useNavigate();
@@ -190,10 +177,11 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
         initial={{ y: 0 }}
         animate={{ y: isVisible ? 0 : -100 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        className={`fixed top-4 left-4 right-4 z-50 rounded-2xl transition-all duration-300 ${isScrolled
+        className={`fixed top-4 left-4 right-4 z-50 rounded-2xl transition-all duration-300 ${
+          isScrolled
             ? "bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl"
             : "bg-black/30 backdrop-blur-md border border-white/5"
-          }`}
+        }`}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -226,69 +214,29 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
                   key={item.href}
                   href={item.href}
                   onClick={(e) => handleNavClick(e, item.href)}
-                  className={`relative px-4 py-2 text-sm font-medium transition-colors rounded-lg hover:bg-white/10 cursor-pointer ${isActive(item.href)
+                  className={`relative px-4 py-2 text-sm font-medium transition-colors rounded-lg hover:bg-white/10 cursor-pointer ${
+                    isActive(item.href)
                       ? "text-accent"
                       : "text-gray-300 hover:text-white"
-                    }`}
+                  }`}
                 >
                   {item.label}
                 </a>
               ))}
 
-              {/* Provider Management Dropdown */}
+              {/* Provider Management Link */}
               {userRole === "TOUR_COMPANY" && (
-                <div className="relative">
-                  <button
-                    onClick={() => setShowManagementMenu(!showManagementMenu)}
-                    className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
-                  >
-                    Management
-                    <motion.span
-                      animate={{ rotate: showManagementMenu ? 180 : 0 }}
-                      className="inline-block"
-                    >
-                      <svg
-                        width="10"
-                        height="6"
-                        viewBox="0 0 10 6"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M1 1L5 5L9 1"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </motion.span>
-                  </button>
-
-                  <AnimatePresence>
-                    {showManagementMenu && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="absolute left-0 mt-2 w-56 rounded-xl bg-[#0f172a] border border-white/10 shadow-2xl py-2 overflow-hidden"
-                      >
-                        {PROVIDER_NAV_ITEMS.map((item) => (
-                          <button
-                            key={item.href}
-                            onClick={(e) => {
-                              setShowManagementMenu(false);
-                              handleNavClick(e as any, item.href);
-                            }}
-                            className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
-                          >
-                            {item.label}
-                          </button>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                <a
+                  href="/tours/management"
+                  onClick={(e) => handleNavClick(e, "/tours/management")}
+                  className={`px-4 py-2 text-sm font-medium transition-colors rounded-lg hover:bg-white/10 cursor-pointer ${
+                    isActive("/tours/management")
+                      ? "text-accent"
+                      : "text-gray-300 hover:text-white"
+                  }`}
+                >
+                  Management
+                </a>
               )}
             </div>
             {/* Desktop Action Buttons */}
@@ -436,35 +384,29 @@ const Header: React.FC<HeaderProps> = ({ onBookClick }) => {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className={`px-4 py-3 text-lg font-medium hover:bg-white/10 rounded-xl transition-colors cursor-pointer text-left ${isActive(item.href)
+                    className={`px-4 py-3 text-lg font-medium hover:bg-white/10 rounded-xl transition-colors cursor-pointer text-left ${
+                      isActive(item.href)
                         ? "text-accent"
                         : "text-gray-300 hover:text-white"
-                      }`}
+                    }`}
                   >
                     {item.label}
                   </motion.button>
                 ))}
                 {userRole === "TOUR_COMPANY" && (
-                  <div className="mt-4 pt-4 border-t border-white/10 space-y-1">
-                    <p className="px-4 text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
-                      Management
-                    </p>
-                    {PROVIDER_NAV_ITEMS.map((item, index) => (
-                      <motion.button
-                        key={item.href}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 + index * 0.1 }}
-                        onClick={(e) => handleNavClick(e as any, item.href)}
-                        className={`w-full px-4 py-3 text-lg font-medium hover:bg-white/10 rounded-xl transition-colors text-left cursor-pointer flex items-center gap-3 ${isActive(item.href)
-                            ? "text-accent"
-                            : "text-gray-300 hover:text-white"
-                          }`}
-                      >
-                        {item.label}
-                      </motion.button>
-                    ))}
-                  </div>
+                  <motion.button
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                    onClick={(e) => handleNavClick(e, "/tours/management")}
+                    className={`px-4 py-3 text-lg font-medium hover:bg-white/10 rounded-xl transition-colors cursor-pointer text-left ${
+                      isActive("/tours/management")
+                        ? "text-accent"
+                        : "text-gray-300 hover:text-white"
+                    }`}
+                  >
+                    Management
+                  </motion.button>
                 )}
                 {isAuthenticated && (
                   <motion.button

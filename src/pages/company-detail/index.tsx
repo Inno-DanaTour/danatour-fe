@@ -13,7 +13,14 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Header from "../../components/layout/Header";
+import { TOURS } from "../../constants/constants";
+import { Company } from "./types";
+import { Tour } from "../tours/types";
+import { companyService } from "./services/companyService";
+import { getToken } from "../../configs/api";
 import { useCompanyDetail } from "./hooks/useCompanyDetail";
+
+// Mock Company Data removed
 
 const CompanyDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,7 +37,6 @@ const CompanyDetail: React.FC = () => {
     handleToggleFollow,
   } = useCompanyDetail(id);
 
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -42,8 +48,12 @@ const CompanyDetail: React.FC = () => {
   if (error || !company) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center text-center p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">{error || "Company not found"}</h2>
-        <button onClick={() => navigate(-1)} className="btn-primary px-8">Go Back</button>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          {error || "Company not found"}
+        </h2>
+        <button onClick={() => navigate(-1)} className="btn-primary px-8">
+          Go Back
+        </button>
       </div>
     );
   }
@@ -77,10 +87,14 @@ const CompanyDetail: React.FC = () => {
                   <AlertCircle size={24} />
                 </div>
                 <div className="flex-grow">
-                  <h4 className="text-sm font-black text-gray-900 uppercase tracking-wider">Login Required</h4>
-                  <p className="text-xs text-gray-500 font-medium">Please sign in to follow this agency and receive updates.</p>
+                  <h4 className="text-sm font-black text-gray-900 uppercase tracking-wider">
+                    Login Required
+                  </h4>
+                  <p className="text-xs text-gray-500 font-medium">
+                    Please sign in to follow this agency and receive updates.
+                  </p>
                 </div>
-                <button 
+                <button
                   onClick={() => navigate("/login")}
                   className="px-4 py-2 bg-primary text-white text-xs font-black rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20"
                 >
@@ -100,7 +114,10 @@ const CompanyDetail: React.FC = () => {
               className="w-32 h-32 md:w-40 md:h-40 rounded-3xl overflow-hidden shadow-2xl shrink-0"
             >
               <img
-                src={company.logoUrl || "https://images.unsplash.com/photo-1599305090748-35699709d435?w=500&auto=format&fit=crop&q=60"}
+                src={
+                  company.logoUrl ||
+                  "https://images.unsplash.com/photo-1599305090748-35699709d435?w=500&auto=format&fit=crop&q=60"
+                }
                 alt={company.name}
                 className="w-full h-full object-cover"
               />
@@ -127,7 +144,9 @@ const CompanyDetail: React.FC = () => {
                   <span className="font-bold text-gray-900">
                     {company.averageRating}
                   </span>
-                  <span className="text-gray-400">({company.totalTours} tours)</span>
+                  <span className="text-gray-400">
+                    ({company.totalTours} tours)
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Users size={18} className="text-primary" />

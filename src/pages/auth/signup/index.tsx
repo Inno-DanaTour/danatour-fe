@@ -86,7 +86,7 @@ const Signup = () => {
       <main className="relative z-10 w-full h-full flex items-center justify-center p-4">
         {/* --- THE GLASS CARD --- */}
         <motion.div
-          className="w-full max-w-[340px] p-6 rounded-[2.5rem] bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)]"
+          className="w-full max-w-[460px] p-8 rounded-[2.5rem] bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)]"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -96,14 +96,10 @@ const Signup = () => {
             variants={itemVariants}
             className="w-full flex flex-col items-center mb-4"
           >
-            <div className="w-20 h-20">
-              <img
-                src="/logo.png"
-                alt="DanaTour Logo"
-                className="w-full h-full object-contain"
-              />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FFC857] to-[#FFD980] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform mb-2">
+              <MapPin className="w-6 h-6 text-black" />
             </div>
-            <span className="text-2xl font-black text-white tracking-tight font-display">
+            <span className="text-xl font-bold text-white tracking-tight font-display">
               Dana<span className="text-[#FFC857]">Tour</span>
             </span>
           </motion.div>

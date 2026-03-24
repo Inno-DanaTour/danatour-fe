@@ -1,6 +1,7 @@
 import { api } from "../../../../configs/api";
 import { API_ENDPOINT } from "../constants/api";
-import { RegisterRequest, RegisterResponse, ApiResponse } from "../types";
+import { ApiResponse } from "../../../../types/common";
+import { RegisterRequest, RegisterResponse } from "../../types";
 
 export const register = async (
   data: RegisterRequest,

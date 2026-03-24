@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { companyService } from "../services/companyService";
-import { Company, Tour } from "../../../types/types";
+import { Company } from "../types";
+import { Tour } from "../../tours/types";
 import { TOURS } from "../../../constants/constants";
 import { getToken } from "../../../configs/api";
 

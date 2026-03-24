@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from "framer-motion";
 // Pages
 import Home from "../pages/home";
 import DaNangExplore from "../pages/explore";
-import Tours from "../pages/tours";
 import TourDetail from "../pages/tour-detail";
 import Checkout from "../pages/checkout";
 import Confirmation from "../pages/confirmation";
@@ -18,17 +17,25 @@ import MyBookings from "../pages/my-bookings";
 import OAuth2Callback from "../pages/auth/oauth2";
 import ChangePassword from "../pages/auth/change-password";
 import ProviderOnboarding from "../pages/auth/provider-onboarding";
-import ManageTours from "../pages/tours/ManageTours";
-import CreateTour from "../pages/tours/CreateTour";
-import EditTour from "../pages/tours/EditTour";
+import {
+  ToursPage as Tours,
+  ManageTours,
+  CreateTour,
+  EditTour,
+  CompanyPromotions,
+  CompanyBookings,
+  ManagementHub
+} from "../pages/tours";
 import UserProfilePage from "../pages/profile";
-import AdminLayout from "../pages/admin/AdminLayout";
-import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
-import TourCompanyManagementPage from "../pages/admin/TourCompanyManagementPage";
-import AdminTourManagementPage from "../pages/admin/components/AdminTourManagementPage";
-import AdminPromotions from "../pages/admin/AdminPromotions";
-import CompanyPromotions from "../pages/tours/CompanyPromotions";
-import CompanyBookings from "../pages/tours/CompanyBookings";
+import {
+  AdminLayout,
+  AdminDashboardPage,
+  TourCompanyManagementPage,
+  AdminTourManagementPage,
+  AdminPromotions,
+  AdminUserManagementPage,
+  AdminReportManagementPage
+} from "../pages/admin";
 import PromotionDetail from "../pages/promotions/PromotionDetail";
 import PaymentResult from "../pages/payment-result";
 
@@ -228,6 +235,8 @@ export const AnimatedRoutes = () => {
         { path: "companies", element: <TourCompanyManagementPage /> },
         { path: "promotions", element: <AdminPromotions /> },
         { path: "promotions/:id", element: <PromotionDetail /> },
+        { path: "users", element: <AdminUserManagementPage /> },
+        { path: "reports", element: <AdminReportManagementPage /> },
       ],
     },
     {
@@ -243,6 +252,14 @@ export const AnimatedRoutes = () => {
       element: (
         <PageWrapper>
           <PromotionDetail />
+        </PageWrapper>
+      ),
+    },
+    {
+      path: "/tours/management",
+      element: (
+        <PageWrapper>
+          <ManagementHub />
         </PageWrapper>
       ),
     },

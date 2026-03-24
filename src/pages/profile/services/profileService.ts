@@ -1,40 +1,12 @@
 import { api } from "../../../configs/api";
+import { ApiResponse } from "../../../types/common";
+import {
+  UserProfileResponse,
+  ChangePasswordRequest,
+  ProfileUpdateRequest,
+} from "../types";
 
-export interface ApiResponse<T> {
-  success: boolean;
-  code: number;
-  message: string;
-  data: T;
-  total?: number;
-}
-
-export interface UserProfileResponse {
-  id?: number;
-  email: string;
-  fullName: string;
-  avatarUrl?: string;
-  phone?: string | null;
-  address?: string | null;
-  bio?: string | null;
-  dob?: string | null;
-  gender?: string | null;
-  lastLoginAt?: string | null;
-  createdAt?: string;
-}
-
-export interface ChangePasswordRequest {
-  oldPassword?: string;
-  newPassword?: string;
-  confirmPassword?: string;
-}
-
-export interface ProfileUpdateRequest {
-  fullName: string;
-  phone?: string | null;
-  address?: string | null;
-  bio?: string | null;
-  avatar?: File | null;
-}
+export type { UserProfileResponse, ChangePasswordRequest, ProfileUpdateRequest };
 
 export const profileService = {
   getMyInfo: async (): Promise<any> => {

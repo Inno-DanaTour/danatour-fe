@@ -13,7 +13,7 @@ import {
   Sparkles,
   GripVertical,
 } from "lucide-react";
-import { ZoneType, LocationData } from "../../types/types";
+import { ZoneType, LocationData } from "../../pages/home/types";
 import { LOCATIONS } from "../../constants/constants";
 
 interface RouteEditorProps {

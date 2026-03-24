@@ -1,14 +1,6 @@
 import { api } from "../../../configs/api";
-import { ApiResponse, PagedResponse } from "../../../types/types";
-import {
-  BookingRequest,
-  BookingResponse,
-  CompanyBookingResponse,
-  RebookInfoResponse,
-} from "../types/checkout.types";
-import { BookingHistoryResponse } from "../../my-bookings/types/my-bookings.types";
-
-
+import { ApiResponse, PagedResponse } from "../../../types/common";
+import { BookingRequest, BookingResponse, BookingHistoryResponse, CompanyBookingResponse, RebookInfoResponse } from "../types";
 
 export const bookingService = {
   getRebookInfo: (id: number): Promise<RebookInfoResponse> => {

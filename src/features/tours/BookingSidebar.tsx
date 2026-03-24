@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Tour } from "../../types/types";
+import { Tour } from "../../pages/tours/types";
 import { Users, User, Calendar, ShieldCheck, Minus, Plus } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { bookingService } from "../../pages/checkout/services/bookingService";

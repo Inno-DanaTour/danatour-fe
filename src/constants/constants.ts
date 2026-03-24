@@ -1,4 +1,5 @@
-import { LocationData, ZoneType, Tour, ItineraryItem } from "../types/types";
+import { LocationData, ZoneType, ItineraryItem } from "../pages/home/types";
+import { Tour } from "../pages/tours/types";
 
 export const LOCATIONS: LocationData[] = [
   {
@@ -164,7 +165,8 @@ export const TOURS: Tour[] = [
       "https://media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/06/f1/35/8c.jpg",
       "https://images.prismic.io/travelfika/aN1_lp5xUNkB1YiV_danangbeach.jpg?auto=format,compress",
     ],
-    price: 1200000,
+    adultPrice: 1200000,
+    childrenPrice: 840000,
     duration: "1 Day",
     rating: 4.8,
     reviewCount: 124,
@@ -206,7 +208,8 @@ export const TOURS: Tour[] = [
       "https://vmtravel.com.vn/wp-content/uploads/2022/10/hoi_an_by_night.jpg",
       "https://vietnam.travel/sites/default/files/inline-images/292-Qu%E1%BA%A3ng%20Nam-tmluong50%40gmail.com-thuyen%20hoa.jpg",
     ],
-    price: 1500000,
+    adultPrice: 1500000,
+    childrenPrice: 1050000,
     duration: "10 Hours",
     rating: 4.9,
     reviewCount: 350,
@@ -255,7 +258,8 @@ export const TOURS: Tour[] = [
     gallery: [
       "https://cdn.tripspoint.com/uploads/photos/12160/ba-na-hills-full-day-highlights-golden-bridge-french-village_Wt7WL.jpeg",
     ],
-    price: 1800000,
+    adultPrice: 1800000,
+    childrenPrice: 1260000,
     duration: "1 Day",
     rating: 4.7,
     reviewCount: 520,
@@ -287,7 +291,8 @@ export const TOURS: Tour[] = [
       "https://cdn-i2.congthuong.vn/stores/news_dataimages/2023/052023/02/21/dasua-120230502214710.png?rt=20230502214744",
       "https://danangfantasticity.com/wp-content/uploads/2019/06/Helio-khu-Biadiem-qua-5-khu-cho-dem-noi-tieng-nhat-da-nang.jpg",
     ],
-    price: 800000,
+    adultPrice: 800000,
+    childrenPrice: 560000,
     duration: "5 Hours",
     rating: 4.6,
     reviewCount: 88,

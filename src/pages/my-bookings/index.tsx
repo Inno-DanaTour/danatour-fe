@@ -16,9 +16,11 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/layout/Header";
-import PaymentTimer from "../../components/common/PaymentTimer";
-import { useMyBookings } from "./hooks/useMyBookings";
-import { BookingHistoryResponse, Tab } from "./types/my-bookings.types";
+import {
+  bookingService,
+  BookingHistoryResponse,
+} from "../checkout/services/bookingService";
+import { PagedResponse } from "../../types/common";
 
 const TABS: Tab[] = [
   { label: "All", value: "" },
@@ -962,7 +964,7 @@ const MyBookings: React.FC = () => {
           </div>
         )}
       </AnimatePresence>
-      
+
       {/* Status Modal (Success/Error) */}
       <AnimatePresence>
         {statusModal.isOpen && (
@@ -1013,7 +1015,9 @@ const MyBookings: React.FC = () => {
               </p>
 
               <button
-                onClick={() => setStatusModal({ ...statusModal, isOpen: false })}
+                onClick={() =>
+                  setStatusModal({ ...statusModal, isOpen: false })
+                }
                 className={`w-full py-4 rounded-2xl font-black text-sm shadow-xl transition-all active:scale-95 ${
                   statusModal.type === "success"
                     ? "bg-primary text-white shadow-primary/20 hover:bg-primary-dark"

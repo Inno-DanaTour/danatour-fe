@@ -1,53 +1,5 @@
 import { api } from "../../../configs/api";
-
-export interface ProviderApplicationInfo {
-  companyName: string;
-  taxCode: string;
-  citizenId: string;
-  businessAddress: string;
-  contactEmail: string;
-  contactPhone: string;
-  description: string;
-  websiteUrl?: string;
-  representativeName: string;
-  representativePosition: string;
-}
-
-export interface ProviderApplicationResponse {
-  id: number;
-  companyId: number;
-  companyName: string;
-  documentType: string;
-  documentUrl: string;
-  verificationStatus: string;
-  verifiedById?: number;
-  verifiedByName?: string;
-  verifiedAt?: string;
-  uploadedAt: string;
-}
-
-export interface TourCompanyResponse {
-  id: number;
-  name: string;
-  taxCode: string;
-  citizenId: string;
-  description: string;
-  logoUrl?: string;
-  address: string;
-  contactEmail: string;
-  contactPhone: string;
-  averageRating: number;
-  totalTours: number;
-  status: string;
-  rejectionReason?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface MyProviderApplicationResponse {
-  company: TourCompanyResponse | null;
-  documents: ProviderApplicationResponse[];
-}
+import { ProviderApplicationInfo, MyProviderApplicationResponse, ProviderApplicationResponse } from "../types";
 
 export const providerService = {
   submitApplication: async (

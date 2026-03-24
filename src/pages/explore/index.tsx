@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { COLORS } from "../../constants/constants";
-import { ZoneType, LocationData } from "../../types/types";
+import { ZoneType, LocationData } from "../home/types";
 import Background from "../../components/layout/Background";
 import Passport from "../../features/explore/Passport";
 import Checkpoint from "../../features/explore/Checkpoint";

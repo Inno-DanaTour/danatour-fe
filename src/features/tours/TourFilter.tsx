@@ -1,5 +1,5 @@
 import React from "react";
-import { ZoneType } from "../../types/types";
+import { ZoneType } from "../../pages/home/types";
 
 interface TourFilterProps {
   selectedZone: ZoneType | "ALL";
