@@ -1,5 +1,5 @@
-import { api } from "../configs/api";
-import { ApiResponse } from "../types/types";
+import { api } from "../../../configs/api";
+import { ApiResponse } from "../../../types/types";
 
 export interface RefundRequest {
   id: number;

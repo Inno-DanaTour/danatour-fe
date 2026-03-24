@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { CheckCircle, XCircle, Loader2, Search, Banknote, Calendar, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { refundService, RefundDetailResponse, RefundRequest } from "../../services/refundService";
+import { refundService, RefundDetailResponse, RefundRequest } from "../checkout/services/refundService";
 
 const AdminRefundPortal: React.FC = () => {
   const [refunds, setRefunds] = useState<RefundRequest[]>([]);

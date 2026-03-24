@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/layout/Header";
-import { refundService, RefundDetailResponse } from "../../services/refundService";
+import { refundService, RefundDetailResponse } from "../checkout/services/refundService";
 import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 
 const RefundDetailView: React.FC = () => {

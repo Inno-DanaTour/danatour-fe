@@ -174,7 +174,7 @@ const MyBookings: React.FC = () => {
         }
       );
 
-      const { refundService } = await import("../../services/refundService");
+      const { refundService } = await import("../checkout/services/refundService");
       const myRefunds = await refundService.getMyRefunds();
       const request = myRefunds.find(
         (r) => r.bookingId === selectedBookingForRefund.id && r.status === "PENDING",
@@ -194,7 +194,7 @@ const MyBookings: React.FC = () => {
 
   const handleViewRefundQR = async (bookingId: number) => {
     try {
-      const { refundService } = await import("../../services/refundService");
+      const { refundService } = await import("../checkout/services/refundService");
       const myRefunds = await refundService.getMyRefunds();
       const request = myRefunds.find(r => r.bookingId === bookingId && r.status === 'PENDING');
       if (request) {
