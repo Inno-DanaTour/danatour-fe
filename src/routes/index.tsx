@@ -31,6 +31,8 @@ import CompanyPromotions from "../pages/tours/CompanyPromotions";
 import CompanyBookings from "../pages/tours/CompanyBookings";
 import PromotionDetail from "../pages/promotions/PromotionDetail";
 import PaymentResult from "../pages/payment-result";
+import AdminRefundPortal from "../pages/admin/RefundPortal";
+import RefundDetailView from "../pages/refunds/RefundDetailView";
 
 const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <motion.div
@@ -184,6 +186,14 @@ export const AnimatedRoutes = () => {
       ),
     },
     {
+      path: "/refunds/:id",
+      element: (
+        <PageWrapper>
+          <RefundDetailView />
+        </PageWrapper>
+      ),
+    },
+    {
       path: "/oauth2/callback",
       element: (
         <PageWrapper>
@@ -228,6 +238,7 @@ export const AnimatedRoutes = () => {
         { path: "companies", element: <TourCompanyManagementPage /> },
         { path: "promotions", element: <AdminPromotions /> },
         { path: "promotions/:id", element: <PromotionDetail /> },
+        { path: "refunds", element: <AdminRefundPortal /> },
       ],
     },
     {

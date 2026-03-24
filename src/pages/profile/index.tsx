@@ -51,7 +51,7 @@ const UserProfilePage: React.FC = () => {
 
   const tabs = [
     { id: "profile", label: "Profile Info", icon: User },
-    ...(isTourCompany ? [{ id: "payment", label: "Payment Methods", icon: Banknote }] : []),
+    { id: "payment", label: "Payment Methods", icon: Banknote },
     { id: "security", label: "Security", icon: Shield },
   ];
 

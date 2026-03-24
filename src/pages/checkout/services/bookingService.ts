@@ -57,6 +57,11 @@ export interface RebookInfoResponse {
   children: number;
 }
 
+export interface CancelBookingRequest {
+  paymentMethodId?: number;
+  reason?: string;
+}
+
 export const bookingService = {
   getRebookInfo: (id: number): Promise<RebookInfoResponse> => {
     return api.get<RebookInfoResponse>(`/bookings/${id}/rebook-info`);
@@ -66,8 +71,8 @@ export const bookingService = {
     return api.post<BookingResponse>("/bookings", data);
   },
 
-  cancelBooking: (id: number): Promise<BookingResponse> => {
-    return api.put<BookingResponse>(`/bookings/${id}/cancel`);
+  cancelBooking: (id: number, data?: CancelBookingRequest): Promise<BookingResponse> => {
+    return api.put<BookingResponse>(`/bookings/${id}/cancel`, data);
   },
 
   getBooking: (id: number): Promise<BookingResponse> => {

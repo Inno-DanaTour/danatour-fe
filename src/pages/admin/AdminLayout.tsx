@@ -9,6 +9,7 @@ import {
   LogOut,
   TicketPercent,
   Palmtree,
+  HandCoins,
 } from "lucide-react";
 
 const AdminLayout: React.FC = () => {
@@ -26,6 +27,7 @@ const AdminLayout: React.FC = () => {
     { path: "/admin/tours", label: "Tours", icon: Palmtree },
     { path: "/admin/companies", label: "Tour Companies", icon: Building2 },
     { path: "/admin/promotions", label: "Promotions", icon: TicketPercent },
+    { path: "/admin/refunds", label: "Refund Requests", icon: HandCoins },
     // Mock links for future expansion
     { path: "/admin/users", label: "Users", icon: Users },
     { path: "/admin/reports", label: "Reports", icon: FileText },
@@ -95,7 +97,7 @@ const AdminLayout: React.FC = () => {
         {/* Mobile Header */}
         <header className="md:hidden bg-white border-b border-gray-200 p-4 shrink-0 flex items-center justify-between">
           <div className="font-black text-lg">DanaTour Admin</div>
-          <button className="p-2 border border-gray-200 rounded-lg">
+          <button title="Open admin menu" className="p-2 border border-gray-200 rounded-lg">
             <LayoutDashboard size={20} />
           </button>
         </header>

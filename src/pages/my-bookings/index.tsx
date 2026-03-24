@@ -28,6 +28,7 @@ const TABS = [
   { label: "Confirmed", value: "CONFIRMED" },
   { label: "Completed", value: "COMPLETED" },
   { label: "Cancelled", value: "CANCELLED" },
+  { label: "Refunded", value: "REFUNDED" },
 ];
 
 const MyBookings: React.FC = () => {
@@ -47,6 +48,14 @@ const MyBookings: React.FC = () => {
   const [comment, setComment] = useState("");
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
   const [feedbackSuccess, setFeedbackSuccess] = useState(false);
+  
+  // Refund State
+  const [showRefundModal, setShowRefundModal] = useState(false);
+  const [selectedBookingForRefund, setSelectedBookingForRefund] = useState<BookingHistoryResponse | null>(null);
+  const [refundBankAccounts, setRefundBankAccounts] = useState<any[]>([]);
+  const [selectedBankAccountId, setSelectedBankAccountId] = useState<number | "">("");
+  const [refundReason, setRefundReason] = useState("");
+  const [isSubmittingRefund, setIsSubmittingRefund] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -75,15 +84,20 @@ const MyBookings: React.FC = () => {
     setCurrentPage(1);
   };
 
-  const handleCancelBooking = async (id: number) => {
+  const handleCancelBooking = async (booking: BookingHistoryResponse) => {
+    if (booking.status === "CONFIRMED") {
+      await handleOpenRefund(booking);
+      return;
+    }
+
     if (
       window.confirm(
         "Are you sure you want to cancel this booking? Slots will be released.",
       )
     ) {
-      setIsProcessing(id);
+      setIsProcessing(booking.id);
       try {
-        await bookingService.cancelBooking(id);
+        await bookingService.cancelBooking(booking.id);
         // Refresh data
         fetchBookings();
         alert("Booking cancelled successfully!");
@@ -129,6 +143,68 @@ const MyBookings: React.FC = () => {
     }
   };
 
+  const handleOpenRefund = async (booking: BookingHistoryResponse) => {
+    try {
+      const { paymentMethodService } = await import("../checkout/services/paymentMethodService");
+      const accounts = await paymentMethodService.getAll();
+      if (accounts.length === 0) {
+        if (window.confirm("You haven't added any bank accounts for refunds. Would you like to add one now in your profile?")) {
+          navigate("/profile");
+        }
+        return;
+      }
+      setRefundBankAccounts(accounts);
+      setSelectedBookingForRefund(booking);
+      setShowRefundModal(true);
+    } catch (err: any) {
+      alert("Failed to load bank accounts. Please try again.");
+    }
+  };
+
+  const handleSubmitRefund = async () => {
+    if (!selectedBookingForRefund || !selectedBankAccountId) return;
+
+    setIsSubmittingRefund(true);
+    try {
+      await bookingService.cancelBooking(
+        selectedBookingForRefund.id,
+        {
+          paymentMethodId: selectedBankAccountId as number,
+          reason: refundReason || undefined,
+        }
+      );
+
+      const { refundService } = await import("../../services/refundService");
+      const myRefunds = await refundService.getMyRefunds();
+      const request = myRefunds.find(
+        (r) => r.bookingId === selectedBookingForRefund.id && r.status === "PENDING",
+      );
+
+      setShowRefundModal(false);
+      if (request) {
+        navigate(`/refunds/${request.id}`);
+      }
+      fetchBookings();
+    } catch (err: any) {
+      alert(err.response?.data?.message || err.message || "Failed to cancel booking.");
+    } finally {
+      setIsSubmittingRefund(false);
+    }
+  };
+
+  const handleViewRefundQR = async (bookingId: number) => {
+    try {
+      const { refundService } = await import("../../services/refundService");
+      const myRefunds = await refundService.getMyRefunds();
+      const request = myRefunds.find(r => r.bookingId === bookingId && r.status === 'PENDING');
+      if (request) {
+        navigate(`/refunds/${request.id}`);
+      }
+    } catch (err) {
+      alert("Failed to load refund details.");
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "CONFIRMED":
@@ -141,6 +217,10 @@ const MyBookings: React.FC = () => {
         return "bg-blue-100 text-blue-600 border-blue-200";
       case "REVIEWED":
         return "bg-purple-100 text-purple-600 border-purple-200";
+      case "REFUND_REQUESTED":
+        return "bg-orange-100 text-orange-600 border-orange-200";
+      case "REFUNDED":
+        return "bg-indigo-100 text-indigo-600 border-indigo-200";
       default:
         return "bg-gray-100 text-gray-600 border-gray-200";
     }
@@ -367,10 +447,20 @@ const MyBookings: React.FC = () => {
                         </button>
 
                         <div className="flex gap-3">
+                          {booking.status === "REFUND_REQUESTED" && (
+                             <button
+                               onClick={() => handleViewRefundQR(booking.id)}
+                               className="flex-1 p-3.5 bg-primary/10 text-primary rounded-2xl hover:bg-primary/20 transition-all flex items-center justify-center gap-2 font-black text-xs"
+                             >
+                               View QR
+                             </button>
+                          )}
                           {booking.status !== "CANCELLED" &&
-                            booking.status !== "COMPLETED" && (
+                            booking.status !== "COMPLETED" && 
+                            booking.status !== "REFUND_REQUESTED" &&
+                            booking.status !== "REFUNDED" && (
                               <button
-                                onClick={() => handleCancelBooking(booking.id)}
+                                onClick={() => handleCancelBooking(booking)}
                                 disabled={isProcessing === booking.id}
                                 className="flex-1 p-3.5 rounded-2xl border-2 border-red-50 text-red-400 hover:bg-red-50 hover:border-red-100 transition-all flex items-center justify-center gap-2 font-black text-xs disabled:opacity-50"
                               >
@@ -379,7 +469,7 @@ const MyBookings: React.FC = () => {
                                 ) : (
                                   <XCircle size={16} />
                                 )}
-                                Cancel
+                                {booking.status === "CONFIRMED" ? "Cancel & Refund" : "Cancel"}
                               </button>
                             )}
                           <button
@@ -412,6 +502,7 @@ const MyBookings: React.FC = () => {
                   <button
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={pagedData.first}
+                    title="Previous page"
                     className="w-12 h-12 rounded-2xl border border-gray-200 flex items-center justify-center hover:border-primary hover:text-primary transition-all disabled:opacity-30 disabled:hover:border-gray-200 disabled:hover:text-gray-400 shadow-sm bg-white"
                   >
                     <ChevronLeft size={24} />
@@ -428,6 +519,7 @@ const MyBookings: React.FC = () => {
                       )
                     }
                     disabled={pagedData.last}
+                    title="Next page"
                     className="w-12 h-12 rounded-2xl border border-gray-200 flex items-center justify-center hover:border-primary hover:text-primary transition-all disabled:opacity-30 disabled:hover:border-gray-200 disabled:hover:text-gray-400 shadow-sm bg-white"
                   >
                     <ChevronRight size={24} />
@@ -503,6 +595,7 @@ const MyBookings: React.FC = () => {
                         </div>
                         <button 
                           onClick={() => setShowFeedbackModal(false)}
+                          title="Close feedback modal"
                           className="p-2 hover:bg-gray-100 rounded-2xl transition-colors"
                         >
                           <XCircle size={24} className="text-gray-400" />
@@ -525,6 +618,7 @@ const MyBookings: React.FC = () => {
                               <button
                                 key={star}
                                 onClick={() => setRating(star)}
+                                title={`Rate ${star} star${star > 1 ? "s" : ""}`}
                                 className="transition-transform active:scale-90"
                               >
                                 <Star 
@@ -593,6 +687,61 @@ const MyBookings: React.FC = () => {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Refund Request Modal */}
+      <AnimatePresence>
+        {showRefundModal && selectedBookingForRefund && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowRefundModal(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl p-8 overflow-hidden">
+               <div className="relative z-10">
+                 <h2 className="text-2xl font-black text-gray-900 mb-2">Cancel Booking & <span className="text-primary italic">Refund</span></h2>
+                 <p className="text-gray-500 font-medium mb-6">This booking is confirmed. Select bank account to receive refund after cancellation.</p>
+                 
+                 <div className="space-y-4">
+                   <div>
+                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Select Bank Account</label>
+                     <select 
+                       value={selectedBankAccountId}
+                       onChange={(e) => setSelectedBankAccountId(Number(e.target.value))}
+                       title="Select bank account"
+                       className="w-full p-4 bg-neutral-50 border border-neutral-200 rounded-2xl outline-none focus:border-primary font-bold text-gray-700"
+                     >
+                       <option value="">-- Choose Account --</option>
+                       {refundBankAccounts.map(acc => (
+                         <option key={acc.id} value={acc.id}>{acc.bankShortName} - {acc.bankAccountNumber}</option>
+                       ))}
+                     </select>
+                   </div>
+                   
+                   <div>
+                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Reason (Optional)</label>
+                     <textarea 
+                        value={refundReason}
+                        onChange={(e) => setRefundReason(e.target.value)}
+                        placeholder="Reason for refund..."
+                        className="w-full h-24 p-4 bg-neutral-50 border border-neutral-200 rounded-2xl outline-none focus:border-primary resize-none font-medium"
+                     />
+                   </div>
+                   
+                   <p className="text-[11px] text-orange-500 font-bold bg-orange-50 p-4 rounded-xl">
+                      Note: The refund amount will be calculated based on the cancellation policy of the tour.
+                   </p>
+                   
+                   <button 
+                     onClick={handleSubmitRefund}
+                     disabled={!selectedBankAccountId || isSubmittingRefund}
+                     className="w-full py-4 bg-primary text-white rounded-2xl font-black shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all disabled:opacity-50"
+                   >
+                     {isSubmittingRefund ? <Loader2 className="animate-spin mx-auto" /> : "Confirm Cancel"}
+                   </button>
+                 </div>
+               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 };
