@@ -11,6 +11,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { useLogin } from "./hooks/useLogin";
+import { BASE_URL } from "../../../configs/api";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -223,8 +224,7 @@ const Login = () => {
               <motion.button
                 type="button"
                 onClick={() => {
-                  window.location.href =
-                    "http://localhost:8080/api/v1/oauth2/authorize/google";
+                  window.location.href = `${BASE_URL}/oauth2/authorize/google`;
                 }}
                 variants={itemVariants}
                 whileHover={{
