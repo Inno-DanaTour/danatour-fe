@@ -13,7 +13,7 @@ export interface Company {
 }
 
 export interface ToggleFollowResponse {
-  is_following: boolean;
+  isFollowing: boolean;
   message: string;
 }
 

@@ -4,7 +4,6 @@ import { ArrowUpRight } from "lucide-react";
 import { Article } from "../../types/home.types";
 import { ARTICLES } from "../../constants/home.constants";
 
-
 const ArticleCard: React.FC<{ article: Article; index: number }> = ({
   article,
   index,
@@ -39,7 +38,7 @@ const ArticleCard: React.FC<{ article: Article; index: number }> = ({
 
       <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/20 to-transparent opacity-90 group-hover:opacity-100 transition-opacity rounded-[40px]" />
 
-      <div className="absolute inset-0 p-10 flex flex-col justify-end">
+      <div className="absolute inset-0 p-6 md:p-10 flex flex-col justify-end">
         <div className="mb-6">
           <span className="px-4 py-1.5 rounded-full bg-sky-500/20 backdrop-blur-xl text-[10px] font-black uppercase tracking-[0.3em] text-sky-400 border border-sky-500/20">
             {article.category}
@@ -70,14 +69,14 @@ const ArticleCard: React.FC<{ article: Article; index: number }> = ({
 
 const Articles: React.FC = () => {
   return (
-    <section className="bg-transparent py-32 md:py-48 relative overflow-hidden">
+    <section className="bg-transparent py-16 md:py-24 relative overflow-hidden">
       {/* Dynamic Background Elements */}
       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-sky-200/20 rounded-full blur-[150px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-emerald-200/20 rounded-full blur-[150px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="mb-24 flex flex-col md:flex-row justify-between items-end gap-12">
-          <div className="max-w-2xl">
+        <div className="mb-24 flex flex-col md:flex-row justify-between items-center md:items-end gap-12 text-center md:text-left">
+          <div className="max-w-2xl flex flex-col items-center md:items-start">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -87,12 +86,13 @@ const Articles: React.FC = () => {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400 font-display font-bold uppercase tracking-[0.6em] text-[10px]">
                 JOURNAL
               </span>
+              <div className="h-[2px] w-12 bg-gradient-to-r from-sky-400 to-emerald-400 rounded-full md:hidden" />
             </motion.div>
             <motion.h2
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-6xl md:text-8xl font-display font-black text-slate-900 tracking-tighter leading-none"
+              className="text-4xl md:text-8xl font-display font-black text-slate-900 tracking-tighter leading-none"
             >
               Stories from <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-cyan-400 to-emerald-400 italic">

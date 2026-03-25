@@ -4,7 +4,6 @@ import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { Testimonial } from "../../types/home.types";
 import { TESTIMONIALS } from "../../constants/home.constants";
 
-
 const TestimonialCard: React.FC<{
   testimonial: Testimonial;
   index: number;
@@ -14,7 +13,7 @@ const TestimonialCard: React.FC<{
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="flex-shrink-0 w-[350px] md:w-[420px] p-8 rounded-[32px] bg-white border border-sky-100 hover:border-sky-300 transition-all group cursor-pointer shadow-lg"
+      className="flex-shrink-0 w-[300px] md:w-[420px] p-6 md:p-8 rounded-[32px] bg-white border border-sky-100 hover:border-sky-300 transition-all group cursor-pointer shadow-lg"
     >
       {/* Quote Icon */}
       <div className="mb-6">
@@ -90,7 +89,7 @@ const Testimonials: React.FC = () => {
   }, []);
 
   return (
-    <section className="bg-transparent py-24 md:py-32 relative overflow-hidden">
+    <section className="bg-transparent py-16 md:py-24 relative overflow-hidden">
       {/* Background Glows */}
       <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-sky-200/20 rounded-full blur-[150px] pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-200/20 rounded-full blur-[150px] pointer-events-none" />
@@ -120,8 +119,8 @@ const Testimonials: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         {/* Header */}
-        <div className="mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
-          <div>
+        <div className="mb-16 flex flex-col md:flex-row justify-between items-center md:items-end gap-8 text-center md:text-left">
+          <div className="flex flex-col items-center md:items-start">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -131,12 +130,13 @@ const Testimonials: React.FC = () => {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400 font-display font-bold uppercase tracking-[0.5em] text-[10px]">
                 TESTIMONIALS
               </span>
+              <div className="h-[2px] w-12 bg-gradient-to-r from-sky-400 to-emerald-400 rounded-full md:hidden" />
             </motion.div>
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-5xl md:text-7xl font-display font-black text-slate-950 tracking-tighter leading-none"
+              className="text-4xl md:text-7xl font-display font-black text-slate-950 tracking-tighter leading-none"
             >
               Stories from <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-cyan-400 to-emerald-400 italic">
