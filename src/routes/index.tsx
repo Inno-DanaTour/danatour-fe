@@ -24,7 +24,7 @@ import {
   EditTour,
   CompanyPromotions,
   CompanyBookings,
-  ManagementHub
+  ManagementHub,
 } from "../pages/tours";
 import UserProfilePage from "../pages/profile";
 import {
@@ -34,10 +34,12 @@ import {
   AdminTourManagementPage,
   AdminPromotions,
   AdminUserManagementPage,
-  AdminReportManagementPage
+  AdminReportManagementPage,
 } from "../pages/admin";
 import PromotionDetail from "../pages/promotions/PromotionDetail";
 import PaymentResult from "../pages/payment-result";
+import AdminRefundPortal from "../pages/admin/RefundPortal";
+import RefundDetailView from "../pages/refunds/RefundDetailView";
 
 const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <motion.div
@@ -191,6 +193,14 @@ export const AnimatedRoutes = () => {
       ),
     },
     {
+      path: "/refunds/:id",
+      element: (
+        <PageWrapper>
+          <RefundDetailView />
+        </PageWrapper>
+      ),
+    },
+    {
       path: "/oauth2/callback",
       element: (
         <PageWrapper>
@@ -237,6 +247,7 @@ export const AnimatedRoutes = () => {
         { path: "promotions/:id", element: <PromotionDetail /> },
         { path: "users", element: <AdminUserManagementPage /> },
         { path: "reports", element: <AdminReportManagementPage /> },
+        { path: "refunds", element: <AdminRefundPortal /> },
       ],
     },
     {
