@@ -105,7 +105,17 @@ export const useCompanyDetail = (id: string | undefined) => {
 
     try {
       const response = await companyService.toggleFollow(id);
-      setIsFollowed(response.isFollowing);
+      // Backend might return 'isFollowing' or 'following' 
+      const isFollowing = typeof response.isFollowing === 'boolean' 
+        ? response.isFollowing 
+        : (response as any).following;
+
+      if (typeof isFollowing === 'boolean') {
+        setIsFollowed(isFollowing);
+      }
+      
+      // Re-fetch everything to ensure state is in sync (satisfies "reset trang" requirement)
+      await fetchCompanyData();
     } catch (err: any) {
       // Rollback on error
       setIsFollowed(previousFollowStatus);

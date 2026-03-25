@@ -132,7 +132,7 @@ const CompanyDetail: React.FC = () => {
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-500 hover:text-primary transition-colors mb-8 font-medium"
+          className="flex items-center gap-2 text-gray-500 hover:text-primary transition-colors mb-6 md:mb-8 font-medium px-2 md:px-0"
         >
           <ArrowLeft size={18} />
           Back
@@ -171,12 +171,12 @@ const CompanyDetail: React.FC = () => {
         </AnimatePresence>
 
         {/* Company Profile Header */}
-        <section className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl shadow-black/5 border border-gray-100 mb-12">
-          <div className="flex flex-col md:flex-row gap-10 items-start md:items-center">
+        <section className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-12 shadow-xl shadow-black/5 border border-gray-100 mb-8 md:mb-12">
+          <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-center md:items-start text-center md:text-left">
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="w-32 h-32 md:w-40 md:h-40 rounded-3xl overflow-hidden shadow-2xl shrink-0"
+              className="w-28 h-28 md:w-40 md:h-40 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl shrink-0 border-4 border-white"
             >
               <img
                 src={
@@ -187,65 +187,60 @@ const CompanyDetail: React.FC = () => {
                 className="w-full h-full object-cover"
               />
             </motion.div>
-
-            <div className="flex-grow space-y-4">
-              <div className="flex flex-wrap items-center gap-4">
-                <h1 className="text-3xl md:text-5xl font-black text-gray-900">
+ 
+            <div className="flex-grow space-y-4 w-full">
+              <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 justify-center md:justify-start">
+                <h1 className="text-2xl md:text-5xl font-black text-gray-900 leading-tight">
                   {company.name}
                 </h1>
-                <div className="flex items-center gap-1 bg-green-50 text-green-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
-                  <CheckCircle size={14} />
-                  Verified Provider
-                </div>
-                {isFollowed && (
-                  <div className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
-                    <Heart size={14} fill="currentColor" />
-                    You Follow this Agency
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                  <div className="flex items-center gap-1 bg-green-50 text-green-600 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0">
+                    <CheckCircle size={14} />
+                    Verified
                   </div>
-                )}
+                  {isFollowed && (
+                    <div className="flex items-center gap-1 bg-primary/10 text-primary px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0">
+                      <Heart size={14} fill="currentColor" />
+                      Followed
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <div className="flex flex-wrap gap-6 text-gray-600">
+              <div className="flex flex-wrap justify-center md:justify-start gap-4 md:gap-6 text-gray-600">
                 <div className="flex items-center gap-2 text-sm">
                   <MapPin size={18} className="text-primary" />
                   <span className="font-medium">{company.address}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center gap-2 text-sm font-medium">
                   <Star size={18} fill="#FFC107" className="text-[#FFC107]" />
-                  <span className="font-bold text-gray-900">
-                    {company.averageRating}
-                  </span>
-                  <span className="text-gray-400">
-                    ({company.totalTours} tours)
-                  </span>
+                  <span className="text-gray-900">{company.averageRating}</span>
+                  <span className="text-gray-400">({company.totalTours} tours)</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center gap-2 text-sm font-medium">
                   <Users size={18} className="text-primary" />
-                  <span className="font-bold text-gray-900">1.2k</span>
+                  <span className="text-gray-900">1.2k</span>
                   <span className="text-gray-400">Followers</span>
                 </div>
               </div>
-
-              <p className="text-gray-500 text-lg leading-relaxed max-w-3xl">
+ 
+              <p className="text-gray-500 text-base md:text-lg leading-relaxed max-w-3xl mx-auto md:mx-0">
                 {company.description}
               </p>
 
-              <div className="flex gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row gap-3 pt-4 justify-center md:justify-start">
                 <button
                   onClick={handleToggleFollow}
-                  className={`flex items-center gap-2 px-8 py-3 rounded-2xl font-bold transition-all ${
+                  className={`flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl font-bold transition-all w-full sm:w-auto ${
                     isFollowed
                       ? "bg-gray-100 text-gray-600 border border-gray-200"
                       : "bg-primary text-white shadow-lg shadow-primary/20 hover:scale-105 active:scale-95"
                   }`}
                 >
-                  <Heart
-                    size={20}
-                    fill={isFollowed ? "currentColor" : "none"}
-                  />
+                  <Heart size={20} fill={isFollowed ? "currentColor" : "none"} />
                   {isFollowed ? "Following" : "Follow Agency"}
                 </button>
-                <button className="px-8 py-3 rounded-2xl border-2 border-primary text-primary font-bold hover:bg-primary/5 transition-all">
+                <button className="px-8 py-3.5 rounded-2xl border-2 border-primary text-primary font-bold hover:bg-primary/5 transition-all w-full sm:w-auto">
                   Contact Us
                 </button>
               </div>

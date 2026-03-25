@@ -106,7 +106,7 @@ const Features: React.FC = () => {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-3 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {FEATURES.map((feature, index) => (
             <FeatureCard key={index} feature={feature} />
           ))}

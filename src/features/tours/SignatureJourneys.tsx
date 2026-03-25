@@ -70,9 +70,9 @@ const SignatureJourneys: React.FC = () => {
   };
 
   return (
-    <section className="py-40 relative z-20">
-      <div className="max-w-7xl mx-auto px-6  flex flex-col md:flex-row justify-between items-end gap-10">
-        <div>
+    <section className="py-35 relative z-20">
+      <div className="max-w-7xl mx-auto px-6  flex flex-col md:flex-row justify-between items-center md:items-end gap-10 mb-10 text-center md:text-left">
+        <div className="flex flex-col items-center md:items-start">
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400 font-display font-bold uppercase tracking-[0.5em] text-[10px]">
             SIGNATURE JOURNEYS
           </span>

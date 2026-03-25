@@ -98,13 +98,14 @@ const FAQ: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
           {/* Left Column - Heading */}
-          <div className="lg:col-span-5 flex flex-col justify-start">
+          <div className="lg:col-span-5 flex flex-col justify-start items-center lg:items-start text-center lg:text-left">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
+              className="flex flex-col items-center lg:items-start"
             >
-              <h2 className="text-5xl md:text-6xl font-display font-black text-slate-950 leading-tight mb-8">
+              <h2 className="text-4xl md:text-6xl font-display font-black text-slate-950 leading-tight mb-6 md:mb-8">
                 Frequently asked <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-emerald-500">
                   questions

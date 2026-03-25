@@ -76,7 +76,7 @@ const Home: React.FC = () => {
         {/* Editorial Intro Section */}
         <section
           ref={introRef}
-          className="relative min-h-[120vh] flex flex-col items-center justify-center py-32 overflow-hidden"
+          className="relative min-h-[100vh] lg:min-h-[120vh] flex flex-col items-center justify-center py-16 lg:py-32 overflow-hidden"
         >
           {/* Map Layer Background */}
           <div className="absolute inset-0 pointer-events-none z-0 opacity-[0.06]">
@@ -130,12 +130,12 @@ const Home: React.FC = () => {
           {/* Main Content Grid */}
           <div className="relative w-full max-w-7xl mx-auto px-6 grid grid-cols-12 gap-8 lg:gap-16 items-center z-10">
             {/* Main Visual Column */}
-            <div className="col-span-12 lg:col-span-6 relative order-2 lg:order-1">
+            <div className="col-span-12 lg:col-span-6 relative order-1 lg:order-1">
               {/* Overlapping Marquee */}
-              <div className="absolute -top-10 -left-10 lg:-left-20 w-[140%] pointer-events-none z-50">
+              <div className="absolute -top-10 lg:-top-10 -left-2 lg:-left-20 w-[170%] lg:w-[140%] pointer-events-none z-50">
                 <div className="-rotate-1 transform origin-left">
                   <motion.div style={{ x: marqueeX1 }} className="flex gap-4">
-                    <h2 className="text-[2.5vw] md:text-[2vw] font-display font-black leading-none uppercase whitespace-nowrap tracking-tighter text-sky-900 bg-white/90 backdrop-blur-sm py-1 px-4 rounded-lg">
+                    <h2 className="text-[5vw] lg:text-[2vw] font-display font-black leading-none uppercase whitespace-nowrap tracking-tighter text-sky-900 bg-white/90 backdrop-blur-sm py-1 px-4 rounded-lg">
                       DA NANG DISCOVERY — DA NANG DISCOVERY — DA NANG DISCOVERY
                       — DA NANG DISCOVERY — DA NANG DISCOVERY
                     </h2>
@@ -144,7 +144,7 @@ const Home: React.FC = () => {
                     style={{ x: marqueeX2 }}
                     className="flex gap-4 mt-1"
                   >
-                    <h2 className="text-[2.5vw] md:text-[2vw] font-display font-black leading-none uppercase whitespace-nowrap tracking-tighter text-emerald-700 bg-white/80 backdrop-blur-sm py-1 px-4 rounded-lg">
+                    <h2 className="text-[5vw] lg:text-[2vw] font-display font-black leading-none uppercase whitespace-nowrap tracking-tighter text-emerald-700 bg-white/80 backdrop-blur-sm py-1 px-4 rounded-lg">
                       WITH DANATOUR — WITH DANATOUR — WITH DANATOUR — WITH
                       DANATOUR — WITH DANATOUR — WITH DANATOUR
                     </h2>
@@ -158,7 +158,7 @@ const Home: React.FC = () => {
                 transition={{ duration: 1.2 }}
                 className="relative"
               >
-                <div className="rounded-[40px] md:rounded-[80px] overflow-hidden shadow-[0_50px_100px_-20px_rgba(14,165,233,0.3)] relative z-10 border-[12px] border-white ring-1 ring-sky-100">
+                <div className="rounded-[40px] lg:rounded-[80px] overflow-hidden shadow-[0_50px_100px_-20px_rgba(14,165,233,0.3)] relative z-10 border-[10px] lg:border-[12px] border-white ring-1 ring-sky-100">
                   <img
                     src="https://i.ibb.co/hJqsmS3g/anhdannag.avif"
                     className="w-full aspect-[4/5] object-cover hover:scale-105 transition-transform duration-[4s] ease-out"
@@ -170,13 +170,13 @@ const Home: React.FC = () => {
                 <motion.div
                   initial={{ x: -60, rotate: -45 }}
                   whileInView={{ x: -20, rotate: -30 }}
-                  className="absolute top-1/3 -left-12 w-64 h-32 bg-gradient-to-r from-sky-500 to-sky-400 z-0 shadow-lg rounded-2xl"
+                  className="absolute top-1/3 -left-8 lg:-left-12 w-48 lg:w-64 h-24 lg:h-32 bg-gradient-to-r from-sky-500 to-sky-400 z-0 shadow-lg rounded-2xl"
                   style={{ clipPath: "polygon(0% 0%, 100% 50%, 0% 100%)" }}
                 />
                 <motion.div
                   initial={{ x: 60, rotate: 20 }}
                   whileInView={{ x: 20, rotate: 8 }}
-                  className="absolute bottom-1/4 -right-12 w-80 h-40 bg-gradient-to-r from-emerald-400 to-emerald-500 z-0 opacity-90 shadow-lg rounded-2xl"
+                  className="absolute bottom-1/4 -right-8 lg:-right-12 w-64 lg:w-80 h-32 lg:h-40 bg-gradient-to-r from-emerald-400 to-emerald-500 z-0 opacity-90 shadow-lg rounded-2xl"
                   style={{ clipPath: "polygon(100% 0%, 0% 50%, 100% 100%)" }}
                 />
 
@@ -193,7 +193,7 @@ const Home: React.FC = () => {
             </div>
 
             {/* Side Content Column */}
-            <div className="col-span-12 lg:col-span-6 flex flex-col justify-center order-1 lg:order-2">
+            <div className="col-span-12 lg:col-span-6 flex flex-col justify-center order-2 lg:order-2">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -207,14 +207,14 @@ const Home: React.FC = () => {
                   </span>
                 </div>
 
-                <h2 className="text-5xl md:text-7xl font-display font-black leading-[0.9] mb-10 tracking-tighter uppercase text-white">
+                <h2 className="text-3xl lg:text-7xl font-display font-black leading-[0.9] mb-8 md:mb-10 tracking-tighter uppercase text-white text-center lg:text-left">
                   A new lens on the <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-cyan-200 to-emerald-200">
                     Central Coast.
                   </span>
                 </h2>
 
-                <p className="text-base text-white leading-relaxed font-medium mb-12 max-w-lg">
+                <p className="text-base text-white leading-relaxed font-medium mb-12 max-w-lg text-center lg:text-left mx-auto lg:mx-0">
                   We are a collective of storytellers and explorers with a deep
                   love for Central Vietnam. Our journey began on the peaks of
                   Son Tra, where we realized the world needed to see Da Nang
@@ -223,37 +223,37 @@ const Home: React.FC = () => {
                 </p>
 
                 {/* Feature Icons */}
-                <div className="flex gap-6 mb-12 flex-wrap">
-                  <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 shadow-lg px-4 py-3 rounded-2xl hover:-translate-y-1 transition-transform">
-                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-sky-600 shadow-sm">
-                      <Waves size={20} />
+                <div className="flex gap-4 md:gap-6 mb-10 md:mb-12 flex-wrap justify-center lg:justify-start">
+                  <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 shadow-lg px-3 md:px-4 py-2 md:py-3 rounded-2xl hover:-translate-y-1 transition-transform">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-white flex items-center justify-center text-sky-600 shadow-sm">
+                      <Waves size={18} />
                     </div>
-                    <span className="text-xs font-bold text-white uppercase tracking-wider">
+                    <span className="text-[10px] md:text-xs font-bold text-white uppercase tracking-wider">
                       Ocean
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 shadow-lg px-4 py-3 rounded-2xl hover:-translate-y-1 transition-transform">
-                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-emerald-600 shadow-sm">
-                      <Sun size={20} />
+                  <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 shadow-lg px-3 md:px-4 py-2 md:py-3 rounded-2xl hover:-translate-y-1 transition-transform">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-white flex items-center justify-center text-emerald-600 shadow-sm">
+                      <Sun size={18} />
                     </div>
-                    <span className="text-xs font-bold text-white uppercase tracking-wider">
+                    <span className="text-[10px] md:text-xs font-bold text-white uppercase tracking-wider">
                       Nature
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 shadow-lg px-4 py-3 rounded-2xl hover:-translate-y-1 transition-transform">
-                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-cyan-600 shadow-sm">
-                      <Compass size={20} />
+                  <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 shadow-lg px-3 md:px-4 py-2 md:py-3 rounded-2xl hover:-translate-y-1 transition-transform">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-white flex items-center justify-center text-cyan-600 shadow-sm">
+                      <Compass size={18} />
                     </div>
-                    <span className="text-xs font-bold text-white uppercase tracking-wider">
+                    <span className="text-[10px] md:text-xs font-bold text-white uppercase tracking-wider">
                       Explore
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-8">
+                <div className="flex flex-col sm:flex-row items-center gap-6 md:gap-8 ">
                   <button
                     onClick={goToExplore}
-                    className="group bg-gradient-to-r from-sky-500 to-emerald-500 text-white px-12 py-6 rounded-full font-bold uppercase tracking-widest text-[11px] hover:from-sky-600 hover:to-emerald-600 transition-all flex items-center gap-6 shadow-[0_25px_50px_-12px_rgba(14,165,233,0.4)] active:scale-95 cursor-pointer"
+                    className="group bg-gradient-to-r from-sky-500 to-emerald-500 text-white px-8 md:px-12 py-4 md:py-6 rounded-full font-bold uppercase tracking-widest text-[10px] md:text-[11px] hover:from-sky-600 hover:to-emerald-600 transition-all flex items-center gap-4 md:gap-6 shadow-[0_25px_50px_-12px_rgba(14,165,233,0.4)] active:scale-95 cursor-pointer w-full sm:w-auto justify-center"
                   >
                     Start Discovery
                     <motion.div
@@ -279,7 +279,7 @@ const Home: React.FC = () => {
         </section>
 
         {/* Signature Tours Section - Transparent to show main gradient */}
-        <div className="bg-transparent text-slate-900 rounded-t-[80px] md:rounded-t-[120px] relative z-20 mt-[-180px]">
+        <div className="bg-transparent text-slate-900 rounded-t-[40px] md:rounded-t-[120px] relative z-20 mt-[-80px] md:mt-[-100px]">
           {/* Features Section */}
           <Features />
 
@@ -306,7 +306,7 @@ const Home: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               className="relative z-10 max-w-4xl mx-auto px-6"
             >
-              <h3 className="text-5xl md:text-7xl font-display font-black tracking-tighter uppercase mb-8">
+              <h3 className="text-4xl md:text-7xl font-display font-black tracking-tighter uppercase mb-6 md:mb-8">
                 Ready to{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">
                   explore?

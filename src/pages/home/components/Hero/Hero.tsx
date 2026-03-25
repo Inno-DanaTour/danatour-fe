@@ -28,7 +28,7 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
           <span className="text-accent tracking-[0.3em] text-sm md:text-base font-bold uppercase mb-4 block">
             The Ascending Path
           </span>
-          <h1 className="text-5xl md:text-7xl lg:text-9xl text-white font-black tracking-tight mb-6 leading-none drop-shadow-2xl">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-9xl text-white font-black tracking-tight mb-4 md:mb-6 leading-none drop-shadow-2xl">
             DanaTour
           </h1>
           <p className="text-xl md:text-2xl text-gray-200 font-light mb-10 max-w-2xl mx-auto">
