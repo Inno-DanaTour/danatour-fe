@@ -5,11 +5,6 @@ import { Sparkles, MapPin, Users, Headphones } from "lucide-react";
 import { FeatureType } from "../../types/home.types";
 import { FEATURES, travelAnimationData } from "../../constants/home.constants";
 
-
-
-
-
-
 const FeatureCard: React.FC<{ feature: FeatureType }> = ({ feature }) => {
   return (
     <motion.div
@@ -63,7 +58,7 @@ const FeatureCard: React.FC<{ feature: FeatureType }> = ({ feature }) => {
 
 const Features: React.FC = () => {
   return (
-    <section className="bg-transparent py-24 md:py-32 relative overflow-hidden">
+    <section className="bg-transparent py-14 md:py-22 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-sky-200/20 to-emerald-200/20 rounded-full blur-[150px] pointer-events-none" />
 

@@ -279,7 +279,7 @@ const Home: React.FC = () => {
         </section>
 
         {/* Signature Tours Section - Transparent to show main gradient */}
-        <div className="bg-transparent text-slate-900 rounded-t-[80px] md:rounded-t-[120px] relative z-20 mt-[-80px]">
+        <div className="bg-transparent text-slate-900 rounded-t-[80px] md:rounded-t-[120px] relative z-20 mt-[-180px]">
           {/* Features Section */}
           <Features />
 
@@ -296,7 +296,7 @@ const Home: React.FC = () => {
           <FAQ />
 
           {/* Footer CTA */}
-          <section className="py-32 text-center relative overflow-hidden">
+          <section className="py-12 md:py-20 text-center relative overflow-hidden">
             <div className="absolute inset-0 pointer-events-none">
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-sky-500/10 to-emerald-500/10 rounded-full blur-3xl" />
             </div>

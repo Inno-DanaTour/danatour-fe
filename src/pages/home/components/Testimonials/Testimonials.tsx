@@ -4,7 +4,6 @@ import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { Testimonial } from "../../types/home.types";
 import { TESTIMONIALS } from "../../constants/home.constants";
 
-
 const TestimonialCard: React.FC<{
   testimonial: Testimonial;
   index: number;
@@ -90,7 +89,7 @@ const Testimonials: React.FC = () => {
   }, []);
 
   return (
-    <section className="bg-transparent py-24 md:py-32 relative overflow-hidden">
+    <section className="bg-transparent py-6 md:py-22 relative overflow-hidden">
       {/* Background Glows */}
       <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-sky-200/20 rounded-full blur-[150px] pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-200/20 rounded-full blur-[150px] pointer-events-none" />

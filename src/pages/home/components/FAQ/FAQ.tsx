@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus, ArrowRight } from "lucide-react";
 import { FAQS } from "../../constants/home.constants";
 
-
 interface FAQItemProps {
   question: string;
   answer: string;
@@ -91,7 +90,7 @@ const FAQ: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="bg-transparent py-24 md:py-32 relative overflow-hidden">
+    <section className="bg-transparent py-6 md:py-22 relative overflow-hidden">
       {/* Background glow */}
       <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-sky-200/40 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-80 h-80 bg-emerald-200/40 rounded-full blur-[120px] pointer-events-none" />

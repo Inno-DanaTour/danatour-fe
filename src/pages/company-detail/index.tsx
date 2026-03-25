@@ -11,6 +11,7 @@ import {
   Search,
   Loader2,
   AlertCircle,
+  ChevronRight,
 } from "lucide-react";
 import Header from "../../components/layout/Header";
 import { TOURS } from "../../constants/constants";
@@ -30,6 +31,7 @@ const CompanyDetail: React.FC = () => {
     company,
     isFollowed,
     activeTours,
+    otherTours,
     isLoading,
     error,
     showLoginPrompt,
@@ -57,6 +59,69 @@ const CompanyDetail: React.FC = () => {
       </div>
     );
   }
+
+  const renderTourCard = (tour: Tour, idx: number, isPriority: boolean = false) => (
+    <motion.div
+      key={tour.id}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: idx * 0.1 }}
+      onClick={() => navigate(`/tours/${tour.id}`)}
+      className={`group cursor-pointer bg-white rounded-[2rem] overflow-hidden border transition-all ${
+        isPriority 
+          ? "border-primary/20 shadow-xl shadow-primary/5 hover:shadow-2xl hover:shadow-primary/10 ring-1 ring-primary/5" 
+          : "border-gray-100 shadow-lg hover:shadow-2xl"
+      }`}
+    >
+      <div className="relative h-64 overflow-hidden">
+        <img
+          src={tour.image}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          alt={tour.name}
+        />
+        <div className="absolute top-4 left-4 flex flex-col gap-2">
+          <div className="bg-white/90 backdrop-blur-md px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary shadow-sm w-fit">
+            {tour.zone}
+          </div>
+          {isPriority && isFollowed && (
+            <div className="bg-primary px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-primary/20 border border-white/20 flex items-center gap-1.5 animate-pulse">
+              <Heart size={10} fill="currentColor" />
+              Followed
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1 text-yellow-500 font-bold text-sm">
+            <Star size={14} fill="currentColor" />
+            {tour.rating}
+          </div>
+          <span className="text-xs font-bold text-gray-400">
+            {tour.duration}
+          </span>
+        </div>
+        <h3 className="text-xl font-bold text-gray-900 group-hover:text-primary transition-colors line-clamp-1">
+          {tour.name}
+        </h3>
+        <div className="flex items-center justify-between pt-2">
+          <div>
+            <span className="text-xs text-gray-400 block font-bold uppercase">
+              From
+            </span>
+            <span className="text-xl font-black text-cta">
+              {new Intl.NumberFormat("vi-VN").format(tour.adultPrice)} VNĐ
+            </span>
+          </div>
+          <button className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+            isPriority ? "bg-primary text-white" : "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white"
+          }`}>
+            <ArrowLeft className="rotate-180" size={18} />
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -128,18 +193,24 @@ const CompanyDetail: React.FC = () => {
                 <h1 className="text-3xl md:text-5xl font-black text-gray-900">
                   {company.name}
                 </h1>
-                <div className="flex items-center gap-1 bg-green-50 text-green-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                <div className="flex items-center gap-1 bg-green-50 text-green-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
                   <CheckCircle size={14} />
                   Verified Provider
                 </div>
+                {isFollowed && (
+                  <div className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                    <Heart size={14} fill="currentColor" />
+                    You Follow this Agency
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-wrap gap-6 text-gray-600">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-sm">
                   <MapPin size={18} className="text-primary" />
                   <span className="font-medium">{company.address}</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-sm">
                   <Star size={18} fill="#FFC107" className="text-[#FFC107]" />
                   <span className="font-bold text-gray-900">
                     {company.averageRating}
@@ -148,7 +219,7 @@ const CompanyDetail: React.FC = () => {
                     ({company.totalTours} tours)
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-sm">
                   <Users size={18} className="text-primary" />
                   <span className="font-bold text-gray-900">1.2k</span>
                   <span className="text-gray-400">Followers</span>
@@ -182,74 +253,41 @@ const CompanyDetail: React.FC = () => {
           </div>
         </section>
 
-        {/* Active Tours */}
-        <section className="space-y-8">
+        {/* Company Tours */}
+        <section className="space-y-8 mb-20">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl md:text-3xl font-black text-gray-900">
-              Active Tours ({activeTours.length})
+              Journeys from {company.name} ({activeTours.length})
             </h2>
-            <div className="relative hidden md:block">
-              <input
-                type="text"
-                placeholder="Search tours from this agency..."
-                className="pl-12 pr-6 py-3 bg-white rounded-2xl border border-gray-100 focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all w-80 text-sm"
-              />
-              <Search
-                size={18}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-              />
-            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {activeTours.map((tour, idx) => (
-              <motion.div
-                key={tour.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                onClick={() => navigate(`/tours/${tour.id}`)}
-                className="group cursor-pointer bg-white rounded-[2rem] overflow-hidden border border-gray-100 shadow-lg hover:shadow-2xl transition-all"
-              >
-                <div className="relative h-64 overflow-hidden">
-                  <img
-                    src={tour.image}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    alt={tour.name}
-                  />
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary shadow-sm">
-                    {tour.zone}
-                  </div>
-                </div>
-                <div className="p-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-yellow-500 font-bold text-sm">
-                      <Star size={14} fill="currentColor" />
-                      {tour.rating}
-                    </div>
-                    <span className="text-xs font-bold text-gray-400">
-                      {tour.duration}
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 group-hover:text-primary transition-colors line-clamp-1">
-                    {tour.name}
-                  </h3>
-                  <div className="flex items-center justify-between pt-2">
-                    <div>
-                      <span className="text-xs text-gray-400 block font-bold uppercase">
-                        From
-                      </span>
-                      <span className="text-xl font-black text-cta">
-                        {new Intl.NumberFormat("vi-VN").format(tour.price)} VNĐ
-                      </span>
-                    </div>
-                    <button className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
-                      <ArrowLeft className="rotate-180" size={18} />
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+            {activeTours.length > 0 ? (
+              activeTours.map((tour, idx) => renderTourCard(tour, idx, true))
+            ) : (
+              <div className="col-span-full py-12 text-center bg-white rounded-3xl border border-dashed border-gray-200">
+                <p className="text-gray-500">No active tours from this agency yet.</p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Other Tours */}
+        <section className="space-y-8">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl md:text-3xl font-black text-gray-900">
+              Discover More Adventures
+            </h2>
+            <button 
+              onClick={() => navigate("/tours")}
+              className="text-primary font-bold text-sm flex items-center gap-1 hover:underline"
+            >
+              View All Tours <ChevronRight size={16} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 opacity-90 transition-opacity hover:opacity-100">
+            {otherTours.map((tour, idx) => renderTourCard(tour, idx, false))}
           </div>
         </section>
       </main>
