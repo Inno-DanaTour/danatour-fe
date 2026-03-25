@@ -10,6 +10,8 @@ const AdminRefundPortal: React.FC = () => {
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [activeRefundDetail, setActiveRefundDetail] = useState<RefundDetailResponse | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [confirmModal, setConfirmModal] = useState<{isOpen: boolean, refundId: number | null}>({ isOpen: false, refundId: null });
+  const [statusModal, setStatusModal] = useState<{ isOpen: boolean; type: "success" | "error"; message: string; description?: string; }>({ isOpen: false, type: "success", message: "" });
 
   useEffect(() => {
     fetchRefunds();
@@ -27,17 +29,24 @@ const AdminRefundPortal: React.FC = () => {
     }
   };
 
-  const handleApprove = async (id: number) => {
-    if (!window.confirm("Confirm that you have transferred the money to the customer?")) return;
+  const handleApproveClick = (id: number) => {
+    setConfirmModal({ isOpen: true, refundId: id });
+  };
+
+  const confirmApprove = async () => {
+    if (!confirmModal.refundId) return;
+    const id = confirmModal.refundId;
     
     setIsProcessing(id);
+    setConfirmModal({ isOpen: false, refundId: null });
+    
     try {
       await refundService.completeRefund(id);
       fetchRefunds();
       setActiveRefundDetail(null);
-      alert("Refund approved successfully!");
+      setStatusModal({ isOpen: true, type: "success", message: "Refund approved successfully!", description: "The customer's booking status has been updated to REFUNDED." });
     } catch (err) {
-      alert("Failed to approve refund.");
+      setStatusModal({ isOpen: true, type: "error", message: "Failed to approve refund.", description: "Please check your connection and try again." });
     } finally {
       setIsProcessing(null);
     }
@@ -167,7 +176,7 @@ const AdminRefundPortal: React.FC = () => {
                       {isLoadingDetail ? <Loader2 size={18} className="animate-spin" /> : "View QR"}
                     </button>
                     <button 
-                      onClick={() => handleApprove(refund.id)}
+                      onClick={() => handleApproveClick(refund.id)}
                       disabled={isProcessing === refund.id}
                       className="flex-1 md:w-40 py-4 bg-gray-900 text-white rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-gray-800 transition-all shadow-xl shadow-black/10 disabled:opacity-50"
                     >
@@ -250,7 +259,7 @@ const AdminRefundPortal: React.FC = () => {
                   </div>
 
                   <button
-                    onClick={() => handleApprove(activeRefundDetail.id)}
+                    onClick={() => handleApproveClick(activeRefundDetail.id)}
                     disabled={isProcessing === activeRefundDetail.id}
                     className="w-full mt-3 py-3.5 bg-gray-900 text-white rounded-2xl font-black hover:bg-gray-800 transition-all disabled:opacity-50"
                   >
@@ -262,6 +271,86 @@ const AdminRefundPortal: React.FC = () => {
                   </button>
                 </div>
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirm Modal */}
+      <AnimatePresence>
+        {confirmModal.isOpen && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setConfirmModal({ isOpen: false, refundId: null })}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative bg-white w-full max-w-md rounded-[2.5rem] p-8 md:p-10 shadow-2xl border border-gray-100"
+            >
+              <div className="w-20 h-20 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto mb-6">
+                <Banknote size={40} />
+              </div>
+              <h3 className="text-2xl font-black text-gray-900 mb-2 text-center tracking-tight">Confirm Refund?</h3>
+              <p className="text-gray-500 font-medium text-center mb-8">
+                Are you sure you have successfully transferred the money to the customer's bank account? This action cannot be undone.
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setConfirmModal({ isOpen: false, refundId: null })}
+                  className="flex-1 py-4 bg-neutral-100 hover:bg-neutral-200 text-neutral-600 rounded-2xl font-black transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmApprove}
+                  className="flex-1 py-4 bg-gray-900 hover:bg-black text-white rounded-2xl font-black shadow-xl shadow-black/10 transition-all"
+                >
+                  Confirm
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Status Modal */}
+      <AnimatePresence>
+        {statusModal.isOpen && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setStatusModal({ ...statusModal, isOpen: false })}
+              className="absolute inset-0 bg-black/40 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative bg-white w-full max-w-sm rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden text-center p-10"
+            >
+              <div
+                className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${
+                  statusModal.type === "success" ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
+                }`}
+              >
+                {statusModal.type === "success" ? <CheckCircle size={40} /> : <XCircle size={40} />}
+              </div>
+              <h3 className="text-2xl font-black text-gray-900 mb-2 tracking-tight">{statusModal.message}</h3>
+              <p className="text-gray-500 font-medium mb-8">{statusModal.description}</p>
+              <button
+                onClick={() => setStatusModal({ ...statusModal, isOpen: false })}
+                className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black shadow-xl hover:bg-black transition-all"
+              >
+                Close
+              </button>
             </motion.div>
           </div>
         )}
