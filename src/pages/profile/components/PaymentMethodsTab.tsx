@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { CreditCard, Plus, Trash2, CheckCircle, Loader2, AlertCircle, Banknote } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { paymentMethodService, PaymentMethod, VietQRBank } from "../../checkout/services/paymentMethodService";
+import { paymentMethodService } from "../../checkout/services/paymentMethodService";
+import { PaymentMethod, VietQRBank } from "../../checkout/types";
 
 const PaymentMethodsTab: React.FC = () => {
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
@@ -157,6 +158,7 @@ const PaymentMethodsTab: React.FC = () => {
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Select Bank</label>
                   <select
+                    title="Select bank"
                     required
                     value={formData.bankBin}
                     onChange={(e) => {

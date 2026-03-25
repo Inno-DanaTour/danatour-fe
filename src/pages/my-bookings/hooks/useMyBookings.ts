@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { bookingService } from "../../checkout/services/bookingService";
+import { paymentMethodService } from "../../checkout/services/paymentMethodService";
 import { tourService } from "../../tours/services/tourService";
 import { BookingHistoryResponse } from "../types/my-bookings.types";
 import { PagedResponse } from "../../../types/common";
 import { BookingResponse } from "../../checkout/types";
+import { PaymentMethod } from "../../checkout/types";
 
 export const useMyBookings = () => {
   const navigate = useNavigate();
@@ -35,6 +37,16 @@ export const useMyBookings = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedBookingForCancel, setSelectedBookingForCancel] =
     useState<BookingHistoryResponse | null>(null);
+  const [refundPaymentMethods, setRefundPaymentMethods] = useState<
+    PaymentMethod[]
+  >([]);
+  const [selectedRefundPaymentMethodId, setSelectedRefundPaymentMethodId] =
+    useState<number | null>(null);
+  const [isLoadingRefundPaymentMethods, setIsLoadingRefundPaymentMethods] =
+    useState(false);
+  const [refundPaymentMethodsError, setRefundPaymentMethodsError] = useState<
+    string | null
+  >(null);
   const [modalLanguage, setModalLanguage] = useState<"vi" | "en">("vi");
 
   // Status Modal State (Success/Error feedback)
@@ -76,8 +88,38 @@ export const useMyBookings = () => {
     setCurrentPage(1);
   };
 
-  const handleOpenCancelModal = (booking: BookingHistoryResponse) => {
+  const loadRefundPaymentMethods = useCallback(async () => {
+    setIsLoadingRefundPaymentMethods(true);
+    setRefundPaymentMethodsError(null);
+    try {
+      const methods = await paymentMethodService.getAll();
+      setRefundPaymentMethods(methods);
+      const defaultMethod = methods.find((method) => method.isDefault);
+      setSelectedRefundPaymentMethodId(defaultMethod?.id ?? methods[0]?.id ?? null);
+    } catch (err: any) {
+      setRefundPaymentMethods([]);
+      setSelectedRefundPaymentMethodId(null);
+      setRefundPaymentMethodsError(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Không thể tải tài khoản nhận hoàn tiền.",
+      );
+    } finally {
+      setIsLoadingRefundPaymentMethods(false);
+    }
+  }, []);
+
+  const handleOpenCancelModal = async (booking: BookingHistoryResponse) => {
     setSelectedBookingForCancel(booking);
+    setRefundPaymentMethodsError(null);
+
+    if (booking.status === "CONFIRMED") {
+      await loadRefundPaymentMethods();
+    } else {
+      setRefundPaymentMethods([]);
+      setSelectedRefundPaymentMethodId(null);
+    }
+
     setShowCancelModal(true);
   };
 
@@ -108,12 +150,32 @@ export const useMyBookings = () => {
     };
   };
 
-  const handleCancelBooking = async (id: number) => {
+  const handleCancelBooking = async (booking: BookingHistoryResponse) => {
+    const id = booking.id;
+
+    if (booking.status === "CONFIRMED" && !selectedRefundPaymentMethodId) {
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        message: "Thiếu tài khoản nhận hoàn tiền",
+        description:
+          "Vui lòng chọn tài khoản ngân hàng để nhận hoàn tiền trước khi hủy tour.",
+      });
+      return;
+    }
+
     setIsProcessing(id);
     try {
-      await bookingService.cancelBooking(id);
+      await bookingService.cancelBooking(
+        id,
+        booking.status === "CONFIRMED"
+          ? { paymentMethodId: selectedRefundPaymentMethodId ?? undefined }
+          : undefined,
+      );
       fetchBookings();
       setShowCancelModal(false);
+      setSelectedRefundPaymentMethodId(null);
+      setRefundPaymentMethods([]);
       setStatusModal({
         isOpen: true,
         type: "success",
@@ -251,6 +313,11 @@ export const useMyBookings = () => {
     selectedBookingForCancel,
     handleOpenCancelModal,
     calculateRefundAmount,
+    refundPaymentMethods,
+    selectedRefundPaymentMethodId,
+    setSelectedRefundPaymentMethodId,
+    isLoadingRefundPaymentMethods,
+    refundPaymentMethodsError,
     modalLanguage,
     setModalLanguage,
     statusModal,

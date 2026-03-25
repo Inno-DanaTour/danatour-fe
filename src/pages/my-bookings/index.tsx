@@ -16,11 +16,12 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/layout/Header";
-import {
-  bookingService,
-  BookingHistoryResponse,
-} from "../checkout/services/bookingService";
+import PaymentTimer from "../../components/common/PaymentTimer";
+import { bookingService } from "../checkout/services/bookingService";
+import { BookingHistoryResponse } from "../checkout/types";
 import { PagedResponse } from "../../types/common";
+import { Tab } from "./types/my-bookings.types";
+import { useMyBookings } from "./hooks/useMyBookings";
 
 const TABS: Tab[] = [
   { label: "All", value: "" },
@@ -29,6 +30,19 @@ const TABS: Tab[] = [
   { label: "Completed", value: "COMPLETED" },
   { label: "Cancelled", value: "CANCELLED" },
 ];
+
+const NON_CANCELLABLE_STATUSES = new Set([
+  "CANCELLED",
+  "COMPLETED",
+  "REFUND_REQUESTED",
+  "REFUNDED",
+]);
+
+const REBOOKABLE_STATUSES = new Set([
+  "CANCELLED",
+  "REFUND_REQUESTED",
+  "REFUNDED",
+]);
 
 const MyBookings: React.FC = () => {
   const navigate = useNavigate();
@@ -65,6 +79,11 @@ const MyBookings: React.FC = () => {
     selectedBookingForCancel,
     handleOpenCancelModal,
     calculateRefundAmount,
+    refundPaymentMethods,
+    selectedRefundPaymentMethodId,
+    setSelectedRefundPaymentMethodId,
+    isLoadingRefundPaymentMethods,
+    refundPaymentMethodsError,
     modalLanguage,
     setModalLanguage,
     statusModal,
@@ -81,6 +100,10 @@ const MyBookings: React.FC = () => {
         return "bg-red-100 text-red-600 border-red-200";
       case "COMPLETED":
         return "bg-blue-100 text-blue-600 border-blue-200";
+      case "REFUND_REQUESTED":
+        return "bg-red-100 text-red-600 border-red-200";
+      case "REFUNDED":
+        return "bg-red-100 text-red-600 border-red-200";
       case "REVIEWED":
         return "bg-purple-100 text-purple-600 border-purple-200";
       default:
@@ -89,8 +112,17 @@ const MyBookings: React.FC = () => {
   };
 
   const getStatusLabel = (status: string) => {
+    if (status === "REFUND_REQUESTED") return "Cancelled";
+    if (status === "REFUNDED") return "Cancelled";
+
     const tab = TABS.find((t) => t.value === status);
     return tab ? tab.label : status;
+  };
+
+  const getRefundTrackingLabel = (status: string) => {
+    if (status === "REFUND_REQUESTED") return "Hoàn tiền: Đang xử lý";
+    if (status === "REFUNDED") return "Hoàn tiền: Đã hoàn tất";
+    return null;
   };
 
   const handleRebook = async (tourId: number) => {
@@ -227,6 +259,11 @@ const MyBookings: React.FC = () => {
                         >
                           {getStatusLabel(booking.status)}
                         </span>
+                        {getRefundTrackingLabel(booking.status) && (
+                          <span className="px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border bg-amber-50 text-amber-700 border-amber-100">
+                            {getRefundTrackingLabel(booking.status)}
+                          </span>
+                        )}
                         {booking.hasFeedback && (
                           <span className="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border bg-purple-50 text-purple-600 border-purple-100 flex items-center gap-1.5">
                             <Star
@@ -318,7 +355,7 @@ const MyBookings: React.FC = () => {
                       )}
 
                       <div className="flex flex-col gap-3">
-                        {booking.status === "CANCELLED" && (
+                        {REBOOKABLE_STATUSES.has(booking.status) && (
                           <button
                             onClick={() => handleRebook(booking.tourId)}
                             disabled={isProcessing === booking.id}
@@ -334,8 +371,7 @@ const MyBookings: React.FC = () => {
                         )}
 
                         <div className="flex gap-3">
-                          {booking.status !== "CANCELLED" &&
-                            booking.status !== "COMPLETED" && (
+                          {!NON_CANCELLABLE_STATUSES.has(booking.status) && (
                               <button
                                 onClick={() => handleOpenCancelModal(booking)}
                                 disabled={isProcessing === booking.id}
@@ -936,6 +972,81 @@ const MyBookings: React.FC = () => {
                   );
                 })()}
 
+                {selectedBookingForCancel.status === "CONFIRMED" && (
+                  <div className="bg-amber-50 rounded-3xl p-6 border border-amber-100 mb-6 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h4 className="text-xs font-black text-amber-700 uppercase tracking-widest">
+                          {modalLanguage === "vi"
+                            ? "Tài khoản nhận hoàn tiền"
+                            : "Refund receiving account"}
+                        </h4>
+                        <p className="text-xs text-amber-700/80 mt-1">
+                          {modalLanguage === "vi"
+                            ? "Chọn tài khoản ngân hàng để hệ thống tạo yêu cầu hoàn tiền khi hủy tour đã xác nhận."
+                            : "Select a bank account so the system can create a refund request after cancellation."}
+                        </p>
+                      </div>
+                    </div>
+
+                    {isLoadingRefundPaymentMethods ? (
+                      <div className="flex items-center gap-2 text-amber-700 text-sm font-semibold">
+                        <Loader2 size={16} className="animate-spin" />
+                        {modalLanguage === "vi"
+                          ? "Đang tải tài khoản ngân hàng..."
+                          : "Loading bank accounts..."}
+                      </div>
+                    ) : (
+                      <>
+                        <select
+                          title={
+                            modalLanguage === "vi"
+                              ? "Chọn tài khoản nhận hoàn tiền"
+                              : "Select refund receiving account"
+                          }
+                          value={selectedRefundPaymentMethodId ?? ""}
+                          onChange={(e) =>
+                            setSelectedRefundPaymentMethodId(
+                              e.target.value ? Number(e.target.value) : null,
+                            )
+                          }
+                          className="w-full px-4 py-3.5 rounded-2xl border border-amber-200 bg-white text-sm font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-300"
+                        >
+                          <option value="">
+                            {modalLanguage === "vi"
+                              ? "-- Chọn tài khoản ngân hàng --"
+                              : "-- Select bank account --"}
+                          </option>
+                          {refundPaymentMethods.map((method) => (
+                            <option key={method.id} value={method.id}>
+                              {method.bankShortName || method.provider} - {method.bankAccountNumber || method.maskedNumber}
+                              {method.isDefault
+                                ? modalLanguage === "vi"
+                                  ? " (Mặc định)"
+                                  : " (Default)"
+                                : ""}
+                            </option>
+                          ))}
+                        </select>
+
+                        {refundPaymentMethods.length === 0 && (
+                          <p className="text-xs text-red-500 font-semibold">
+                            {modalLanguage === "vi"
+                              ? "Bạn chưa có tài khoản nhận hoàn tiền. Vui lòng thêm trong hồ sơ trước khi hủy."
+                              : "No receiving account found. Please add one in your profile before cancellation."}
+                          </p>
+                        )}
+
+                        {refundPaymentMethodsError && (
+                          <p className="text-xs text-red-500 font-semibold">
+                            {refundPaymentMethodsError}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+
                 <div className="flex gap-4">
                   <button
                     onClick={() => setShowCancelModal(false)}
@@ -944,10 +1055,13 @@ const MyBookings: React.FC = () => {
                     {modalLanguage === "vi" ? "Giữ lại tour" : "Keep Booking"}
                   </button>
                   <button
-                    onClick={() =>
-                      handleCancelBooking(selectedBookingForCancel.id)
+                    onClick={() => handleCancelBooking(selectedBookingForCancel)}
+                    disabled={
+                      isProcessing === selectedBookingForCancel.id ||
+                      (selectedBookingForCancel.status === "CONFIRMED" &&
+                        (isLoadingRefundPaymentMethods ||
+                          !selectedRefundPaymentMethodId))
                     }
-                    disabled={isProcessing === selectedBookingForCancel.id}
                     className="flex-1 py-4 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-red-500/20 transition-all flex items-center justify-center gap-2"
                   >
                     {isProcessing === selectedBookingForCancel.id ? (

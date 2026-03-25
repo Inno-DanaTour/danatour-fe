@@ -89,8 +89,31 @@ const CompanyBookings: React.FC = () => {
         return "bg-red-100 text-red-700 border-red-200";
       case "COMPLETED":
         return "bg-blue-100 text-blue-700 border-blue-200";
+      case "REFUND_REQUESTED":
+        return "bg-red-100 text-red-700 border-red-200";
+      case "REFUNDED":
+        return "bg-red-100 text-red-700 border-red-200";
       default:
         return "bg-gray-100 text-gray-700 border-gray-200";
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "PENDING_PAYMENT":
+        return "Chờ T.Toán";
+      case "CONFIRMED":
+        return "Đã X.Nhận";
+      case "CANCELLED":
+        return "Đã Hủy";
+      case "COMPLETED":
+        return "Hoàn thành";
+      case "REFUND_REQUESTED":
+        return "Đã Hủy";
+      case "REFUNDED":
+        return "Đã Hủy";
+      default:
+        return status;
     }
   };
 
@@ -314,13 +337,7 @@ const CompanyBookings: React.FC = () => {
                         <span
                           className={`px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusColor(booking.status)}`}
                         >
-                          {booking.status === "PENDING_PAYMENT"
-                            ? "Chờ T.Toán"
-                            : booking.status === "CONFIRMED"
-                              ? "Đã X.Nhận"
-                              : booking.status === "CANCELLED"
-                                ? "Đã Hủy"
-                                : "Hoàn thành"}
+                          {getStatusLabel(booking.status)}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
