@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   CheckCircle,
@@ -12,22 +12,11 @@ import {
 import Header from "../../components/layout/Header";
 
 const PaymentResult: React.FC = () => {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [status, setStatus] = useState<"loading" | "success" | "failed">("loading");
-  
-  const paymentStatus = searchParams.get("status");
-
-  useEffect(() => {
-    if (paymentStatus === "SUCCESS") {
-      setStatus("success");
-    } else if (paymentStatus === "FAILED") {
-      setStatus("failed");
-    } else {
-      // In case of unknown status, we could check with backend here if needed
-      setStatus("failed");
-    }
-  }, [paymentStatus]);
+  const [status] = useState<"success" | "failed">(() => {
+    const initialPaymentStatus = new URLSearchParams(window.location.search).get("status");
+    return initialPaymentStatus === "SUCCESS" ? "success" : "failed";
+  });
 
   return (
     <div className="min-h-screen bg-background pb-20 overflow-hidden">
