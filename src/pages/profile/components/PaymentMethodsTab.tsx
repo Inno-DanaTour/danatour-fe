@@ -125,8 +125,8 @@ const PaymentMethodsTab: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-black text-gray-900">Payment Methods</h2>
-          <p className="text-gray-500 text-sm font-medium">Manage how customers pay for your tours.</p>
+          <h2 className="text-2xl font-black text-gray-900">Bank Accounts</h2>
+          <p className="text-gray-500 text-sm font-medium">Manage your bank accounts for receiving refunds.</p>
         </div>
         <button
           onClick={handleAddNewClick}
@@ -199,7 +199,7 @@ const PaymentMethodsTab: React.FC = () => {
                 </div>
               </div>
               <button type="submit" className="btn-primary w-full py-4 rounded-2xl font-black">
-                {editingId ? "Update Payment Method" : "Save Payment Method"}
+                {editingId ? "Update Account" : "Save Account"}
               </button>
             </form>
           </motion.div>
@@ -211,7 +211,7 @@ const PaymentMethodsTab: React.FC = () => {
         {methods.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-[2rem] border-2 border-dashed border-gray-100">
             <Banknote size={48} className="mx-auto text-gray-200 mb-4" />
-            <p className="text-gray-400 font-bold">No payment methods configured yet.</p>
+            <p className="text-gray-400 font-bold">No bank accounts configured yet.</p>
           </div>
         ) : (
           methods.map((method) => (

@@ -98,6 +98,15 @@ const AdminDashboardPage: React.FC = () => {
               Review Applications
             </Link>
           </div>
+
+          <div className="mt-4">
+            <Link
+              to="/admin/refunds"
+              className="bg-white/20 border border-white/30 text-white px-8 py-3 rounded-xl font-black hover:bg-white/30 transition-all inline-block"
+            >
+              Open Refund Scanner
+            </Link>
+          </div>
         </div>
 
         {/* Chart Placeholder */}

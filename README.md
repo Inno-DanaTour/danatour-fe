@@ -22,6 +22,7 @@ The aesthetic is inspired by the coastal beauty of Danang—combining the depth 
   - 🔵 **Primary (Vivid Blue)**: `#2563eb` - Represents trust and the expansive sky.
   - 🌊 **Secondary (Sea Cyan)**: `#0891b2` - Evokes the refreshing coastal waters.
   - ✨ **Accent (Golden Ray)**: `#ffc857` - Captures the energy of sunshine and sandy beaches.
+  - 🌿 **Nature (Emerald Green)**: `#10b981` - Symbolizes the lush mountains and forests.
   - 🌑 **Surface (Deep Navy)**: `#0f172a` - Used for high-contrast text and depth.
 - **Gradients & Effects**:
   - **Aurora Gradients**: We utilize distinctive linear gradients (`bg-gradient-to-r from-primary to-sea`) on call-to-action buttons (Book Now) to create a sense of movement and fluidity.

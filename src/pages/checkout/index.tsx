@@ -23,6 +23,8 @@ import { Loader2, TicketPercent, X, Clock } from "lucide-react";
 import Header from "../../components/layout/Header";
 import { Tour } from "../tours/types";
 import { PromotionResponse } from "../promotions/types";
+import { useCheckout } from "./hooks/useCheckout";
+import PaymentTimer from "../../components/common/PaymentTimer";
 
 const Checkout: React.FC = () => {
   const location = useLocation();
@@ -70,6 +72,7 @@ const Checkout: React.FC = () => {
   }
 
   const discountAmount = calculateDiscount();
+
   const subtotal = tour.adultPrice * adults + tour.childrenPrice * children;
   const totalAmount = Math.max(0, subtotal - discountAmount);
 
@@ -430,22 +433,22 @@ const Checkout: React.FC = () => {
                       E-Wallet
                     </p>
                     <p className="text-[10px] md:text-xs text-gray-400 uppercase tracking-wider font-bold">
-                      MoMo, ZaloPay
+                      VNPay
                     </p>
                   </div>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod("vietqr" as any)}
+                  onClick={() => setPaymentMethod("vietqr")}
                   className={`p-5 md:p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group ${
-                    paymentMethod === ("vietqr" as any)
+                    paymentMethod === ("vietqr")
                       ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
                       : "border-gray-100 bg-white hover:border-gray-200"
                   }`}
                 >
                   <div
-                    className={`p-3 rounded-full transition-colors ${paymentMethod === ("vietqr" as any) ? "bg-primary text-white" : "bg-gray-50 text-gray-400 group-hover:bg-gray-100"}`}
+                    className={`p-3 rounded-full transition-colors ${paymentMethod === ("vietqr") ? "bg-primary text-white" : "bg-gray-50 text-gray-400 group-hover:bg-gray-100"}`}
                   >
                     <Banknote size={22} />
                   </div>
@@ -458,51 +461,30 @@ const Checkout: React.FC = () => {
                     </p>
                   </div>
                 </button>
-              </div>
 
-              <AnimatePresence mode="wait">
-                {paymentMethod === "card" && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="p-6 md:p-8 bg-white rounded-3xl border border-gray-100 shadow-xl shadow-black/5 space-y-4 md:space-y-6 overflow-hidden"
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("payos")}
+                  className={`p-5 md:p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group ${paymentMethod === "payos"
+                    ? "border-primary bg-primary/5 shadow-lg shadow-primary/5"
+                    : "border-gray-100 bg-white hover:border-gray-200"
+                    }`}
+                >
+                  <div
+                    className={`p-3 rounded-full transition-colors ${paymentMethod === "payos" ? "bg-primary text-white" : "bg-gray-50 text-gray-400 group-hover:bg-gray-100"}`}
                   >
-                    <div className="space-y-2">
-                      <label className="text-xs md:text-sm font-bold text-gray-500 uppercase tracking-wider ml-1">
-                        Card Number
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="0000 0000 0000 0000"
-                        className="input text-sm md:text-base"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-xs md:text-sm font-bold text-gray-500 uppercase tracking-wider ml-1">
-                          Expiry Date
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="MM / YY"
-                          className="input text-sm md:text-base"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-xs md:text-sm font-bold text-gray-500 uppercase tracking-wider ml-1">
-                          CVC / CVV
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="123"
-                          className="input text-sm md:text-base"
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    <ShieldCheck size={22} />
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm md:text-base">
+                      PayOS
+                    </p>
+                    <p className="text-[10px] md:text-xs text-gray-400 uppercase tracking-wider font-bold">
+                      QR Banking / PayOS
+                    </p>
+                  </div>
+                </button>
+              </div>
             </motion.section>
           </div>
 
