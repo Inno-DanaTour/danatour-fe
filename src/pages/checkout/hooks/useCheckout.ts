@@ -120,6 +120,9 @@ export const useCheckout = (
             "Booking found, but failed to fetch payment info. Please contact support.",
           );
         }
+      } else if (paymentMethod === "payos") {
+        const paymentUrl = await paymentService.createPayOSPaymentLink(responseId);
+        window.location.href = paymentUrl;
       } else {
         const paymentUrl = await paymentService.createPaymentUrl(responseId);
         window.location.href = paymentUrl;
